@@ -10,6 +10,9 @@ local Art = require(script.Parent.Art)
 local Ui = {}
 
 Ui.FONT = Font.new("rbxasset://fonts/families/ComicNeueAngular.json", Enum.FontWeight.Bold)
+-- the reference sets numbers and HUD labels in a slanted version of the same font
+Ui.ITALIC = Font.new("rbxasset://fonts/families/ComicNeueAngular.json", Enum.FontWeight.Bold, Enum.FontStyle.Italic)
+Ui.ROBUX = "rbxasset://textures/ui/common/robux.png" -- Roblox's own Robux glyph, from the client
 Ui.ORANGE = Color3.fromRGB(255, 140, 20)
 Ui.GREEN = Color3.fromRGB(80, 255, 30)
 Ui.RED = Color3.fromRGB(255, 60, 60)
@@ -129,6 +132,91 @@ end
 function Ui.setFill(fill: Frame, frac: number)
 	frac = math.clamp(frac, 0, 1)
 	fill.Size = UDim2.new(frac, -8 * frac, 1, -8)
+end
+
+-- the reference's panels: a plank board with a black border and nails, dark
+-- inset boxes, a big white title outside the top-left and a red X
+Ui.WOOD = Color3.fromRGB(141, 96, 60)
+Ui.WOOD_LINE = Color3.fromRGB(120, 80, 48)
+Ui.INSET = Color3.fromRGB(58, 40, 26)
+Ui.SLATE = Color3.fromRGB(76, 84, 98)
+Ui.GOLD = Color3.fromRGB(255, 214, 80)
+Ui.BUTTON_GREEN = Color3.fromRGB(96, 220, 80)
+
+function Ui.button(props: { [string]: any }): TextButton
+	local b = Ui.new("TextButton", {
+		Name = props.Name or "Button",
+		Text = "",
+		AutoButtonColor = true,
+		BackgroundColor3 = props.Color or Ui.BUTTON_GREEN,
+		Size = props.Size,
+		Position = props.Position,
+		AnchorPoint = props.AnchorPoint,
+		LayoutOrder = props.LayoutOrder,
+		Parent = props.Parent,
+	}, { Ui.stroke(props.Border or 4, Color3.new(0, 0, 0), true) })
+	if props.Gradient ~= false then
+		Ui.new("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200)), Parent = b })
+	end
+	if props.Text then
+		Ui.text({ Name = "Label", Parent = b, Text = props.Text, Size = UDim2.new(1, -16, 1, -12), Position = UDim2.fromOffset(8, 6), Stroke = props.TextStroke or 3 })
+	end
+	return b
+end
+
+function Ui.inset(props: { [string]: any }): Frame
+	local f = Ui.new("Frame", {
+		Name = props.Name or "Inset",
+		BackgroundColor3 = props.Color or Ui.INSET,
+		BorderSizePixel = 0,
+		Size = props.Size,
+		Position = props.Position,
+		AnchorPoint = props.AnchorPoint,
+		LayoutOrder = props.LayoutOrder,
+		Parent = props.Parent,
+	}, { Ui.stroke(3, Color3.new(0, 0, 0), true) })
+	return f
+end
+
+-- returns the panel's root, its body (inside the border) and the close button
+function Ui.panel(parent: Instance, title: string, size: UDim2): (Frame, Frame, TextButton)
+	local root = Ui.new("Frame", {
+		Name = title:gsub("%s", ""),
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.53),
+		Size = size,
+		Visible = false,
+		ZIndex = 10,
+		Parent = parent,
+	})
+	Ui.new("UISizeConstraint", { MaxSize = Vector2.new(size.X.Offset, size.Y.Offset), Parent = root })
+	local board = Ui.new("Frame", { Name = "Board", BackgroundColor3 = Ui.WOOD, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = root }, { Ui.stroke(5, Color3.new(0, 0, 0), true) })
+	for i = 1, 5 do
+		Ui.new("Frame", { BackgroundColor3 = Ui.WOOD_LINE, BorderSizePixel = 0, Position = UDim2.fromScale(0, i / 6), Size = UDim2.new(1, 0, 0, 2), Parent = board })
+		for _, x in { 0, 1 } do
+			Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(70, 46, 28), BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(x, x == 0 and 14 or -14, (i - 0.5) / 6, 0), Size = UDim2.fromOffset(6, 6), Parent = board }, { Ui.corner(UDim.new(0.5, 0)) })
+		end
+	end
+	local body = Ui.new("Frame", { Name = "Body", BackgroundTransparency = 1, Position = UDim2.fromOffset(28, 22), Size = UDim2.new(1, -56, 1, -44), Parent = board })
+	Ui.text({ Name = "Title", Parent = root, Text = title, Position = UDim2.fromOffset(0, -62), Size = UDim2.fromOffset(math.max(260, #title * 30), 62), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 5 })
+	local close = Ui.new("TextButton", { Name = "Close", BackgroundTransparency = 1, Text = "", AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, 8, 0, -4), Size = UDim2.fromOffset(60, 60), Parent = root })
+	Ui.text({ Parent = close, Text = "X", TextColor3 = Color3.fromRGB(235, 30, 30), Size = UDim2.fromScale(1, 1), Stroke = 4 })
+	return root, body, close
+end
+
+-- a big "+25 DEEPSTONES" in the middle of the screen
+function Ui.pop(parent: Instance, text: string, color: Color3?)
+	local TweenService = game:GetService("TweenService")
+	local label = Ui.text({ Parent = parent, Text = text, TextColor3 = color or Ui.GOLD, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), Size = UDim2.fromOffset(300, 50), Stroke = 5, ZIndex = 50 })
+	TweenService:Create(label, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Size = UDim2.fromOffset(640, 96) }):Play()
+	task.delay(1.8, function()
+		TweenService:Create(label, TweenInfo.new(0.5), { TextTransparency = 1, Position = UDim2.fromScale(0.5, 0.35) }):Play()
+		TweenService:Create(label.UIStroke, TweenInfo.new(0.5), { Transparency = 1 }):Play()
+		task.delay(0.6, function()
+			label:Destroy()
+		end)
+	end)
 end
 
 return Ui

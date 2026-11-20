@@ -88,7 +88,15 @@ function Rig:build()
 		add({ Name = side < 0 and "TreadL" or "TreadR", Size = Vector3.new(3, 3.6, L + 2), Color = Color3.fromRGB(40, 40, 44), Material = Enum.Material.DiamondPlate }, CFrame.new(side * (W / 2 + 1.5), -1.6, 0))
 		-- the crank pump: a handcar handle on a post, one per side
 		add({ Name = "CrankPost" .. (side < 0 and "L" or "R"), Size = Vector3.new(1, 4, 1), Color = Color3.fromRGB(70, 70, 76), Material = Enum.Material.Metal, CanCollide = false }, CFrame.new(side * W / 4, 2.7, 0))
-		add({ Name = "CrankHandle" .. (side < 0 and "L" or "R"), Size = Vector3.new(0.6, 0.6, 5), Color = Color3.fromRGB(240, 180, 40), Material = Enum.Material.Metal, CanCollide = false }, CFrame.new(side * W / 4, 4.9, 0))
+		local handle = add({ Name = "CrankHandle" .. (side < 0 and "L" or "R"), Size = Vector3.new(0.6, 0.6, 5), Color = Color3.fromRGB(240, 180, 40), Material = Enum.Material.Metal, CanCollide = false }, CFrame.new(side * W / 4, 4.9, 0))
+		-- the handle rocks on a Motor6D, so pumping never changes the assembly
+		handle:FindFirstChildOfClass("WeldConstraint"):Destroy()
+		local motor = Instance.new("Motor6D")
+		motor.Name = "CrankMotor" .. (side < 0 and "L" or "R")
+		motor.Part0 = deck
+		motor.Part1 = handle
+		motor.C0 = CFrame.new(side * W / 4, 4.9, 0)
+		motor.Parent = deck
 	end
 	-- lantern posts at the corners (always open: no walls or roof)
 	for _, cx in { -1, 1 } do
@@ -173,23 +181,17 @@ function Rig:crank(rel: Vector3): string
 		self.pR = math.min(1, self.pR + C.PUMP)
 		self.lastR = now
 	end
-	local handle = self.model:FindFirstChild("CrankHandle" .. side) :: BasePart?
-	if handle then
-		-- rock the handle: re-weld it at a tilt, then back
-		local w = handle:FindFirstChildOfClass("WeldConstraint")
-		if w then
-			w.Enabled = false
-			local x = (side == "L" and -1 or 1) * C.DECK_W / 4
-			handle.CFrame = self.deck.CFrame * CFrame.new(x, 4.9, 0) * CFrame.Angles(math.rad(25), 0, 0)
-			w.Enabled = true
-			task.delay(0.12, function()
-				if handle.Parent then
-					w.Enabled = false
-					handle.CFrame = self.deck.CFrame * CFrame.new(x, 4.9, 0)
-					w.Enabled = true
-				end
-			end)
-		end
+	-- rock the handle with its Motor6D. (Never unweld and reweld rig parts:
+	-- that rebuilds the physics assembly, which can hand it to a player's
+	-- client mid-move and makes the rig stop and stutter.)
+	local motor = self.deck:FindFirstChild("CrankMotor" .. side) :: Motor6D?
+	if motor then
+		motor.Transform = CFrame.Angles(math.rad(25), 0, 0)
+		task.delay(0.12, function()
+			if motor.Parent then
+				motor.Transform = CFrame.new()
+			end
+		end)
 	end
 	return side
 end
@@ -201,6 +203,13 @@ end
 
 function Rig:step(dt: number)
 	local now = os.clock()
+	-- the server always simulates the rig, never a player's client
+	if now - (self.lastOwnerCheck or 0) > 1 then
+		self.lastOwnerCheck = now
+		if self.deck:GetNetworkOwner() ~= nil then
+			self.deck:SetNetworkOwner(nil)
+		end
+	end
 	self.pL = math.max(0, self.pL - C.DECAY * dt)
 	self.pR = math.max(0, self.pR - C.DECAY * dt)
 	self.synced = math.abs(self.lastL - self.lastR) <= C.SYNC_WINDOW and now - math.max(self.lastL, self.lastR) < 1
