@@ -8,7 +8,7 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built.**
 - Growing zones (10/10/15/20/22/23 mi).
 - The reference's **UI and core gameplay structure**: one resource that builds, repairs and keeps the safe light going; a food activity; stops and nights; Push Off (shove a player off); nothing ever gets the rig stuck; the monster calm at first and faster further down; the lobby and meta loop.
 
-**Our own content (this document's proposal, needs approval):** Glowstone, Foraging, the tools, the Glow Mole pet, Deepstones, and the classes.
+**Our own content (this document's proposal, needs approval):** Glowstone, Delving (the food action), the tools, the Glow Mole pet, Deepstones, and the classes.
 
 **Sources:**
 - The reference gameplay recording, analysed frame by frame in [research/reference-recording-analysis.md](research/reference-recording-analysis.md).
@@ -32,7 +32,7 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built.**
 
 ## 1. Vision and pillars
 
-**100 Miles to Earth's Core** is a 1–5 player co-op Roblox survival game. At the surface, your crew powers up an old **Drill Rig** with **Glowstone**, the warm glowing rock that is the only light underground. Then you drill **100 miles down to the Core**. The rig follows a planned route on its own; your crew cranks the treads to speed it up and steer it. Every few minutes the route breaks out into a cavern where you can stop, mine and forage. Then the **Lights Out** comes, and something in the dark follows the light.
+**100 Miles to Earth's Core** is a 1–5 player co-op Roblox survival game. At the surface, your crew powers up an old **Drill Rig** with **Glowstone**, the warm glowing rock that is the only light underground. Then you drill **100 miles down to the Core**. The rig follows a planned route on its own; your crew cranks the treads to speed it up and steer it. Every few minutes the route breaks out into a cavern where you can stop and mine, and anywhere along the way you can cast a hook into the rock to dig up food. Then the **Lights Out** comes, and something in the dark follows the light.
 
 **Elevator pitch:** "Drill to the centre of the Earth with your friends, and keep the light alive."
 
@@ -42,7 +42,7 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built.**
 2. **Always deeper.** The depth counter is the score, the goal and the brag. It always moves, and it always shows the next stop.
 3. **Stop, scramble, go.** Stops are short, busy and optional. The crew chooses between "camp here" and "push for the next one".
 4. **Light is life.** The one resource *is* light. Glowstone is **everywhere**, and crews gather lots of it. The question is never "do we have enough?" but "do we have time?": mine one more vein, or reach the Beacon before Lights Out.
-5. **Every layer of the Earth feels new.** Each zone changes the palette, the rock, the creatures, the threats, what you forage and **one survival rule**.
+5. **Every layer of the Earth feels new.** Each zone changes the palette, the rock, the creatures, the threats, what you dig up to eat and **one survival rule**.
 
 ### Audience and session
 
@@ -76,7 +76,7 @@ Each row keeps **what the system does** in the reference and replaces **what it 
 | Moving and steering | Paddling: each player paddles on their side; strokes add speed and turn the raft | **Cranking: each player pumps a crank on their side of the deck; it drives that side's tread** (section 5) | Same feel, same "everyone has a job", our own verb. |
 | The one resource | Wood: builds the raft, repairs it, feeds the fire | **Glowstone**: a warm, glowing rock. It **powers up the rig** at the start, **repairs** it, and **feeds the Beacon** and lanterns that keep the Hollow away (section 11) | One resource with three uses keeps every stop readable. Making the resource *light itself* ties it to the monster. **Plentiful, like the reference's wood** (owner): the pressure is time, not supply. |
 | How you get it | Punching, then chopping trees | **Smashing glowing rock, then mining veins with a pickaxe**; loose chunks on the route can be scooped up by steering over them | Digging fits a journey into the Earth. |
-| Food | Fishing at docks, then cooking | **Foraging**: pulling mushrooms, roots and cave fruit with a timing minigame, then cooking at the camp **Cookpot** (section 11) | A different, underground activity with the same role: a skill moment, a collection and survival. |
+| Food | Fishing: an action you can do from the raft or the shore, then cooking | **Delving**: cast a weighted **Delver's Hook** into any rock or earth, from the ground or the moving rig, wait for the tug, then reel up a root, tuber, truffle or cave fruit with a timing minigame. Cook at the **Cookpot** (section 11) | Same role and same feel as fishing (cast, wait, bite, reel, anywhere), but an underground action of our own. |
 | The safe place at night | A campfire ring, "Add wood to go faster" | The **Beacon**: a glowstone lamp tower at each camp. "Add glowstone to end the Dark" | Same night bar and crew job, our own object. |
 | Opening | "Punch trees for wood 0/12", then "Put wood in raft 40/60", the raft leaves at about 35 s | "Smash glowstone 0/8": chunks fly into the rig's core and its lights switch on one by one. **Launch at about 30 s**. | Same pace, early payoff. |
 | Control | About 65 s after Play: party pad, loading, 25 s cutscene | **Control within 10 s of load.** The monster is glimpsed from the rig at 1:20 instead of a cutscene. | Bounce is a top Home signal. Run a Resort's 22 s cutscene didn't help, and 60% skipped within 3 s (live). |
@@ -84,12 +84,12 @@ Each row keeps **what the system does** in the reference and replaces **what it 
 | Monster | Fears fire, stalks the camp ring; **calm at the first few camps, faster further down** (owner) | **The Hollow**: eats light, stalks the Beacon. Watches only at the first camps, then gets faster at each camp further down. | Pressure, not punishment, and a difficulty curve that follows depth. |
 | Grab QTE | A gator grabs a player: SPAM! | One route threat per zone with the same SPAM! QTE (Lantern Eels, Snapjaws…) | Readable on phones, gives one-tap agency. |
 | Push Off | Shoves another player off the raft for 19 R$ (owner); **nothing gets the raft stuck** (owner) | The same mechanic on the rig. Nothing in the route ever stops the rig. | Getting stuck would break pacing; the shove is a funny, social paid moment. |
-| Collection | Journal: 6 notes + 2 pages per zone (recording) | Same shape: 6 **Field Notes** + 2 **Journal Pages** per zone, 49 in all, from 5 earlier expeditions, plus our own **Forage Log** | Curiosity is the best predictor of free playtime (research). |
+| Collection | Journal: 6 notes + 2 pages per zone (recording) | Same shape: 6 **Field Notes** + 2 **Journal Pages** per zone, 49 in all, from 5 earlier expeditions, plus our own **Delve Log** | Curiosity is the best predictor of free playtime (research). |
 | Social proof | "% of explorers have made it this far" | Kept, every 5 miles and on the Stats panel. | It's a dare, and it costs nothing. |
 | Saves | None seen; 2 of 4 players gone at about 13 min | **Waystations** at every zone border, plus mid-zone in the long zones | Lets 100 miles span sessions. |
 | Starter Pack | 49 R$: a puppy pet, an oar skin, a head-start kit | 49 R$: a **Glow Mole** pet, a **Brass Crank** skin, a head-start kit (section 15) | Same offer shape, our own items. Best seller in Run a Resort too: 21 of 44 sales (live). |
 | Meta currency | Embers, claimed in the lobby | **Deepstones**, claimed at Topside Camp | Same claim loop, our own currency. |
-| Classes | Lumberjack, Cook, Medic at 150 / 750 / 1500 | **Prospector, Forager, Lamplighter** at the same 150 / 750 / 1500 ladder (section 14.3) | Same price ladder, our own roles tied to our own systems. |
+| Classes | Lumberjack, Cook, Medic at 150 / 750 / 1500 | **Prospector, Delver, Lamplighter** at the same 150 / 750 / 1500 ladder (section 14.3) | Same price ladder, our own roles tied to our own systems. |
 | Lobby | Party pads 1–5, 20 s countdown, leaderboards, Free Revive, badges | The same structure as **Topside Camp** (section 14) | The reference gets players into a run in 20 s and gives a reason to come back. |
 
 ---
@@ -103,7 +103,7 @@ Four nested loops. Each outer loop raises the stakes of the inner one.
 | **Crank** | 5–30 s | "Can I dodge that rock and scoop that glowstone?" | Glowstone, loot, a dodge, a crewmate saved |
 | **Day** | 7–8 min | "Do we make camp before Lights Out, with enough glowstone?" | Surviving the Dark at the Beacon |
 | **Zone** | 9–24 min, longer each zone | "What's down there, and can our rig handle it?" | A Waystation: save, repair, badge |
-| **Descent and meta** | Hours to weeks | "Can we reach the Core? Faster? With every note and find?" | Badges, journal, Forage Log, classes, leaderboards, cosmetics |
+| **Descent and meta** | Hours to weeks | "Can we reach the Core? Faster? With every note and find?" | Badges, journal, Delve Log, classes, leaderboards, cosmetics |
 
 ---
 
@@ -123,11 +123,11 @@ Targets from the knowledge base:
 | 5–25 s | Smash: sparks, a glowing chunk pops out and **flies into the rig's core by itself**. One by one the rig's lamps switch on and its treads twitch. | Counter rises. Juice on every hit (animated feedback is worth about +18%, research). |
 | 25–30 s | The core is full. The engine roars and every lamp lights. "🛠 Hop on!" with a beam on the rig. Everyone aboard means **launch**. A rig that waits 10 s leaves anyway, with a RIG IS LEAVING timer. | |
 | 30–45 s | The crank tutorial **is** the route: "Click to crank". A crank pump appears in your hand; the rig rolls toward the sinkhole lip. Loose glowstone glints just off the path. | MPH gauge appears. |
-| 45–60 s | First steering moment: "Crank on the left to turn right!" Steering into a supply crate gives a **Forager's Trowel**. | First payoff. |
+| 45–60 s | First steering moment: "Crank on the left to turn right!" Steering into a supply crate gives a **Delver's Hook**: "Cast at the rock!" From the moving deck, the first cast bites within 3 s and reels up a Puffball. | First payoff. |
 | 60–90 s | **The Drop.** The drill bites into the sinkhole wall and the rig spirals down it on a ledge it carves as it goes. The sky shrinks to a coin of light above, and a cavern full of glowing mushrooms opens below. "1 Mile Down". | **The whole-scene "after", and the thumbnail moment.** |
 | 90–120 s | The first cavern is bright with fungus glow. Loose glowstone glows on the route: steer over it to scoop it. "🏕 Drill to camp 1.2 mi". | |
 | 120–150 s | The glow starts to fade. "🌙 Reach camp before Lights Out!" The Hollow is **glimpsed** on a ridge, far away, gone in a flash of crystal light. | First tension, no damage. At the first camps it only watches. |
-| 150–180 s | Arrive at **Camp Ember** (Mile 2.5). "Safe in the light." Feed glowstone to the Beacon, and the first night bar appears. Pull your first mushroom and cook it at the Cookpot. | The first night lands inside 180 s, like the reference (2:55), but brighter and calmer. |
+| 150–180 s | Arrive at **Camp Ember** (Mile 2.5). "Safe in the light." Feed glowstone to the Beacon, and the first night bar appears. Cook what you delved at the Cookpot. | The first night lands inside 180 s, like the reference (2:55), but brighter and calmer. |
 
 **Rules:**
 - Never dim the screen in the first 30 s.
@@ -235,8 +235,8 @@ The route breaks out into a cavern at every stop. Three kinds of stop on a fixed
 
 | Stop | How often | Length | What's there |
 |---|---|---|---|
-| **Camp** (night stop) | About every 6 mi: 1 in zone 1, rising to 4 in zones 5–6 | The Dark lasts 60–120 s (shorter with more glowstone in the Beacon) | The Beacon's safe ring, a forage patch, the Cookpot, glowstone veins to mine, 1–2 chests, 1 Field Note. Named: Camp Ember, Glowcap Hollow, Shard Hut… |
-| **Landing** (day stop) | Between camps: 1 in zones 1–2, 3 in zones 3–6 | 45–90 s, the crew leaves when ready | Something **unique** each time: a trader NPC, a rescue (a stranded explorer joins as a deckhand), a wreck to loot, a puzzle door, a shrine buff, a rare forage grove, or a **side cave** to explore for notes. |
+| **Camp** (night stop) | About every 6 mi: 1 in zone 1, rising to 4 in zones 5–6 | The Dark lasts 60–120 s (shorter with more glowstone in the Beacon) | The Beacon's safe ring, the Cookpot, glowstone veins to mine, 1–2 chests, 1 Field Note. Named: Camp Ember, Glowcap Hollow, Shard Hut… |
+| **Landing** (day stop) | Between camps: 1 in zones 1–2, 3 in zones 3–6 | 45–90 s, the crew leaves when ready | Something **unique** each time: a trader NPC, a rescue (a stranded explorer joins as a deckhand), a wreck to loot, a puzzle door, a shrine buff, a rich delving wall (rare finds bite more often), or a **side cave** to explore for notes. |
 | **Waystation** (save stop) | Every zone border (10, 20, 35, 55, 77) plus mid-zone in the long zones (45, 66, 88). 8 in total. | No timer | **Saves the expedition.** Free rig repair, a build spot, crew rejoin point, zone badge, "% of explorers" milestone. Safe: no Dark here. |
 
 **Departure:**
@@ -280,7 +280,7 @@ The zones follow the Earth's real layers loosely: **crust** (zones 1–4), **man
 
 | # | Miles | Length | Target time | Zone and sub-biomes | Look and light | Route | New rule | Stops (camps / landings / saves) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 0–10 | **10** | about 9 min | **Sunfall Gorge**: the surface quarry, then the sinkhole | Sunny noon, green forest, red canyon. **The Drop** (spiralling down the sinkhole wall into the first glowing cavern) at about mile 1. | Forest track, then the spiral ledge | The basics: hunger, health, mining, foraging, cooking | 1 / 1 / Waystation at 10 |
+| 1 | 0–10 | **10** | about 9 min | **Sunfall Gorge**: the surface quarry, then the sinkhole | Sunny noon, green forest, red canyon. **The Drop** (spiralling down the sinkhole wall into the first glowing cavern) at about mile 1. | Forest track, then the spiral ledge | The basics: hunger, health, mining, delving, cooking | 1 / 1 / Waystation at 10 |
 | 2 | 10–20 | **10** | about 11 min | **Glowshroom Grotto** | Teal and violet bioluminescent mushroom forests, spore "snow", a fungus "sky" | Wide soft-rock bores, mushroom bridges | **Lights Out** begins (the glow cycle) | 2 / 1 / Waystation at 20 |
 | 3 | 20–35 | **15** | about 16 min | **Crystal Hollows** (20–28), then **Old Deepmine** (28–35) | Ice blue crystal cathedrals, then warm lamplit mine works, rails and steam pipes | Slippery ice ledges, then old mine shafts and a lift-cage drop | **Cold** (warmth meter) | 2 / 3 / Waystation at 35 |
 | 4 | 35–55 | **20** | about 20 min | **Fossil Sea** (35–46), then **Sporewood Shores** (46–55) | A vast underground ocean with a horizon, giant skeletons and a geode "moon". Then a giant red and green mushroom jungle with warm mist. | Long causeways across the sea, then twisting jungle ramps | **Navigation**: the causeways are narrow and the edges crumble, so steering matters most here. The shores add **spores**. | 3 / 3 / Waystations at 45 (mid) and 55 |
@@ -294,9 +294,9 @@ The zones follow the Earth's real layers loosely: **crust** (zones 1–4), **man
 
 **Why the mid-zone Waystations:** zones 4–6 take 20–24 min, longer than the 20 min average session target. A save halfway lets a player stop without losing the zone. The reference has no saves, and half its crew left at about 13 min (recording).
 
-### 9.2 Threats, forage and glowstone by zone
+### 9.2 Threats, delving finds and glowstone by zone
 
-| # | Route threat | Camp threat | Forage (+1 rare) | Glowstone looks like |
+| # | Route threat | Camp threat | Delving finds (+1 rare) | Glowstone looks like |
 |---|---|---|---|---|
 | 1 | Burrow Rats steal glowstone off the deck (comic) | None. The Hollow is glimpsed. | Puffball, Root Tuber, (Golden Truffle) | Amber nuggets in quarry rock |
 | 2 | Lantern Eels lunge from glow pools and grab a player (SPAM! QTE) | Spore Puffs pop and blind for 3 s | Glowcap, Lantern Fig, (Moon Morel) | Teal clusters inside mushroom roots |
@@ -414,17 +414,19 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 - **Target:** by Mile 25 a typical player carries a few hundred spare chunks. The bag stack goes to 999, so a big haul shows as a big number.
 - **Feel:** chunks glow warmer the more you hold, and the crew's carried glowstone lights up the deck. A rich haul is a good feeling, not a reason to hoard.
 
-### Foraging: the food
-- **What:** underground mushrooms, roots and cave fruit growing at every stop: dense forage patches at camps, groves at landings, and rare finds in side caves.
-- **Plentiful by design** (owner: in the reference you can catch a fish about every 10 s). Target **about one find every 10 s** of foraging, so a 60 s stop gives each player about 5–6 finds. Patches are dense and regrow within about 30 s, so they never run out during a stop.
-- **The Pull** (our skill moment, replacing the reference's fishing reel):
-  - Grab a plant and hold. A meter fills while the stalk strains and glows.
-  - **Let go when it glows green** for a perfect pull: a full-size find, sometimes a double.
-  - Too early and it snaps (a small piece). Too late and it bursts into a puff of spores (nothing, and a sneeze).
-  - 2–4 s per pull, readable on a phone. With walking between plants, that's about one find every 10 s.
-  - A missed pull costs only those seconds; the next plant is right there.
-- **Tools:** the Forager's Trowel (Twig, then Iron, then Crystal). Better trowels widen the green zone and raise the chance of rare finds.
-- **Collection:** each zone has 3–4 forage types plus 1 rare. The **Forage Log** collects all of them (about 25), with a sketch and one line each.
+### Delving: the food
+Delving is our action in the role fishing plays in the reference: **you can do it anywhere**, it's a skill moment, and it feeds a collection.
+
+- **The action:**
+  1. **Cast** the Delver's Hook at any rock or earth surface: a cavern wall, the floor, a ledge beside the route, even **from the moving rig's deck**. The weighted hook bites into the stone and the line goes taut.
+  2. **Wait** for the tug: "…", then a "!" and the line shakes. Something has grabbed the hook: a root, a tuber, a truffle, a cave fruit.
+  3. **Reel** with the Pull: hold to reel; a meter fills while the line strains and glows. **Let go when it glows green** for a perfect catch (a full-size find, sometimes a double). Too early and the line slips (a small piece); too late and it snaps (nothing, try again).
+- **Anywhere, always:** there are no patches or special spots. Every surface in every zone can be delved, so a player can feed themselves on the move, at a stop, or while waiting out the Dark inside the Beacon's ring.
+- **Plentiful by design** (owner: in the reference you can catch a fish about every 10 s). Bites come in 2–6 s and a reel takes 2–4 s, so **about one find every 10 s**.
+- **Richer spots:** glowing cracks and old roots bite faster and give rare finds more often. Optional, never required.
+- **Junk and surprises:** now and then the hook brings up a glowstone chunk, an old miner's boot (comic) or a sealed Field Note.
+- **Tools:** the Delver's Hook (Bone, then Iron, then Crystal). Better hooks bite faster, widen the green zone and raise the chance of rare finds.
+- **Collection:** each zone has 3–4 finds plus 1 rare. The **Delve Log** collects all of them (about 25), with a sketch and one line each.
 - **Cooking** at the camp **Cookpot**: pick a recipe, see ingredients, **hold COOK** (the reference's hold-to-fill UI). Recipes unlock from Field Notes and traders.
 - **Eating and dropping:**
   - Holding food: "Click Eat · Q Drop".
@@ -443,7 +445,7 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 | Fists | Start | Smash glowstone, slow |
 | Crank Pump (Wooden, then Iron, then Brass) | Start / Waystation rewards | Tread power. Better pumps add +5/+10% |
 | Pickaxe (Stone, then Iron, then Crystal) | First camp chest, then chests | Mine glowstone 3× and 5× faster |
-| Forager's Trowel (Twig, then Iron, then Crystal) | First route crate, then chests and rescues | Foraging: wider green zone, rarer finds |
+| Delver's Hook (Bone, then Iron, then Crystal) | First route crate, then chests and rescues | Delving for food anywhere: faster bites, wider green zone, rarer finds |
 | Tow Line | Start (free) | Reel a thrown-off crewmate back aboard |
 | Hand Lantern | Zone 2 | Personal light radius in the Dark (burns glowstone) |
 | Patch Kit | Zone 1 Waystation | Repair the rig on the move (slow) |
@@ -451,15 +453,15 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 
 ### 12.2 Resources and currency
 - **Glowstone** is the only resource. It builds, repairs and lights.
-- **Forage** is the only food source.
+- **Delving** is the only food source.
 - **Deepstones** are the meta currency, kept between runs and claimed and spent at Topside Camp. There is no run currency and no in-run shop.
 
-### 12.3 Food (all from foraging)
+### 12.3 Food (all from delving)
 | Food | Made from | Fills | Bonus |
 |---|---|---|---|
-| Raw forage (any) | Foraging | 10% | Small chance of a "Queasy" slowdown |
-| Roasted Cap | 1 forage + Cookpot | 30% | — |
-| Cave Stew | 3 forage + Cookpot | 60% | Slower hunger drain for 3 min |
+| Raw find (any) | Delving | 10% | Small chance of a "Queasy" slowdown |
+| Roasted Cap | 1 find + Cookpot | 30% | — |
+| Cave Stew | 3 finds + Cookpot | 60% | Slower hunger drain for 3 min |
 | Lantern Fig Tart | 2 Lantern Figs | 25% | +light radius for 60 s (zone 2) |
 | Frost Truffle Soup | 2 Frost Truffles | 50% | **Warmth** (zone 3) |
 | Spore Melon Slices | 1 Spore Melon | 30% | **Spore immunity** for 2 min (zone 4) |
@@ -467,7 +469,7 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 | Corelight Feast | Corelight Peach + 2 rare finds | 100% | The whole crew, all buffs |
 
 ### 12.4 Camp and world props
-- The Beacon and its safe ring, the Cookpot, forage patches, lantern poles.
+- The Beacon and its safe ring, the Cookpot, lantern poles, glowing delving cracks.
 - Supply chests, wrecked rigs, mine carts and lift cages of earlier expeditions.
 - Field Note boards, waystones (zone markers), trader tents.
 
@@ -559,8 +561,8 @@ The lobby is **Topside Camp**, a sunny quarry clearing at the mouth of the dig. 
 - **Server sizes:** about 24 players per camp server (the reference showed 14+), and one reserved server per party for the run. Friends starting together on a reserved server count as intentional co-play, an "Important" Home signal (Run a Resort KB, official).
 
 ### 14.2 Rewards are claimed at camp
-- The **Journal**, **Forage Log** and **Badges** pay **Deepstones**, claimed at camp with a big "+N DEEPSTONES" pop-up and red notification counts on the HUD icons. In the reference, all of the player's currency after 2 runs came from claims like these (recording).
-- Rewards: Field Note +10, Journal Page +25, new Forage Log entry +5 (structure from the reference, recording; the Forage Log is ours).
+- The **Journal**, **Delve Log** and **Badges** pay **Deepstones**, claimed at camp with a big "+N DEEPSTONES" pop-up and red notification counts on the HUD icons. In the reference, all of the player's currency after 2 runs came from claims like these (recording).
+- Rewards: Field Note +10, Journal Page +25, new Delve Log entry +5 (structure from the reference, recording; the Delve Log is ours).
 - Badge rewards follow the reference's curve: 25 / 25 / 75 / 200 for distance badges, 200 for challenge badges (recording).
 - Every return to camp therefore has a reward moment right beside the Classes tent (judgement).
 
@@ -571,7 +573,7 @@ Same price ladder as the reference (recording), our own roles built on our own s
 | Class | Deepstones | Robux | What you get |
 |---|---|---|---|
 | **Prospector** | 150 | 49 | Starts with an Iron Pickaxe, +1 glowstone per vein |
-| **Forager** | 750 | 149 | Starts with an Iron Trowel, a wider green zone on every Pull, food fills 15% more |
+| **Delver** | 750 | 149 | Starts with an Iron Hook, bites come 20% faster and the green zone is wider, food fills 15% more |
 | **Lamplighter** | 1500 | 299 | Starts with a Hand Lantern; the Beacon and rig lanterns burn glowstone 15% slower |
 
 - Perks stay small and help the crew.
@@ -579,7 +581,7 @@ Same price ladder as the reference (recording), our own roles built on our own s
 
 ### 14.4 Collection, badges and stats
 - **Journal:** 6 zone tabs. Each zone has **6 Field Notes** (pencil sketches with one line of story, signed by an expedition) and **2 Journal Pages**. **49 in all** (36 notes, 13 pages; the extra page is at the Core). Locked items show as grey "?" cards.
-- **Forage Log:** a second Journal tab with every forage type, about 25, found or "?".
+- **Delve Log:** a second Journal tab with every delving find, about 25, found or "?".
 - **Badges (13), in three groups:**
 
   | Group | Badges |
@@ -588,7 +590,7 @@ Same price ladder as the reference (recording), our own roles built on our own s
   | **Challenges** | Untouched (no knock-downs), Lone Driller (the Core alone), Full Journal (every page) |
   | **Crew** | Bring a Friend (invite a friend), Lifesaver (revive 5 crewmates), Second Wind (come back with a Revive Flare), Camp Chef (cook 50 meals) |
 
-- **Your Stats panel:** your avatar, BEST DEPTH with its zone tag and "Only X% of explorers got this far", then sections: **The Descent** (total miles, games played, time played, fastest descent, camps reached, times at the Core, Core wins), **Survival** (nights survived, times knocked down, crew revived), **Underground** (glowstone mined, forage pulled, perfect pulls, meals cooked, rig repairs, threats chased off, players pushed off) and **Your Account** (notes found, journal pages, forage logged, friends brought, Deepstones earned, Robux spent).
+- **Your Stats panel:** your avatar, BEST DEPTH with its zone tag and "Only X% of explorers got this far", then sections: **The Descent** (total miles, games played, time played, fastest descent, camps reached, times at the Core, Core wins), **Survival** (nights survived, times knocked down, crew revived), **Underground** (glowstone mined, finds delved, perfect catches, meals cooked, rig repairs, threats chased off, players pushed off) and **Your Account** (notes found, journal pages, Delve Log entries, friends brought, Deepstones earned, Robux spent).
 - **Favorite prompt:** the Roblox "add to favorites?" prompt the first time a player returns to camp from a run, never on the first join (the reference shows it after a return, recording).
 
 ### 14.5 Retention hooks by horizon (from the knowledge base)
@@ -597,8 +599,8 @@ Same price ladder as the reference (recording), our own roles built on our own s
 |---|---|
 | Session | Next stop always 1–3 min away. A Waystation every 9–14 min (zone borders, plus mid-zone saves in the long zones). **End each session mid-leg**: the HUD says "Next: Waystation 3 · Crystal Hollows". |
 | D1 | **The expedition is saved** at the Waystation and the camp shows "Continue: Mile 35". Rewards waiting to be claimed at camp. Opt-in notification: "Your crew's rig is waiting at Mile 35." |
-| D2–7 | The class ladder (150 → 750 → 1500 Deepstones), the Journal, the Forage Log and badges, Daily Expedition Orders (3 small tasks, such as "pull 5 perfect Glowcaps"), a streak with a grace day. |
-| D8–28 | A content drop every 2–4 weeks (new forage, notes, a fork, a class). Weekly events: **Quake Night** (the route reshuffles, new forks), **Glow Bloom** (double rare finds), **Hollow Moon** (harder nights, double Deepstones). Deep Mode after the first finale. |
+| D2–7 | The class ladder (150 → 750 → 1500 Deepstones), the Journal, the Delve Log and badges, Daily Expedition Orders (3 small tasks, such as "delve 5 perfect Glowcaps"), a streak with a grace day. |
+| D8–28 | A content drop every 2–4 weeks (new finds, notes, a fork, a class). Weekly events: **Quake Night** (the route reshuffles, new forks), **Glow Bloom** (double rare finds), **Hollow Moon** (harder nights, double Deepstones). Deep Mode after the first finale. |
 | Social | Co-op is an "Important" Home signal (research). Invite button, Friends leaderboards, Friends Only parties on reserved servers, crew badges. |
 
 ### 14.6 Saves
@@ -654,15 +656,15 @@ Principles (owner rules and the knowledge base):
 | LEAVING IN / ALL ABOARD / WAITING FOR CREW | Same | |
 | RAFT IS LEAVING / DON'T GET LEFT BEHIND / SWEPT AWAY | RIG IS LEAVING / DON'T GET LEFT BEHIND / LEFT BEHIND | |
 | Push Off world prompt (F + 19 R$) on a player | Same, plus a "PUSHED OFF!" toast for the target | Toast added |
-| Cookfire panel (recipe cards, detail, hold COOK) | Same layout as the **Cookpot**, with forage recipes | Our recipes |
+| Cookfire panel (recipe cards, detail, hold COOK) | Same layout as the **Cookpot**, with recipes made from delving finds | Our recipes |
 | Starter Pack, Journal note, "Meet your puppy", SPAM! | Same layouts; our Glow Mole and content | |
 | Lobby: Journal / Invite / Badges + currency + STATS + PLAY, party pads, Create Party (1–5, Friends Only), Classes | Same, with Deepstones, our classes and "Continue Mile X" | Continue added |
 
 **Implementation notes:**
 - Build as ScreenGuis with `UIScale` from the 2560×1440 reference. Positions use Scale, not Offset.
-- Font: `Enum.Font.Cartoon` / FontFace "Comic Neue Angular" Bold and Bold Italic, as in the reference. Use `UIStroke` 2.5–3 px black on HUD text, no stroke inside panels.
+- Font: the reference's exact font, Comic Neue Angular Bold (`Enum.Font.Cartoon`, FontFace `rbxasset://fonts/families/ComicNeueAngular.json`), in Bold and Bold Italic. A copy is in `docs/ui/fonts/`. Use `UIStroke` 2.5–3 px black on HUD text, no stroke inside panels.
 - Panels: brown wood boards with dark inner panels, a white title outside the top-left and a red X close button (the reference's panel style, recording).
-- HUD icons are flat 2D paintings (2–3 tones, thick dark outline), per the owner's rule.
+- Icons match the reference's glossy style: smooth gradients, a thick dark outline and a white shine at the top-left. The set is in `docs/ui/icons/` (SVG; open `preview.html` to see them all); export at 512 px for Roblox upload.
 - Phone: test on a real phone. Caps: popups at 50% of screen height, safe area respected, the hotbar never covers the joystick, and the CRANK button matches the Roblox jump button.
 
 ---
@@ -687,7 +689,7 @@ Principles (owner rules and the knowledge base):
 - Per-version first-session counters: under 60 s, under 180 s, reached camp 1, reached Waystation 1.
 - Time in camp before the first run, and the party size chosen.
 - Mile reached and quit mile.
-- Glowstone carried at each camp (target: a growing surplus; if crews run short, raise the rates) and forage finds per minute (target about 6).
+- Glowstone carried at each camp (target: a growing surplus; if crews run short, raise the rates) and delving finds per minute (target about 6).
 - Push Off uses: who pushed whom, and whether the target quit soon after (a griefing check).
 - Quit reason context: open window, in the Dark or not, thrown off or not.
 - Frame rate, crew size at quit.
@@ -708,8 +710,8 @@ Principles (owner rules and the knowledge base):
 | Milestone | Scope | Outcome |
 |---|---|---|
 | **M0: Greybox descent** (1 week) | A downward route spline built from about 6 piece types, the rig with two treads, crank pumps and side-based steering, open-deck physics, thrown off and Tow Line, one fork, Push Off, HUD (distance, speed, tread bars) | The core verb feels good on a phone |
-| **M1: Zone 1 vertical slice** (2 weeks) | First 3 minutes as scripted. Smashing glowstone and powering up the rig, The Drop, mining, foraging and the Pull, cooking, Camp Ember, Lights Out and the Beacon, the Hollow glimpse, 1 Landing, Waystation 1 save. Topside Camp with launch bays, PLAY, Journal and Badges. Full UI set. Telemetry. | **Soft launch.** Measure bounce and first-camp reach. |
-| **M2: Zone 2** (2 weeks) | Glowshroom Grotto, Lantern Eels QTE, forks, Field Notes, Forage Log, classes, Starter Pack, Turbo | First monetisation read |
+| **M1: Zone 1 vertical slice** (2 weeks) | First 3 minutes as scripted. Smashing glowstone and powering up the rig, The Drop, mining, delving and the reel, cooking, Camp Ember, Lights Out and the Beacon, the Hollow glimpse, 1 Landing, Waystation 1 save. Topside Camp with launch bays, PLAY, Journal and Badges. Full UI set. Telemetry. | **Soft launch.** Measure bounce and first-camp reach. |
+| **M2: Zone 2** (2 weeks) | Glowshroom Grotto, Lantern Eels QTE, forks, Field Notes, Delve Log, classes, Starter Pack, Turbo | First monetisation read |
 | M3: Zones 3–4 (15 and 20 mi) | Warmth, side caves, causeways, spores, rig builds, the Hollow's speed ramp, mid-zone saves | D1/D7 read |
 | M4: Zones 5–6 (22 and 23 mi) + Core finale | The full descent | Full launch |
 
@@ -730,7 +732,7 @@ Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `
 - The Hollow is calm at the first camps and gets faster with depth.
 
 **Still open:**
-1. **Our own content:** OK with Glowstone (the one resource), Foraging with the Pull (food), the Glow Mole pet, Deepstones, and Prospector / Forager / Lamplighter?
+1. **Our own content:** OK with Glowstone (the one resource), Delving (cast a hook into any rock for food), the Glow Mole pet, Deepstones, and Prospector / Delver / Lamplighter?
 2. **"Not enclosed":** is it the open rig deck, the open caverns, or both (as designed)?
 3. **Monster name:** "The Hollow". Alternatives: "The Long Man", "The Dimmer".
 4. **Session shape:** Waystation saves (proposed) or a single-session run like the reference?

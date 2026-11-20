@@ -185,7 +185,7 @@ The lobby is the **surface camp at the mouth of the dig**. Players start on the 
 | Class | Price | Perks |
 |---|---|---|
 | Prospector | 150 / 49 R$ | Starts with an Iron Pickaxe, +1 glowstone per vein |
-| Forager | 750 / 149 R$ | Starts with an Iron Trowel, wider green zone on every Pull, food fills 15% more |
+| Delver | 750 / 149 R$ | Starts with an Iron Hook, faster bites and a wider green zone when delving for food, food fills 15% more |
 | Lamplighter | 1500 / 299 R$ | Starts with a Hand Lantern; the Beacon and lanterns burn glowstone 15% slower |
 
 - Perks stay small and help the crew.
