@@ -717,6 +717,8 @@ Principles (owner rules and the knowledge base):
 
 Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `src/shared`. The route pieces and zone config are shared modules. The camp and the run are two places in one universe: a teleport inside the universe likely doesn't count as a bounce (creator anecdote, Run a Resort KB).
 
+**Assets and publishing go through Starport** (the uploader from the My Pet Restaurant repo). UI images, icons, sounds, animations and models are uploaded with it, and it writes their ids into our content modules. It also builds both places with Rojo and publishes them. See [asset-pipeline.md](asset-pipeline.md).
+
 ---
 
 ## 20. Decisions for the owner
