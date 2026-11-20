@@ -50,7 +50,7 @@ The Topside Camp (lobby) and the descent run are two places (GDD section 14). St
 
 ## Rules that matter
 
-- **Upload as the game's owner.** Sounds and animations only play in games owned by the account or group that uploaded them. Use the profile of the group that will own this universe. An asset from another owner shows as **other owner** and is uploaded again.
+- **Upload as the game's owner: Joyshare Studios** (group 606354866, owner's decision Nov 19, 2026). The universe is created under this group, and every asset is uploaded with its Starport profile. Sounds and animations only play in games owned by the account or group that uploaded them. An asset from another owner shows as **other owner** and is uploaded again.
 - **Every image is moderated.** Try one or two first, check them in Studio, then upload the rest.
 - **API key permissions:** Assets Read + Write; Legacy Asset read (for image ids, downloading models and the base place); universe-places write (to publish).
 - **Commit `asset-uploader.lock.json`** with the ids. Never edit it by hand.
@@ -60,9 +60,7 @@ The Topside Camp (lobby) and the descent run are two places (GDD section 14). St
 
 1. Open Starport (`E:\Starport.exe`; it updates itself).
 2. **Add a project → From GitHub →** `starcloud15/100-Miles-to-Earth-s-Core`, branch `main`.
-3. Add the profile for the owning group with its Open Cloud key.
-4. Create the two places, then fill in their ids under **Publish → Settings**.
+3. Use the **Joyshare Studios** profile (the one the pet game uses), with its Open Cloud key.
+4. Create the universe under Joyshare Studios and add the two places, then fill in their ids under **Publish → Settings**.
 
-Open questions for the owner:
-1. Which group owns the universe and uploads the assets?
-2. Should the Starport ids live in `src/shared/Content/` (our OneWayToSpace-style layout, as above), or should we use the pet game's `src/ReplicatedStorage/...` layout?
+Open question for the owner: should the Starport ids live in `src/shared/Content/` (our OneWayToSpace-style layout, as above), or should we use the pet game's `src/ReplicatedStorage/...` layout?
