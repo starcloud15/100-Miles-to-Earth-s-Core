@@ -7,8 +7,8 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built.**
 - Crews of 1–5 (default 4).
 - Growing zones (10/10/15/20/22/23 mi).
 - The reference's **UI and core gameplay structure**: one resource that builds, repairs and keeps the safe light going; a food activity; stops and nights; Push Off (shove a player off); nothing ever gets the rig stuck; the monster calm at first and faster further down; the lobby and meta loop.
-
-**Our own content (this document's proposal, needs approval):** Glowstone, Delving (the food action), the tools, the Glow Mole pet, Deepstones, and the classes.
+- **Our own content** (approved Nov 19, 2026): Glowstone, Delving (the food action), the tools, the Glow Mole pet, Deepstones, and the Prospector / Delver / Lamplighter classes.
+- UI art drawn in the reference's glossy style, using its exact font (Comic Neue Angular Bold).
 
 **Sources:**
 - The reference gameplay recording, analysed frame by frame in [research/reference-recording-analysis.md](research/reference-recording-analysis.md).
@@ -730,9 +730,10 @@ Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `
 - Nothing gets the rig stuck.
 - Push Off shoves players (19 R$).
 - The Hollow is calm at the first camps and gets faster with depth.
+- Our own content: Glowstone, Delving, the Glow Mole, Deepstones, and Prospector / Delver / Lamplighter (approved Nov 19, 2026).
 
 **Still open:**
-1. **Our own content:** OK with Glowstone (the one resource), Delving (cast a hook into any rock for food), the Glow Mole pet, Deepstones, and Prospector / Delver / Lamplighter?
+1. *(decided: our own content is approved.)*
 2. **"Not enclosed":** is it the open rig deck, the open caverns, or both (as designed)?
 3. **Monster name:** "The Hollow". Alternatives: "The Long Man", "The Dimmer".
 4. **Session shape:** Waystation saves (proposed) or a single-session run like the reference?
