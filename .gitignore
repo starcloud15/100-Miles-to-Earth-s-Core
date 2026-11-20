@@ -1,0 +1,5 @@
+# Starport's per-computer notes (cache, last errors, published copies)
+.asset-uploader/
+build/
+*.rbxl.lock
+*.rbxlx.lock

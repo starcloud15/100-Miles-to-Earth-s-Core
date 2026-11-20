@@ -1,0 +1,64 @@
+{
+  "name": "100 Miles to Earth's Core",
+  "groups": [
+    {
+      "id": "icons",
+      "label": "Icons",
+      "type": "image",
+      "sources": [{ "folder": "assets/ui/icons", "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "ui",
+      "label": "UI art",
+      "type": "image",
+      "sources": [{ "folder": "assets/ui/panels", "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "textures",
+      "label": "Textures",
+      "type": "image",
+      "sources": [{ "folder": "assets/textures", "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "vfx",
+      "label": "Effects",
+      "type": "image",
+      "sources": [{ "folder": "assets/vfx", "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "sounds",
+      "label": "Sounds",
+      "type": "audio",
+      "sources": [{ "folder": "assets/audio/sfx", "recursive": true, "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "music",
+      "label": "Music",
+      "type": "audio",
+      "sources": [{ "folder": "assets/audio/music", "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "animations",
+      "label": "Animations",
+      "type": "animation",
+      "sources": [{ "folder": "art/anims", "nested": true, "target": { "file": "src/shared/Assets.lua", "style": "module" } }]
+    },
+    {
+      "id": "models",
+      "label": "Models",
+      "type": "model",
+      "sources": [
+        { "folder": "assets/models/rig", "target": { "style": "rbxm", "dir": "src/shared/Models/Rig" } },
+        { "folder": "assets/models/route", "target": { "style": "rbxm", "dir": "src/shared/Models/Route" } },
+        { "folder": "assets/models/props", "target": { "style": "rbxm", "dir": "src/shared/Models/Props" } }
+      ]
+    }
+  ],
+  "publish": {
+    "targets": [
+      { "name": "Lobby", "project": "lobby.project.json", "universeId": "10777965719", "placeId": "76938279277561", "live": true },
+      { "name": "Game", "project": "game.project.json", "universeId": "10777965719", "placeId": "138151622310222", "live": true }
+    ],
+    "baseMode": "download"
+  }
+}

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Crank Pump, drawn in the icon pack's style -->
+  <defs>
+    <g id="teeth">
+      <rect x="-17" y="-92" width="34" height="34" rx="6"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(45)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(90)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(135)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(180)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(225)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(270)"/>
+      <rect x="-17" y="-92" width="34" height="34" rx="6" transform="rotate(315)"/>
+      <circle r="66"/>
+    </g>
+    <clipPath id="gearclip"><use href="#teeth" transform="translate(108,148)"/></clipPath>
+  </defs>
+  <!-- outline pass -->
+  <use href="#teeth" transform="translate(108,148)" fill="#000" stroke="#000" stroke-width="20" stroke-linejoin="round"/>
+  <path d="M108 148 L196 60" stroke="#000" stroke-width="44" stroke-linecap="round"/>
+  <rect x="176" y="18" width="42" height="64" rx="18" fill="#000" stroke="#000" stroke-width="20" transform="rotate(45 197 50)"/>
+  <!-- gear -->
+  <use href="#teeth" transform="translate(108,148)" fill="#f5b72a"/>
+  <g clip-path="url(#gearclip)"><circle cx="150" cy="196" r="110" fill="#d98a14"/><circle cx="96" cy="128" r="78" fill="#f5b72a"/></g>
+  <circle cx="108" cy="148" r="36" fill="#000"/>
+  <circle cx="108" cy="148" r="26" fill="#6c4a2a"/>
+  <path d="M60 104 A64 64 0 0 1 104 84" fill="none" stroke="#ffe8a0" stroke-width="9" stroke-linecap="round"/>
+  <!-- arm -->
+  <path d="M108 148 L196 60" stroke="#55606c" stroke-width="24" stroke-linecap="round"/>
+  <path d="M104 142 L188 58" stroke="#8f9cab" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="108" cy="148" r="14" fill="#2d343c"/>
+  <!-- wooden grip -->
+  <rect x="176" y="18" width="42" height="64" rx="18" fill="#a85c2c" transform="rotate(45 197 50)"/>
+  <rect x="182" y="22" width="16" height="50" rx="8" fill="#d48a50" transform="rotate(45 197 50)"/>
+  <circle cx="196" cy="36" r="5" fill="#fff"/>
+</svg>

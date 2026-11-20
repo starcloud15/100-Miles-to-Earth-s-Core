@@ -664,7 +664,7 @@ Principles (owner rules and the knowledge base):
 - Build as ScreenGuis with `UIScale` from the 2560×1440 reference. Positions use Scale, not Offset.
 - Font: the reference's exact font, Comic Neue Angular Bold (`Enum.Font.Cartoon`, FontFace `rbxasset://fonts/families/ComicNeueAngular.json`), in Bold and Bold Italic. A copy is in `docs/ui/fonts/`. Use `UIStroke` 2.5–3 px black on HUD text, no stroke inside panels.
 - Panels: brown wood boards with dark inner panels, a white title outside the top-left and a red X close button (the reference's panel style, recording).
-- Icons match the reference's glossy style: smooth gradients, a thick dark outline and a white shine at the top-left. The set is in `docs/ui/icons/` (SVG; open `preview.html` to see them all); export at 512 px for Roblox upload.
+- Icons match the reference's style: they come from the owner's icon pack (the one the reference uses: thick black outline, flat colours, a soft lower tone), and our own subjects are drawn in that style in `art/icons/`. `tools/build_icons.py` builds them into `assets/ui/icons/`, and Starport uploads them (see [asset-pipeline.md](asset-pipeline.md)). The older SVG drafts in `docs/ui/icons/` are superseded.
 - Phone: test on a real phone. Caps: popups at 50% of screen height, safe area respected, the hotbar never covers the joystick, and the CRANK button matches the Roblox jump button.
 
 ---
@@ -717,6 +717,24 @@ Principles (owner rules and the knowledge base):
 
 Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `src/shared`. The route pieces and zone config are shared modules. The camp and the run are two places in one universe: a teleport inside the universe likely doesn't count as a bounce (creator anecdote, Run a Resort KB).
 
+**M0 status (Nov 20, 2026): a playable greybox, in both places.**
+
+Done:
+- The Game place runs zone 1 (10 mi), from a seeded route made of Start, Straight, Bend, S, Chute and Cavern pieces, plus two set pieces: The Drop spiral at about mile 1, and a fork at mile 5 (left for glowstone, right for calm).
+- The rig carries the crew on an open deck and never stops on its own. Crank Pump steering works as designed: your side's tread pushes the rig the other way, with the +15% sync bonus.
+- Players can scoop glowstone, hit pillars (which cost health and can throw players off), and scrape the walls.
+- Off the rig: a THROWN OFF toast, the "don't get left behind" warning with catch-up speed, the Tow Line, and the Left Behind winch.
+- Push Off works free in Studio, with the safeguards (no shoves in the first minutes, a cooldown per target).
+- The HUD has miles, the route bar, MPH, the tread bars, rig health and glowstone.
+- The lobby has one launch bay (4 players, a 20 s countdown that drops to 5 s when full) that teleports the party into a reserved Game server.
+
+Not in M0 yet:
+- Hold-to-brake.
+- Turbo.
+- Rig stall at 0 HP.
+- The Push Off developer product (it needs a product id).
+- Real art.
+
 **Assets and publishing go through Starport** (the uploader from the My Pet Restaurant repo). UI images, icons, sounds, animations and models are uploaded with it, and it writes their ids into our content modules. It also builds both places with Rojo and publishes them. See [asset-pipeline.md](asset-pipeline.md).
 
 ---
@@ -734,12 +752,14 @@ Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `
 - The Hollow is calm at the first camps and gets faster with depth.
 - Our own content: Glowstone, Delving, the Glow Mole, Deepstones, and Prospector / Delver / Lamplighter (approved Nov 19, 2026).
 
+- "Not enclosed" means both the open rig deck and the open caverns.
+- The monster is **The Hollow**.
+- Progress saves at each Waystation, so a descent can span several sessions.
+- The route bar is horizontal, like the reference.
+- The free Revive is for joining the group only. (In the reference, the like step just asks the player to rejoin.)
+- M0 prototyping has started (Nov 19, 2026), in the owner's two places, in universe 10777965719:
+  - **Lobby** "100 Miles to Earth's Core": place 76938279277561. The Topside Camp, where players start.
+  - **Game**: place 138151622310222. The descent, which players teleport into as a reserved server per party.
+
 **Still open:**
-1. *(decided: our own content is approved.)*
-2. **"Not enclosed":** is it the open rig deck, the open caverns, or both (as designed)?
-3. **Monster name:** "The Hollow". Alternatives: "The Long Man", "The Dimmer".
-4. **Session shape:** Waystation saves (proposed) or a single-session run like the reference?
-5. **Push Off safeguards:** OK with no shoves during the Dark or the first 3 minutes, and a short cooldown per target?
-6. **Route bar:** horizontal like the reference, or a vertical depth bar?
-7. **Free Revive:** group join only, or also the like step once the rules are checked?
-8. **First build target:** start M0 now, in this repo, with the OneWayToSpace Rojo layout?
+1. **Push Off safeguards:** M0 uses the proposed ones: no shoves during the Dark or the first 3 minutes, and a short cooldown per target.

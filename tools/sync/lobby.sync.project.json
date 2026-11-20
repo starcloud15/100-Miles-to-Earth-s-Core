@@ -1,0 +1,9 @@
+{
+  "name": "Sync",
+  "tree": {
+    "$className": "Folder",
+    "Shared": { "$path": "../../src/shared" },
+    "Server": { "$path": "../../src/lobby/server" },
+    "Client": { "$path": "../../src/lobby/client" }
+  }
+}

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- The Glow Mole pet portrait, drawn in the icon pack's style -->
+  <defs>
+    <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe066" stop-opacity=".9"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient>
+    <clipPath id="head"><ellipse cx="128" cy="156" rx="98" ry="88"/></clipPath>
+  </defs>
+  <circle cx="128" cy="46" r="46" fill="url(#halo)"/>
+  <!-- outline pass -->
+  <g fill="#000" stroke="#000" stroke-width="20" stroke-linejoin="round">
+    <circle cx="46" cy="96" r="24"/><circle cx="210" cy="96" r="24"/>
+    <ellipse cx="128" cy="156" rx="98" ry="88"/>
+    <path d="M128 14 L154 40 L146 74 L110 74 L102 40 Z"/>
+  </g>
+  <!-- ears -->
+  <circle cx="46" cy="96" r="24" fill="#7a5a4c"/><circle cx="46" cy="96" r="12" fill="#e89a9a"/>
+  <circle cx="210" cy="96" r="24" fill="#7a5a4c"/><circle cx="210" cy="96" r="12" fill="#e89a9a"/>
+  <!-- head with a darker lower tone -->
+  <ellipse cx="128" cy="156" rx="98" ry="88" fill="#8f6b5b"/>
+  <g clip-path="url(#head)"><ellipse cx="150" cy="226" rx="150" ry="70" fill="#76564a"/></g>
+  <ellipse cx="128" cy="186" rx="56" ry="40" fill="#f0cfb4"/>
+  <!-- eyes -->
+  <ellipse cx="88" cy="140" rx="12" ry="15" fill="#111"/><circle cx="84" cy="134" r="5" fill="#fff"/>
+  <ellipse cx="168" cy="140" rx="12" ry="15" fill="#111"/><circle cx="164" cy="134" r="5" fill="#fff"/>
+  <!-- cheeks -->
+  <ellipse cx="62" cy="176" rx="16" ry="10" fill="#f29b9b" opacity=".75"/>
+  <ellipse cx="194" cy="176" rx="16" ry="10" fill="#f29b9b" opacity=".75"/>
+  <!-- nose and mouth -->
+  <ellipse cx="128" cy="166" rx="24" ry="17" fill="#ff7d9c" stroke="#000" stroke-width="6"/>
+  <ellipse cx="120" cy="160" rx="7" ry="4" fill="#ffd0dc"/>
+  <path d="M112 196 Q128 210 144 196" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/>
+  <!-- whiskers -->
+  <g stroke="#3a2a22" stroke-width="4" stroke-linecap="round"><path d="M84 182 L46 176"/><path d="M84 192 L48 198"/><path d="M172 182 L210 176"/><path d="M172 192 L208 198"/></g>
+  <!-- forehead light: a glowstone chunk -->
+  <path d="M128 14 L154 40 L146 74 L110 74 L102 40 Z" fill="#ffc21f"/>
+  <path d="M128 14 L154 40 L146 74 L128 74 Z" fill="#f29a0c"/>
+  <path d="M128 14 L102 40 L128 46 Z" fill="#ffe680"/>
+  <circle cx="114" cy="40" r="5" fill="#fff"/>
+  <!-- head shine -->
+  <path d="M62 112 A86 80 0 0 1 98 82" fill="none" stroke="#b08a78" stroke-width="10" stroke-linecap="round"/>
+</svg>

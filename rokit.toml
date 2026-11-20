@@ -1,0 +1,8 @@
+# Toolchain for 100 Miles to Earth's Core, managed by Rokit (https://github.com/rojo-rbx/rokit).
+# Starport reads the rojo version from here when it builds and publishes.
+
+[tools]
+rojo = "rojo-rbx/rojo@7.7.1"
+lune = "lune-org/lune@0.10.5"
+selene = "kampfkarren/selene@0.32.0"
+stylua = "johnnymorganz/stylua@2.6.0"
