@@ -30,6 +30,20 @@
       ]
     },
     {
+      "id": "sketches",
+      "label": "Journal sketches",
+      "type": "image",
+      "sources": [
+        {
+          "folder": "assets/ui/sketches",
+          "target": {
+            "file": "src/shared/Assets.lua",
+            "style": "module"
+          }
+        }
+      ]
+    },
+    {
       "id": "textures",
       "label": "Textures",
       "type": "image",

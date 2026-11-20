@@ -95,7 +95,8 @@ function Route.new(seed: number, miles: number)
 	local hallEnd = Config.HALL_UNTIL_MILE * SPM
 	local stopIndex = 1
 	local sinceCavern = 0
-	while length() < total do
+	-- (keep going until the last stop, the Waystation, is placed too)
+	while length() < total or (Config.STOPS[stopIndex] and Config.STOPS[stopIndex].mile * SPM <= total + 1) do
 		local s = length()
 		local stop = Config.STOPS[stopIndex]
 		if s >= hallStart and s < hallEnd then
@@ -147,7 +148,12 @@ function Route.new(seed: number, miles: number)
 				a, b = run(L, rng:NextNumber(-25, 25), -0.45, T.WIDTH, T.HEIGHT, "Chute")
 			else
 				local turn = rng:NextNumber(25, 65) * (rng:NextNumber() < 0.5 and -1 or 1)
-				a, b = run(rng:NextInteger(420, 720), turn, -rng:NextNumber(0.15, 0.25), T.WIDTH + rng:NextNumber(-6, 12), T.HEIGHT + rng:NextNumber(-4, 10), "Tunnel")
+				-- never overshoot the next stop's chamber
+				local len = rng:NextInteger(420, 720)
+				if stop then
+					len = math.clamp(stop.mile * SPM - 260 - s, 120, len)
+				end
+				a, b = run(len, turn, -rng:NextNumber(0.15, 0.25), T.WIDTH + rng:NextNumber(-6, 12), T.HEIGHT + rng:NextNumber(-4, 10), "Tunnel")
 				if rng:NextNumber() < 0.45 then
 					-- a hard rock band across the bore: grinding, shake, a hit
 					local hs = a + rng:NextNumber(120, b - a - 80)

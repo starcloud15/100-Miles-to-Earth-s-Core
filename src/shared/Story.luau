@@ -119,4 +119,39 @@ function Story.page(zone: number, i: number)
 	return z and z.pages[i]
 end
 
+-- which notes a stop's notice board holds: the zone's 6 Field Notes spread over its
+-- stops, Journal Page 1 at the middle stop, Page 2 at the Waystation (the last stop)
+function Story.boardEntries(zone: number, stopIndex: number, stopCount: number): { string }
+	local ids = {}
+	local camps = math.max(1, stopCount - 1)
+	if stopIndex < stopCount then
+		local a = math.floor((stopIndex - 1) * 6 / camps) + 1
+		local b = math.floor(stopIndex * 6 / camps)
+		for i = a, b do
+			table.insert(ids, ("z%dn%d"):format(zone, i))
+		end
+		if stopIndex == math.ceil(camps / 2) then
+			table.insert(ids, ("z%dp1"):format(zone))
+		end
+	else
+		table.insert(ids, ("z%dp2"):format(zone))
+	end
+	return ids
+end
+
+-- the text of a note or page id: (kind, text, signature)
+function Story.entry(id: string): (string?, string?, string?)
+	local z, kind, i = id:match("^z(%d+)([np])(%d+)$")
+	local zone = Story.ZONES[tonumber(z) or 0]
+	if not zone then
+		return nil
+	end
+	if kind == "n" then
+		local text = zone.notes[tonumber(i)]
+		return text and "note", text, zone.author
+	end
+	local page = zone.pages[tonumber(i)]
+	return page and "page", page and page.text, page and page.by
+end
+
 return Story

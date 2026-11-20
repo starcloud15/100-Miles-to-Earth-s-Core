@@ -21,6 +21,7 @@ local Crew = require(script.Parent.Crew)
 local Run = require(script.Parent.Run)
 local Creatures = require(script.Parent.Creatures)
 local Hollow = require(script.Parent.Hollow)
+local Progress = require(script.Parent.Progress)
 
 for _, g in { "World", "Rig", "Crew" } do
 	PhysicsService:RegisterCollisionGroup(g)
@@ -67,6 +68,7 @@ Crew.init(rig, route, state, World)
 Run.init(rig, route, state, World, Crew)
 Creatures.init(rig, route, state, Crew)
 Hollow.init(rig, route, state)
+Progress.init(rig, state, World)
 
 -- the Beacons' feed prompts and the rig's repair prompt
 local repair = Instance.new("ProximityPrompt")
@@ -152,6 +154,7 @@ RunService.Heartbeat:Connect(function(dt)
 		acc = 0
 		publish()
 		hookBeacons()
+		Progress.step()
 	end
 	lightAcc += dt
 	if lightAcc > 0.15 then

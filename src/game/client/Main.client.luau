@@ -474,3 +474,12 @@ end)
 
 -- creatures on the rig and their SPAM! buttons
 require(script.Parent:WaitForChild("Creatures")).init({ deck = deck, shake = shake, toast = Hud.toast })
+
+-- notice boards: "[E] Read" opens the Journal note card
+local Journal = require(script.Parent:WaitForChild("Journal"))
+Journal.init()
+Net.Notify.OnClientEvent:Connect(function(kind, data)
+	if kind == "Note" and type(data) == "table" then
+		Journal.open(data)
+	end
+end)

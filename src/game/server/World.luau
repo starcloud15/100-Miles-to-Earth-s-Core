@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Route = require(Shared.Route)
+local Story = require(Shared.Story)
 
 local World = {}
 
@@ -33,6 +34,7 @@ local carvedTo = 0
 local lastVein = 0
 World.veins = {} -- harvestable vein models at stops: { model, hp }
 World.beacons = {} -- stop name -> beacon part
+World.notePrompts = {} -- the notice boards' "[E] Read" prompts
 
 local FONT = Font.new("rbxasset://fonts/families/ComicNeueAngular.json", Enum.FontWeight.Bold)
 local AMBER = Color3.fromRGB(255, 178, 60)
@@ -364,6 +366,22 @@ local function buildStop(model: Model, stop)
 	end)
 	if board then
 		board.Name = "NoticeBoard"
+	end
+	-- "[E] Read": the notes pinned on this stop's board (docs/story.md)
+	local boardPart = board and (board:FindFirstChild("Wood") or board:FindFirstChildWhichIsA("BasePart")) or model:FindFirstChild("NoticeBoard")
+	if boardPart then
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "NotePrompt"
+		prompt.ActionText = "Read"
+		prompt.ObjectText = "Note"
+		prompt.KeyboardKeyCode = Enum.KeyCode.E
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 12
+		prompt.RequiresLineOfSight = false
+		local index = table.find(route.stops, stop) or 1
+		prompt:SetAttribute("Notes", table.concat(Story.boardEntries(1, index, #route.stops), ","))
+		prompt.Parent = boardPart
+		table.insert(World.notePrompts, prompt)
 	end
 end
 
