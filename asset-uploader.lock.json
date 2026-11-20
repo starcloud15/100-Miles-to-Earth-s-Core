@@ -2,6 +2,7 @@
   "about": "Written by Starport: what has been uploaded and published. Commit it; do not edit by hand.",
   "version": 1,
   "assets": {
+    "animations/Character/Slide": {"creator": "group:606354866", "hash": "fc4b01c73bc788addf80f9c94d3d6c5f1c9eac7f", "id": "97977466113331", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204940.0091786},
     "icons/Badges": {"creator": "group:606354866", "decal": "99746410981730", "hash": "38577fcef9acb3ff3d6b119efcfb65c0cc827254", "id": "121957483433886", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167337.5910726},
     "icons/Bag": {"creator": "group:606354866", "decal": "107924765346537", "hash": "c5d2f917f3a98da338522a8e0370883e38dd9fad", "id": "111866220204044", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167339.572449},
     "icons/Beacon": {"creator": "group:606354866", "decal": "138983728096662", "hash": "dd07b9cc6180450043a3dd0041b2c12c2ea77b94", "id": "118010594494069", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167341.3619676},
@@ -27,11 +28,26 @@
     "icons/Rock": {"creator": "group:606354866", "decal": "124784052482110", "hash": "e05f5129688ccc63870153b9ac28dcd4c95ac68f", "id": "121607181275746", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167370.822393},
     "icons/Turbo": {"creator": "group:606354866", "decal": "106487408435119", "hash": "7cc9f8101352cd327d19303349dd5785d0d02102", "id": "89466756603136", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167371.3498452},
     "icons/Warning": {"creator": "group:606354866", "decal": "111075392532949", "hash": "00d0ee105d4e7c0ec86181bbea03b908766771ae", "id": "107817926254477", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167372.9141467},
+    "models/Arch": {"creator": "group:606354866", "hash": "8120585a93fb1d4bc7af2b033b93ee41aa82f22c", "id": "108154239291117", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204884.886768},
+    "models/BeaconRing": {"creator": "group:606354866", "hash": "c703fa022d1febf347fb5f2a6db7c4f8378a0cfe", "id": "87779382280585", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204885.4348567},
+    "models/Boulder": {"creator": "group:606354866", "hash": "8524b29ce9989de6035f6888941da6b31729f326", "id": "124916018608988", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204890.2950912},
+    "models/Burrowmaw": {"creator": "group:606354866", "hash": "5f302e085abce3095207cc7b93b6be329bb71fc8", "id": "130778951067468", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204927.3578525},
+    "models/Cragskitter": {"creator": "group:606354866", "hash": "fcb7f11b19d7139f5ba05a73da72b5d0d81ab30b", "id": "127943029010418", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204930.307552},
     "models/CrankPump": {"creator": "group:606354866", "hash": "884736ae628e2e26d0f3f8eec4dcb0c720b9c94c", "id": "135967433660302", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170628.6571858},
+    "models/Crate": {"creator": "group:606354866", "hash": "b8784906c14615b96be799a2922afa99821c37e7", "id": "104050004317645", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204894.9080408},
+    "models/CrystalCluster": {"creator": "group:606354866", "hash": "d2ba9323327f94b8636b50feab2aba84af081849", "id": "77307698384848", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204893.9756196},
     "models/DelversHook": {"creator": "group:606354866", "hash": "43ccca1b83365bc833be6cac7137f94188ddc928", "id": "130078950205000", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170627.9635835},
     "models/DrillRig": {"creator": "group:606354866", "hash": "a90d75c079958860bdde4b1368b7a31f732a1ec3", "id": "115744922121818", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170644.365467},
     "models/FindPouch": {"creator": "group:606354866", "hash": "e414dc69626b46931788e5ac60d99b7f2d6afd25", "id": "91207824996524", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170636.052636},
-    "models/Pickaxe": {"creator": "group:606354866", "hash": "0fd6525f29535db90eb9cabcaf097c41320aa35b", "id": "110728934319424", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170635.6207042}
+    "models/Hollow": {"creator": "group:606354866", "hash": "ab5352b2d49d9499f83090148aab44e450ec7eda", "id": "125598670349358", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204936.7526355},
+    "models/LanternPost": {"creator": "group:606354866", "hash": "f11cd71ee2192dec6454e3032792101724025e95", "id": "121099757454831", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204898.8862844},
+    "models/Minecart": {"creator": "group:606354866", "hash": "e16730beb237c1adc7854ce05864d773ae5361c6", "id": "100917002218639", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204905.325756},
+    "models/NoticeBoard": {"creator": "group:606354866", "hash": "a82008690092059d8e67777c984032441c15f0fd", "id": "100304632298846", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204910.4670296},
+    "models/Pickaxe": {"creator": "group:606354866", "hash": "0fd6525f29535db90eb9cabcaf097c41320aa35b", "id": "110728934319424", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170635.6207042},
+    "models/RockCluster": {"creator": "group:606354866", "hash": "fb04d28b391a88ddcd6b0b07569897f6658b2b5b", "id": "115406707747828", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204910.1723251},
+    "models/Stalactite": {"creator": "group:606354866", "hash": "9ed9cc4293d5a7f8468e2d4b487cff4069fa3fe6", "id": "95595157348823", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204916.406754},
+    "models/Stalagmite": {"creator": "group:606354866", "hash": "4a13ca8f24678703f28a94f5c0dd7d3040ce035e", "id": "114309145520259", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204918.3715427},
+    "models/Tent": {"creator": "group:606354866", "hash": "af170fc3f9bda790e3904ee051fed8d8880ebe42", "id": "137007263390550", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795204922.7072413}
   },
   "publishes": [
   ]

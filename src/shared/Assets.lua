@@ -2,6 +2,9 @@
 -- (upload again from the app).
 
 return {
+    animations = {
+        ["Character/Slide"] = "rbxassetid://97977466113331",
+    },
     icons = {
         ["Badges"] = "rbxassetid://121957483433886",
         ["Bag"] = "rbxassetid://111866220204044",
