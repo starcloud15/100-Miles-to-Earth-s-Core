@@ -18,6 +18,9 @@ local Hud = require(script.Parent:WaitForChild("Hud"))
 local player = Players.LocalPlayer
 local state = ReplicatedStorage:WaitForChild("RunState")
 local camera = workspace.CurrentCamera
+-- the reference frames the raft from about 12-16 studs; capping the zoom also
+-- keeps the camera inside the tunnel instead of out in the rock
+player.CameraMaxZoomDistance = 24
 
 local function root(): BasePart?
 	local c = player.Character
@@ -329,6 +332,38 @@ RunService.Heartbeat:Connect(function()
 	end
 	lastDeckCF = deckCF
 	player:SetAttribute("Carrying", carrying) -- (local only: for playtests)
+end)
+
+-- the drill bit spins and the crank levers rock, drawn here on each client:
+-- Motor6D transforms don't replicate, and this costs one CFrame per part a frame
+local bitAngle = 0
+local leverAt = { L = -10, R = -10 }
+local watchedDeck: BasePart? = nil
+RunService.RenderStepped:Connect(function(dt)
+	local d = deck()
+	if not d then
+		return
+	end
+	if d ~= watchedDeck then
+		watchedDeck = d
+		for _, side in { "L", "R" } do
+			d:GetAttributeChangedSignal("Pump" .. side):Connect(function()
+				leverAt[side] = os.clock()
+			end)
+		end
+	end
+	local bitMotor = d:FindFirstChild("BitMotor") :: Motor6D?
+	if bitMotor then
+		bitAngle = (bitAngle + (state:GetAttribute("Speed") or 0) * dt * 0.5) % (math.pi * 2)
+		bitMotor.Transform = CFrame.Angles(0, 0, bitAngle)
+	end
+	for side, t in leverAt do
+		local motor = d:FindFirstChild("CrankMotor" .. side) :: Motor6D?
+		if motor then
+			local k = (os.clock() - t) / 0.28
+			motor.Transform = k < 1 and CFrame.Angles(math.sin(k * math.pi * 2) * math.rad(24), 0, 0) or CFrame.new()
+		end
+	end
 end)
 
 -- every frame -------------------------------------------------------------------------

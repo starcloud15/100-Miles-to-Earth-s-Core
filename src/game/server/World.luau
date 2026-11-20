@@ -103,11 +103,15 @@ end
 local function fillShell(cf: CFrame, len: number, w: number, h: number, s: number)
 	local mat = rockAt(cf.Position.Y, s)
 	T:FillBlock(cf * CFrame.new(0, h / 2, 0), Vector3.new(w + SHELL * 2, h + SHELL * 2, len + 4), mat)
-	-- strata: thin bands of other rock run along the walls, so the bore shows layers
-	local band1 = mat == Enum.Material.Slate and Enum.Material.Sandstone or Enum.Material.Slate
-	T:FillBlock(cf * CFrame.new(0, h * 0.28, 0), Vector3.new(w + SHELL * 2, 4, len + 4), band1)
-	T:FillBlock(cf * CFrame.new(0, h * 0.62, 0), Vector3.new(w + SHELL * 2, 4, len + 4), mat == Enum.Material.Basalt and Enum.Material.Sandstone or Enum.Material.Basalt)
-	T:FillBlock(cf * CFrame.new(0, -2, 0), Vector3.new(w + SHELL * 2, 4, len + 4), Enum.Material.Ground)
+	-- strata: thick, contrasting layers of other rock run along the walls (thin
+	-- ones blend away in smooth terrain), at heights that wander along the route
+	local n1 = math.noise(s / 220, 1.7)
+	local n2 = math.noise(s / 260, 5.3)
+	local layers = { Enum.Material.Limestone, Enum.Material.Slate, Enum.Material.Basalt }
+	local i0 = math.floor((s / 900) % 3) + 1
+	T:FillBlock(cf * CFrame.new(0, h * (0.22 + n1 * 0.12), 0), Vector3.new(w + SHELL * 2, 8, len + 4), layers[i0])
+	T:FillBlock(cf * CFrame.new(0, h * (0.66 + n2 * 0.1), 0), Vector3.new(w + SHELL * 2, 10, len + 4), layers[i0 % 3 + 1])
+	T:FillBlock(cf * CFrame.new(0, -3, 0), Vector3.new(w + SHELL * 2, 6, len + 4), Enum.Material.Ground)
 end
 
 -- old mine timbers: a frame of posts and a beam across the bore
@@ -409,11 +413,15 @@ function World.carve(toS: number): string?
 		local cf, w, _, h = route:sample(s)
 		T:FillBlock(cf * CFrame.new(0, h * 0.35 + 0.5, 0), Vector3.new(w, h * 0.7, 4), Enum.Material.Air)
 		T:FillCylinder(cf * CFrame.new(0, h * 0.6, 0) * CFrame.Angles(math.rad(90), 0, 0), 4, math.min(w, h * 1.3) / 2, Enum.Material.Air)
-		if s % 24 < 3 then
+		if s % 12 < 3 then
+			-- lumpy walls: bites out of the rock, sometimes a deep alcove
 			local rng = Random.new(math.floor(s))
-			if rng:NextNumber() < 0.6 then
-				local side = rng:NextNumber() < 0.5 and -1 or 1
-				T:FillBall((cf * CFrame.new(side * (w / 2 + 1), rng:NextNumber(4, h * 0.85), 0)).Position, rng:NextNumber(3, 7), Enum.Material.Air)
+			local side = rng:NextNumber() < 0.5 and -1 or 1
+			local r = rng:NextNumber() < 0.12 and rng:NextNumber(9, 13) or rng:NextNumber(4, 8)
+			T:FillBall((cf * CFrame.new(side * (w / 2 + r * 0.4), rng:NextNumber(4, h * 0.85), 0)).Position, r, Enum.Material.Air)
+			if rng:NextNumber() < 0.35 then
+				-- and a boss of rock bulging back in from the other wall
+				T:FillBall((cf * CFrame.new(-side * (w / 2 + 2), rng:NextNumber(6, h * 0.7), 0)).Position, rng:NextNumber(3, 5), Enum.Material.Rock)
 			end
 		end
 		local k = math.floor(s / CHUNK_LEN)
@@ -477,9 +485,10 @@ function World.init(r)
 	-- (Workspace.FallenPartsDestroyHeight must be set in the place, to -20000:
 	-- the route goes far below the default -500)
 	-- strata colours (terrain materials are tinted globally)
-	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(186, 134, 104))
+	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(168, 118, 96))
 	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(150, 116, 102))
-	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(112, 118, 140))
+	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(104, 116, 146))
+	T:SetMaterialColor(Enum.Material.Limestone, Color3.fromRGB(196, 186, 168))
 	T:SetMaterialColor(Enum.Material.Basalt, Color3.fromRGB(70, 60, 70))
 	T:SetMaterialColor(Enum.Material.Ground, Color3.fromRGB(150, 110, 80))
 	regions = {}
@@ -532,7 +541,7 @@ end
 local SECTIONS = {
 	Gorge = { amb = Color3.fromRGB(150, 120, 100), fog = Color3.fromRGB(255, 196, 150), density = 0.32, haze = 2.2, tint = Color3.fromRGB(255, 244, 230) },
 	Drop = { amb = Color3.fromRGB(110, 86, 70), fog = Color3.fromRGB(230, 150, 90), density = 0.42, haze = 2.6, tint = Color3.fromRGB(255, 236, 214) },
-	Tunnel = { amb = Color3.fromRGB(118, 104, 96), fog = Color3.fromRGB(150, 112, 90), density = 0.32, haze = 1.2, tint = Color3.fromRGB(250, 244, 238) },
+	Tunnel = { amb = Color3.fromRGB(96, 92, 100), fog = Color3.fromRGB(120, 104, 100), density = 0.32, haze = 1, tint = Color3.fromRGB(240, 240, 250) },
 	Chute = { amb = Color3.fromRGB(130, 84, 70), fog = Color3.fromRGB(200, 96, 60), density = 0.38, haze = 1.8, tint = Color3.fromRGB(255, 222, 204) },
 	Cavern = { amb = Color3.fromRGB(90, 120, 130), fog = Color3.fromRGB(70, 170, 180), density = 0.34, haze = 2.2, tint = Color3.fromRGB(230, 250, 255) },
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },

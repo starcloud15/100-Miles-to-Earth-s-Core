@@ -281,7 +281,40 @@ function Rig:build()
 		sparks.Acceleration = Vector3.new(0, -60, 0)
 		sparks.Rate = 0
 		sparks.Parent = att
-		self.dust, self.sparks = dust, sparks
+		local chips = Instance.new("ParticleEmitter")
+		chips.Name = "Chips"
+		chips.Texture = "rbxasset://textures/particles/explosion01_core_main.dds"
+		chips.Color = ColorSequence.new(Color3.fromRGB(150, 110, 84), Color3.fromRGB(96, 70, 56))
+		chips.Size = NumberSequence.new(0.6, 0.3)
+		chips.Lifetime = NumberRange.new(0.6, 1)
+		chips.Speed = NumberRange.new(10, 22)
+		chips.SpreadAngle = Vector2.new(80, 80)
+		chips.Acceleration = Vector3.new(0, -70, 0)
+		chips.Rotation = NumberRange.new(0, 360)
+		chips.RotSpeed = NumberRange.new(-300, 300)
+		chips.Rate = 0
+		chips.Parent = att
+		self.dust, self.sparks, self.chips = dust, sparks, chips
+		-- dust kicked up behind the treads
+		self.treadDust = {}
+		for _, side in { "L", "R" } do
+			local tread = model:FindFirstChild("Tread" .. side) :: BasePart?
+			if tread then
+				local ta = Instance.new("Attachment")
+				ta.Position = Vector3.new(0, -tread.Size.Y / 2, mesh and -tread.Size.Z / 2 or tread.Size.Z / 2)
+				ta.Parent = tread
+				local td = Instance.new("ParticleEmitter")
+				td.Texture = "rbxasset://textures/particles/smoke_main.dds"
+				td.Color = ColorSequence.new(Color3.fromRGB(180, 150, 120))
+				td.Size = NumberSequence.new(1.5, 4)
+				td.Transparency = NumberSequence.new(0.55, 1)
+				td.Lifetime = NumberRange.new(0.6, 1.1)
+				td.Speed = NumberRange.new(1, 3)
+				td.Rate = 0
+				td.Parent = ta
+				table.insert(self.treadDust, td)
+			end
+		end
 	end
 	local head = model:FindFirstChild("Headlight") :: BasePart?
 	if head then
@@ -293,6 +326,34 @@ function Rig:build()
 		spot.Color = Color3.fromRGB(255, 236, 200)
 		spot.Parent = head
 	end
+	-- dust motes drifting in the lantern light around the rig (constant small motion)
+	local motes = Instance.new("Part")
+	motes.Name = "MoteVolume"
+	motes.Size = Vector3.new(50, 24, 60)
+	motes.Transparency = 1
+	motes.CanCollide = false
+	motes.CanQuery = false
+	motes.CanTouch = false
+	motes.CFrame = deck.CFrame * CFrame.new(0, 10, -6)
+	motes.Parent = model
+	local mp = Instance.new("ParticleEmitter")
+	mp.Name = "Motes"
+	mp.Shape = Enum.ParticleEmitterShape.Box
+	mp.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	mp.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	mp.Color = ColorSequence.new(Color3.fromRGB(255, 226, 180))
+	mp.LightEmission = 0.5
+	mp.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.2, 0.18), NumberSequenceKeypoint.new(1, 0) })
+	mp.Transparency = NumberSequence.new(0.3)
+	mp.Lifetime = NumberRange.new(3, 5)
+	mp.Speed = NumberRange.new(0.3, 1.2)
+	mp.SpreadAngle = Vector2.new(180, 180)
+	mp.Drag = 1
+	mp.Rate = 45
+	mp.LockedToPart = false
+	mp.Parent = motes
+	self.motes = mp
+
 	self.pieces = {}
 	for _, p in model:GetChildren() do
 		if p:IsA("BasePart") and p.Name:sub(1, 5) == "Break" then
@@ -359,18 +420,8 @@ function Rig:crank(rel: Vector3): string
 		self.pR = math.min(1, self.pR + C.PUMP)
 		self.lastR = now
 	end
-	local motor = self.deck:FindFirstChild("CrankMotor" .. side) :: Motor6D?
-	if motor then
-		motor.Transform = CFrame.Angles(math.rad(22), 0, 0)
-		task.delay(0.12, function()
-			if motor.Parent then
-				motor.Transform = CFrame.Angles(math.rad(-22), 0, 0)
-				task.delay(0.12, function()
-					motor.Transform = CFrame.new()
-				end)
-			end
-		end)
-	end
+	-- (the lever's rock is drawn by each client: Motor6D transforms don't replicate)
+	self.deck:SetAttribute("Pump" .. side, (self.deck:GetAttribute("Pump" .. side) or 0) + 1)
 	return side
 end
 
@@ -514,9 +565,45 @@ function Rig:step(dt: number)
 	local target = self:targetCFrame()
 	self.align.Position = target.Position
 	self.orient.CFrame = target.Rotation
-	if self.bitMotor then
-		self.bitAngle = ((self.bitAngle or 0) + self.speed * dt * 0.6) % (math.pi * 2)
-		self.bitMotor.Transform = CFrame.Angles(0, 0, self.bitAngle)
+	-- (the bit's spin is drawn by each client from the rig's speed; see Main.client)
+end
+
+-- pebbles shaken loose from the roof ahead of the rig, underground
+function Rig:pebbles(dt: number, underground: boolean)
+	self.pebbleIn = (self.pebbleIn or 1) - dt
+	if self.motes then
+		self.motes.Enabled = underground
+	end
+	if not underground or not self.moving or self.pebbleIn > 0 then
+		return
+	end
+	self.pebbleIn = math.random(8, 22) / 10
+	local cf, w, _, h = self.route:sample(self.s + math.random(20, 50))
+	local x = math.random(-math.floor(w / 2) + 4, math.floor(w / 2) - 4)
+	for i = 1, math.random(2, 5) do
+		local p = Instance.new("Part")
+		p.Name = "Pebble"
+		p.Size = Vector3.new(1, 1, 1) * (math.random(4, 12) / 10)
+		p.Color = Color3.fromRGB(140 + math.random(-20, 20), 108, 90)
+		p.Material = Enum.Material.Slate
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CFrame = cf * CFrame.new(x + math.random(-2, 2), h * 0.8, math.random(-2, 2)) * CFrame.Angles(math.random(), math.random(), 0)
+		p.Parent = Workspace
+		p.AssemblyLinearVelocity = Vector3.new(0, -math.random(5, 15), 0) + self.deck.AssemblyLinearVelocity * 0.3
+		Debris:AddItem(p, 2.5)
+		if i == 1 then
+			local dust = Instance.new("ParticleEmitter")
+			dust.Texture = "rbxasset://textures/particles/smoke_main.dds"
+			dust.Color = ColorSequence.new(Color3.fromRGB(200, 170, 140))
+			dust.Size = NumberSequence.new(1, 3)
+			dust.Transparency = NumberSequence.new(0.5, 1)
+			dust.Lifetime = NumberRange.new(0.8, 1.2)
+			dust.Speed = NumberRange.new(1, 3)
+			dust.Rate = 0
+			dust.Parent = p
+			dust:Emit(6)
+		end
 	end
 end
 
@@ -525,11 +612,20 @@ function Rig:drilling(kind: string?)
 	if not self.dust then
 		return
 	end
-	local boring = kind ~= nil and self.speed > 1
-	self.dust.Rate = boring and 40 or 0
-	self.sparks.Rate = boring and 30 or 0
+	-- the drill only carves a new slice every few frames: stay "boring" for a moment after each
+	if kind ~= nil then
+		self.lastBore = os.clock()
+	end
+	local boring = os.clock() - (self.lastBore or -10) < 0.4 and self.speed > 1
+	self.dust.Rate = boring and 30 or 0
+	self.sparks.Rate = boring and 24 or 0
+	self.chips.Rate = boring and 14 or 0
+	for _, td in self.treadDust do
+		td.Rate = self.speed > 4 and 12 or 0
+	end
 	if kind == "breakthrough" then
-		self.dust:Emit(60)
+		self.dust:Emit(50)
+		self.chips:Emit(30)
 	end
 end
 
