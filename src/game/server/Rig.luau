@@ -139,16 +139,78 @@ function Rig:build()
 	local bit
 	local mesh = meshModel()
 	if mesh then
+		-- the Blender model faces +Z with its left at +X: turn it round onto our
+		-- deck (front -Z), lined up by its own deck so the planks sit under your feet
 		local m = mesh:Clone()
-		m:ScaleTo(1) -- authored at 1 unit = 1 stud
-		m:PivotTo(deck.CFrame * CFrame.new(0, -0.45, 0) * CFrame.Angles(0, math.pi, 0))
+		local meshDeck = m:FindFirstChild("Deck", true) :: BasePart
+		local base = meshDeck.CFrame
+		local place = deck.CFrame * CFrame.new(0, 0.25, 0) * CFrame.Angles(0, math.pi, 0)
 		for _, p in m:GetDescendants() do
 			if p:IsA("BasePart") then
-				p.Parent = model
+				p.CFrame = place * base:ToObjectSpace(p.CFrame)
 				p.CanCollide = false
+				if p == meshDeck then
+					p.Name = "DeckMesh"
+				end
+				p.Parent = model
 			end
 		end
 		m:Destroy()
+		-- the FBX's colours don't survive the import, so paint by piece
+		local LOOK = {
+			DeckMesh = { WOOD, Enum.Material.WoodPlanks },
+			DeckTrim = { STEEL, Enum.Material.Metal },
+			Chassis = { STEEL_DARK, Enum.Material.Metal },
+			Tread = { Color3.fromRGB(42, 42, 46), Enum.Material.Rubber },
+			Wheels = { STEEL, Enum.Material.Metal },
+			BreakFender = { RED, Enum.Material.Metal },
+			CrankBase = { STEEL_DARK, Enum.Material.Metal },
+			CrankLever = { BRASS, Enum.Material.Metal },
+			EngineBlock = { STEEL_DARK, Enum.Material.Metal },
+			EngineHood = { RED, Enum.Material.Metal },
+			FurnaceGrill = { STEEL, Enum.Material.Metal },
+			Furnace = { Color3.fromRGB(230, 130, 50), Enum.Material.Neon },
+			ExhaustCap = { BRASS, Enum.Material.Metal },
+			Exhaust = { STEEL, Enum.Material.Metal },
+			HopperGlow = { Color3.fromRGB(255, 180, 70), Enum.Material.Neon },
+			Hopper = { Color3.fromRGB(112, 72, 42), Enum.Material.WoodPlanks },
+			Brace = { STEEL_DARK, Enum.Material.Metal },
+			BreakLantern = { Color3.fromRGB(112, 72, 42), Enum.Material.Wood },
+			LanternGlow = { Color3.fromRGB(240, 170, 80), Enum.Material.Neon },
+			BreakCrate = { WOOD, Enum.Material.WoodPlanks },
+			BreakBarrel = { Color3.fromRGB(150, 98, 58), Enum.Material.Wood },
+			DrillBit = { Color3.fromRGB(196, 202, 212), Enum.Material.Metal },
+			DrillCollar = { STEEL_DARK, Enum.Material.Metal },
+			HeadlightGlow = { Color3.fromRGB(255, 244, 210), Enum.Material.Neon },
+			Headlight = { BRASS, Enum.Material.Metal },
+		}
+		for _, p in model:GetChildren() do
+			if p:IsA("MeshPart") then
+				for prefix, look in LOOK do
+					if p.Name:sub(1, #prefix) == prefix and (#prefix > #(p:GetAttribute("LookKey") or "")) then
+						p.Color = look[1]
+						p.Material = look[2]
+						p:SetAttribute("LookKey", prefix)
+					end
+				end
+				if p.Name:sub(1, 11) == "LanternGlow" or p.Name == "Furnace" or p.Name == "HopperGlow" then
+					local l = Instance.new("PointLight")
+					l.Range = p.Name == "Furnace" and 14 or 18
+					l.Brightness = 0.7
+					l.Color = Color3.fromRGB(255, 196, 120)
+					l.Parent = p
+				end
+			end
+		end
+		local glow = model:FindFirstChild("HeadlightGlow")
+		if glow then
+			glow.Name = "HeadlightLens"
+			local head = model:FindFirstChild("Headlight")
+			if head then
+				head.Name = "HeadlightBody"
+			end
+			glow.Name = "Headlight"
+		end
 		bit = model:FindFirstChild("DrillBit")
 	else
 		bit = greybox(model, deck)
@@ -193,7 +255,8 @@ function Rig:build()
 		-- dust and sparks where the bit meets the rock
 		local att = Instance.new("Attachment")
 		att.Name = "BitFX"
-		att.Position = Vector3.new(0, 0, -3)
+		-- (the Blender bit points along its own +Z; the greybox ball doesn't care)
+		att.Position = Vector3.new(0, 0, mesh and 4 or -3)
 		att.Parent = bit
 		local dust = Instance.new("ParticleEmitter")
 		dust.Name = "Dust"
@@ -223,7 +286,7 @@ function Rig:build()
 	local head = model:FindFirstChild("Headlight") :: BasePart?
 	if head then
 		local spot = Instance.new("SpotLight")
-		spot.Face = Enum.NormalId.Front
+		spot.Face = mesh and Enum.NormalId.Back or Enum.NormalId.Front
 		spot.Range = 60
 		spot.Angle = 70
 		spot.Brightness = 1.8

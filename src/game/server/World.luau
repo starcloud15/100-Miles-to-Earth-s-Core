@@ -477,8 +477,8 @@ function World.init(r)
 	-- (Workspace.FallenPartsDestroyHeight must be set in the place, to -20000:
 	-- the route goes far below the default -500)
 	-- strata colours (terrain materials are tinted globally)
-	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(214, 132, 86))
-	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(146, 104, 88))
+	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(186, 134, 104))
+	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(150, 116, 102))
 	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(112, 118, 140))
 	T:SetMaterialColor(Enum.Material.Basalt, Color3.fromRGB(70, 60, 70))
 	T:SetMaterialColor(Enum.Material.Ground, Color3.fromRGB(150, 110, 80))
@@ -532,7 +532,7 @@ end
 local SECTIONS = {
 	Gorge = { amb = Color3.fromRGB(150, 120, 100), fog = Color3.fromRGB(255, 196, 150), density = 0.32, haze = 2.2, tint = Color3.fromRGB(255, 244, 230) },
 	Drop = { amb = Color3.fromRGB(110, 86, 70), fog = Color3.fromRGB(230, 150, 90), density = 0.42, haze = 2.6, tint = Color3.fromRGB(255, 236, 214) },
-	Tunnel = { amb = Color3.fromRGB(128, 100, 84), fog = Color3.fromRGB(170, 110, 70), density = 0.34, haze = 1.4, tint = Color3.fromRGB(255, 238, 222) },
+	Tunnel = { amb = Color3.fromRGB(118, 104, 96), fog = Color3.fromRGB(150, 112, 90), density = 0.32, haze = 1.2, tint = Color3.fromRGB(250, 244, 238) },
 	Chute = { amb = Color3.fromRGB(130, 84, 70), fog = Color3.fromRGB(200, 96, 60), density = 0.38, haze = 1.8, tint = Color3.fromRGB(255, 222, 204) },
 	Cavern = { amb = Color3.fromRGB(90, 120, 130), fog = Color3.fromRGB(70, 170, 180), density = 0.34, haze = 2.2, tint = Color3.fromRGB(230, 250, 255) },
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
@@ -559,8 +559,8 @@ function World.atmosphere(s: number, glow: number)
 	atmosphere.Density = atmosphere.Density + (sec.density - atmosphere.Density) * 0.08
 	atmosphere.Haze = atmosphere.Haze + (sec.haze - atmosphere.Haze) * 0.08
 	grade.TintColor = grade.TintColor:Lerp(tint, 0.08)
-	grade.Saturation = 0.25
-	grade.Contrast = 0.14
+	grade.Saturation = 0.08
+	grade.Contrast = 0.12
 	Lighting.ClockTime = kind == "Gorge" and 14.5 or 14.5
 end
 

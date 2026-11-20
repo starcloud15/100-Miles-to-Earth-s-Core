@@ -78,7 +78,9 @@ function Ui.icon(name: string, props: { [string]: any }): GuiObject
 	if id then
 		local p = { BackgroundTransparency = 1, Image = id, ScaleType = Enum.ScaleType.Fit }
 		for k, v in props do
-			p[k] = v
+			if k ~= "FallbackColor" then
+				p[k] = v
+			end
 		end
 		return Ui.new("ImageLabel", p)
 	end
