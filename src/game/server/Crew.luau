@@ -67,6 +67,27 @@ local function spawnSpot(player: Player): CFrame
 	return rig.deck.CFrame * CFrame.new(-14 + index * 4, 3, 16)
 end
 
+-- the tool models from Blender (tools/blender/tools.py), once Starport has
+-- uploaded them to src/shared/Models/Tools; the FBX colours don't survive the
+-- import, so each piece is painted by name
+local WOOD, WOOD_DARK = { Color3.fromRGB(150, 96, 54), Enum.Material.Wood }, { Color3.fromRGB(104, 64, 36), Enum.Material.Wood }
+local STEEL, STEEL_DARK = { Color3.fromRGB(176, 184, 196), Enum.Material.Metal }, { Color3.fromRGB(84, 90, 100), Enum.Material.Metal }
+local BRASS = { Color3.fromRGB(226, 168, 54), Enum.Material.Metal }
+local ROPE, CLOTH = { Color3.fromRGB(120, 84, 50), Enum.Material.Fabric }, { Color3.fromRGB(196, 150, 98), Enum.Material.Fabric }
+local GLOW = { Color3.fromRGB(255, 186, 70), Enum.Material.Neon }
+local TOOL_MODELS = {
+	["Crank Pump"] = { file = "CrankPump", grip = CFrame.new(0, -0.3, 0), paint = { Handle = WOOD_DARK, Arm = BRASS, Elbow = BRASS, Gear = STEEL, Hub = STEEL_DARK } },
+	Pickaxe = { file = "Pickaxe", grip = CFrame.new(0, -1.4, 0), paint = { Handle = WOOD, Grip = WOOD_DARK, Head = STEEL, Binding = BRASS } },
+	["Delver's Hook"] = { file = "DelversHook", grip = CFrame.new(0, -1.2, 0), paint = { Handle = WOOD, Grip = ROPE, Reel = BRASS, Tip = BRASS, TipArm = BRASS, Line = ROPE, Hook = STEEL, Barb = STEEL, Glow = GLOW } },
+	Food = { file = "FindPouch", grip = CFrame.new(0, 0, 0), paint = { Handle = CLOTH, Neck = CLOTH, Tie = ROPE, Find = GLOW } },
+}
+
+local function toolModel(file: string): Model?
+	local models = Shared:FindFirstChild("Models")
+	local folder = models and models:FindFirstChild("Tools")
+	return folder and folder:FindFirstChild(file) :: Model?
+end
+
 local function makeTool(name: string, icon: string, tip: string): Tool
 	local tool = Instance.new("Tool")
 	tool.Name = name
@@ -74,6 +95,45 @@ local function makeTool(name: string, icon: string, tip: string): Tool
 	tool.CanBeDropped = false
 	tool.ToolTip = tip
 	tool.TextureId = Art.icon(icon) or ""
+	local def = TOOL_MODELS[name]
+	local m = def and toolModel(def.file)
+	local src = m and m:FindFirstChild("Handle", true) :: BasePart?
+	if def and m and src then
+		local base = src.CFrame
+		local handle
+		for _, p in m:GetDescendants() do
+			if p:IsA("BasePart") then
+				local c = p:Clone()
+				c:ClearAllChildren()
+				c.CFrame = base:ToObjectSpace(p.CFrame) -- relative to the handle, placed below
+				c.CanCollide = false
+				c.Massless = true
+				local look = def.paint[p.Name]
+				if look then
+					c.Color = look[1]
+					c.Material = look[2]
+				end
+				if p == src then
+					handle = c
+				end
+				c:SetAttribute("Rel", c.CFrame)
+				c.Parent = tool
+			end
+		end
+		handle.Name = "Handle"
+		handle.CFrame = CFrame.new()
+		for _, c in tool:GetChildren() do
+			if c:IsA("BasePart") and c ~= handle then
+				c.CFrame = handle.CFrame * c:GetAttribute("Rel")
+				local w = Instance.new("WeldConstraint")
+				w.Part0 = handle
+				w.Part1 = c
+				w.Parent = c
+			end
+		end
+		tool.RequiresHandle = true
+		tool.Grip = def.grip
+	end
 	return tool
 end
 

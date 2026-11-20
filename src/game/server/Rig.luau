@@ -183,6 +183,14 @@ function Rig:build()
 			DrillCollar = { STEEL_DARK, Enum.Material.Metal },
 			HeadlightGlow = { Color3.fromRGB(255, 244, 210), Enum.Material.Neon },
 			Headlight = { BRASS, Enum.Material.Metal },
+			-- the static pieces the exporter merges by material (fewer MeshParts)
+			MSteelDark = { STEEL_DARK, Enum.Material.Metal },
+			MSteel = { STEEL, Enum.Material.Metal },
+			MBrass = { BRASS, Enum.Material.Metal },
+			MPaint = { RED, Enum.Material.Metal },
+			MWoodDark = { Color3.fromRGB(112, 72, 42), Enum.Material.WoodPlanks },
+			MWood = { WOOD, Enum.Material.WoodPlanks },
+			MTread = { Color3.fromRGB(42, 42, 46), Enum.Material.Rubber },
 		}
 		for _, p in model:GetChildren() do
 			if p:IsA("MeshPart") then

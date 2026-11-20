@@ -58,7 +58,7 @@ GLOW = mat("Glow", (255, 186, 70), emit=6)
 BIT = mat("DrillSteel", (200, 206, 214), metal=0.8, rough=0.25)
 
 
-def finish(obj, name, material, bevel=0.0, segments=2, parent=None):
+def finish(obj, name, material, bevel=0.0, segments=1, parent=None):
     obj.name = name
     obj.data.name = name
     obj.data.materials.clear()
@@ -131,34 +131,34 @@ for x in (-W / 2, W / 2):
 for y in (-L / 2, L / 2):
     trim.append(box("Trim", (W + 0.2, 0.5, 1.2), (0, y, 0.5), STEEL, 0.12))
 # bolts along the trim
-for k in range(9):
-    y = -L / 2 + 1.5 + k * (L - 3) / 8
+for k in range(5):
+    y = -L / 2 + 1.5 + k * (L - 3) / 4
     for x in (-W / 2, W / 2):
-        trim.append(cyl("Bolt", 0.22, 0.3, (x + (0.3 if x > 0 else -0.3), y, 0.6), BRASS, rot=(0, math.pi / 2, 0), verts=8, bevel=0))
+        trim.append(cyl("Bolt", 0.22, 0.3, (x + (0.3 if x > 0 else -0.3), y, 0.6), BRASS, rot=(0, math.pi / 2, 0), verts=6, bevel=0))
 join(trim, "DeckTrim")
 
 # --- treads: housings with road wheels and cleats --------------------------------
 for side, sx in (("L", -1), ("R", 1)):
     x = sx * (W / 2 + 1.9)
     parts = [box("Housing", (3.4, L + 1.5, 3.2), (x, 0, -1.9), RUBBER, 0.9)]
-    for k in range(13):
-        y = -L / 2 - 0.3 + k * (L + 0.6) / 12
+    for k in range(9):
+        y = -L / 2 - 0.3 + k * (L + 0.6) / 8
         parts.append(box("Cleat", (3.6, 0.5, 0.35), (x, y, -0.15), STEEL_DARK, 0.08))
         parts.append(box("Cleat", (3.6, 0.5, 0.35), (x, y, -3.65), STEEL_DARK, 0.08))
     join(parts, "Tread" + side)
     wheels = []
     for k in range(5):
         y = -L / 2 + 2.5 + k * (L - 5) / 4
-        wheels.append(cyl("Wheel", 1.15, 0.6, (x + sx * 1.85, y, -1.9), STEEL, rot=(0, math.pi / 2, 0), verts=20, bevel=0.12))
-        wheels.append(cyl("Hub", 0.45, 0.8, (x + sx * 2.0, y, -1.9), BRASS, rot=(0, math.pi / 2, 0), verts=10, bevel=0.05))
+        wheels.append(cyl("Wheel", 1.15, 0.6, (x + sx * 1.85, y, -1.9), STEEL, rot=(0, math.pi / 2, 0), verts=12, bevel=0.12))
+        wheels.append(cyl("Hub", 0.45, 0.8, (x + sx * 2.0, y, -1.9), BRASS, rot=(0, math.pi / 2, 0), verts=8, bevel=0))
     join(wheels, "Wheels" + side)
     # a fender over each tread (breaks off first)
     box("BreakFender" + side, (3.8, L * 0.55, 0.35), (x, L * 0.18, 0.05), RED, 0.12)
 
 # --- the drill head at the front ---------------------------------------------------
 yf = L / 2
-collar = [cyl("Collar", 4.2, 2.0, (0, yf + 1.0, 1.0), STEEL_DARK, rot=(math.pi / 2, 0, 0), verts=32, bevel=0.3)]
-collar.append(cyl("Ring", 4.5, 0.6, (0, yf + 2.0, 1.0), BRASS, rot=(math.pi / 2, 0, 0), verts=32, bevel=0.15))
+collar = [cyl("Collar", 4.2, 2.0, (0, yf + 1.0, 1.0), STEEL_DARK, rot=(math.pi / 2, 0, 0), verts=20, bevel=0.3)]
+collar.append(cyl("Ring", 4.5, 0.6, (0, yf + 2.0, 1.0), BRASS, rot=(math.pi / 2, 0, 0), verts=20, bevel=0.15))
 for a in range(8):
     ang = a / 8 * math.tau
     collar.append(box("Rib", (0.6, 2.4, 0.6), (math.cos(ang) * 4.1, yf + 1.0, 1.0 + math.sin(ang) * 4.1), STEEL, 0.1))
@@ -168,12 +168,12 @@ box("Brace", (1.0, 3.0, 1.0), (-3.4, yf - 0.8, -0.2), STEEL_DARK, 0.15)
 box("Brace", (1.0, 3.0, 1.0), (3.4, yf - 0.8, -0.2), STEEL_DARK, 0.15)
 
 # the bit: a cone with a raised spiral flute (spins in game)
-bpy.ops.mesh.primitive_cone_add(radius1=3.8, radius2=0.22, depth=7.5, vertices=32, location=(0, yf + 6.0, 1.0), rotation=(-math.pi / 2, 0, 0))
+bpy.ops.mesh.primitive_cone_add(radius1=3.8, radius2=0.22, depth=7.5, vertices=20, location=(0, yf + 6.0, 1.0), rotation=(-math.pi / 2, 0, 0))
 cone = finish(bpy.context.active_object, "Cone", BIT, 0.0)
 curve = bpy.data.curves.new("Flute", "CURVE")
 curve.dimensions = "3D"
 spl = curve.splines.new("POLY")
-turns, steps = 3.0, 120
+turns, steps = 3.0, 54
 spl.points.add(steps)
 for i in range(steps + 1):
     t = i / steps
@@ -181,7 +181,7 @@ for i in range(steps + 1):
     ang = t * turns * math.tau
     spl.points[i].co = (math.cos(ang) * r, yf + 2.25 + 7.5 * t, 1.0 + math.sin(ang) * r, 1)
 curve.bevel_depth = 0.38
-curve.bevel_resolution = 2
+curve.bevel_resolution = 1
 flute = bpy.data.objects.new("Flute", curve)
 col.objects.link(flute)
 bpy.context.view_layer.objects.active = flute
@@ -236,18 +236,46 @@ cyl("Headlight", 0.8, 0.8, (0, yf + 0.9, 5.8), BRASS, rot=(math.pi / 2, 0, 0), v
 box("HeadlightGlow", (1.1, 0.2, 1.1), (0, yf + 1.35, 5.8), GLOW, 0.05)
 
 # --- export ------------------------------------------------------------------------------
-for o in col.objects:
+for o in list(col.objects):
     if o.type == "MESH":
         for m in list(o.modifiers):
             bpy.context.view_layer.objects.active = o
             bpy.ops.object.select_all(action="DESELECT")
             o.select_set(True)
             bpy.ops.object.modifier_apply(modifier=m.name)
-        o.data.shade_smooth() if False else None
+
+# Optimise: merge every static piece by material into one mesh each (fewer
+# MeshParts = fewer draw calls). Keep separate only what the game moves, breaks,
+# lights or lines up by name.
+KEEP = ("Deck", "DrillBit", "CrankLever", "Break", "LanternGlow", "Furnace", "HopperGlow", "Headlight", "Tread")
+groups = {}
+for o in list(col.objects):
+    if o.type == "MESH" and not o.name.startswith(KEEP):
+        groups.setdefault(o.data.materials[0].name, []).append(o)
+for mname, objs in groups.items():
+    if len(objs) > 1:
+        bpy.ops.object.select_all(action="DESELECT")
+        for o in objs:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = objs[0]
+        bpy.ops.object.join()
+    merged = bpy.context.view_layer.objects.active if len(objs) > 1 else objs[0]
+    merged.name = "M" + mname
+    merged.data.name = "M" + mname
+
+# smooth shading by angle: round parts look round, corners stay crisp, no extra geometry
+tri_count = 0
+for o in col.objects:
+    if o.type == "MESH":
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.context.view_layer.objects.active = o
+        o.select_set(True)
+        bpy.ops.object.shade_smooth_by_angle(angle=math.radians(40))
+        tri_count += sum(len(p.vertices) - 2 for p in o.data.polygons)
 
 bpy.ops.object.select_all(action="SELECT")
-bpy.ops.export_scene.fbx(filepath=OUT_FBX, use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="FACE", bake_space_transform=True)
-print("exported", OUT_FBX, len(col.objects), "objects")
+bpy.ops.export_scene.fbx(filepath=OUT_FBX, use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)
+print("exported", OUT_FBX, len(col.objects), "objects,", tri_count, "triangles")
 
 if OUT_PNG:
     world = bpy.data.worlds.new("World")
