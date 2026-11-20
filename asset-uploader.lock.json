@@ -27,7 +27,11 @@
     "icons/Rock": {"creator": "group:606354866", "decal": "124784052482110", "hash": "e05f5129688ccc63870153b9ac28dcd4c95ac68f", "id": "121607181275746", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167370.822393},
     "icons/Turbo": {"creator": "group:606354866", "decal": "106487408435119", "hash": "7cc9f8101352cd327d19303349dd5785d0d02102", "id": "89466756603136", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167371.3498452},
     "icons/Warning": {"creator": "group:606354866", "decal": "111075392532949", "hash": "00d0ee105d4e7c0ec86181bbea03b908766771ae", "id": "107817926254477", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167372.9141467},
-    "models/DrillRig": {"creator": "group:606354866", "hash": "f233493da055c1a4328acc6159d9f2b3b51787de", "id": "88883156358324", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795167333.9852998}
+    "models/CrankPump": {"creator": "group:606354866", "hash": "884736ae628e2e26d0f3f8eec4dcb0c720b9c94c", "id": "135967433660302", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170628.6571858},
+    "models/DelversHook": {"creator": "group:606354866", "hash": "43ccca1b83365bc833be6cac7137f94188ddc928", "id": "130078950205000", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170627.9635835},
+    "models/DrillRig": {"creator": "group:606354866", "hash": "a90d75c079958860bdde4b1368b7a31f732a1ec3", "id": "115744922121818", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170644.365467},
+    "models/FindPouch": {"creator": "group:606354866", "hash": "e414dc69626b46931788e5ac60d99b7f2d6afd25", "id": "91207824996524", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170636.052636},
+    "models/Pickaxe": {"creator": "group:606354866", "hash": "0fd6525f29535db90eb9cabcaf097c41320aa35b", "id": "110728934319424", "moderation": "Approved", "owner": "[Admin] - Aurelia [Joyshare]", "uploaded": 1795170635.6207042}
   },
   "publishes": [
   ]
