@@ -62,6 +62,77 @@ local function light(p: BasePart, color: Color3, range: number, brightness: numb
 end
 
 -- strata: the rock changes with depth, in bands (warm sandstone, slate, dark basalt)
+-- props: Blender meshes from Starport (tools/blender/props.py), painted by name
+local PROP_PAINT = {
+	Rock = { Color3.fromRGB(190, 104, 70), Enum.Material.Sandstone },
+	RockDark = { Color3.fromRGB(140, 80, 58), Enum.Material.Slate },
+	Wood = { Color3.fromRGB(150, 98, 58), Enum.Material.WoodPlanks },
+	WoodDark = { Color3.fromRGB(104, 66, 40), Enum.Material.Wood },
+	Glow = { Color3.fromRGB(255, 186, 70), Enum.Material.Neon },
+	Steel = { Color3.fromRGB(110, 116, 126), Enum.Material.Metal },
+	Cloth = { Color3.fromRGB(190, 70, 50), Enum.Material.Fabric },
+	Moss = { Color3.fromRGB(90, 140, 70), Enum.Material.Grass },
+	Paper = { Color3.fromRGB(236, 222, 186), Enum.Material.SmoothPlastic },
+	Rope = { Color3.fromRGB(196, 170, 120), Enum.Material.Fabric },
+}
+local HANGING = { Stalactite = true }
+local function prop(name: string, cf: CFrame, scale: number, model: Model, fallback: () -> ()): Model?
+	local models = Shared:FindFirstChild("Models")
+	local props = models and models:FindFirstChild("Props")
+	local src = props and props:FindFirstChild(name)
+	if not src then
+		fallback()
+		return nil
+	end
+	if not src:GetAttribute("Pivoted") then
+		-- imported meshes keep their world placement: pivot on the bounds' bottom
+		-- centre (top centre for hanging props), unrotated
+		local bb, size = src:GetBoundingBox()
+		src.WorldPivot = CFrame.new(bb.Position + Vector3.new(0, (HANGING[name] and 1 or -1) * size.Y / 2, 0))
+		src:SetAttribute("Pivoted", true)
+	end
+	local c = src:Clone()
+	if scale ~= 1 then
+		c:ScaleTo(scale)
+	end
+	c:PivotTo(cf)
+	for _, p in c:GetDescendants() do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CollisionGroup = "World"
+			for prefix, look in PROP_PAINT do
+				if p.Name:sub(1, #prefix) == prefix and #prefix > #(p:GetAttribute("Paint") or "") then
+					p.Color = look[1]
+					p.Material = look[2]
+					p:SetAttribute("Paint", prefix)
+				end
+			end
+		end
+	end
+	c.Parent = model
+	return c
+end
+
+-- a glowstone vein to mine: the crystal cluster prop (or crystal parts), lit
+local function glowVein(parent: Instance, base: CFrame, rng: Random, size: number, range: number, name: string?): Model
+	local v = prop("CrystalCluster", base * CFrame.Angles(0, rng:NextNumber(0, 6), 0), size, parent :: any, function() end)
+	if v then
+		v.PrimaryPart = v:FindFirstChild("Glow") :: BasePart
+	else
+		v = Instance.new("Model")
+		for j = 1, 5 do
+			local c = part({ Name = "Crystal", Size = Vector3.new(1.6, 5, 1.6) * size * rng:NextNumber(0.8, 1.3), CFrame = base * CFrame.new(rng:NextNumber(-2, 2) * size, 2.5 * size, rng:NextNumber(-2, 2) * size) * CFrame.Angles(rng:NextNumber(-0.5, 0.5), rng:NextNumber(0, 3), rng:NextNumber(-0.5, 0.5)), Color = j % 2 == 0 and AMBER or Color3.fromRGB(255, 214, 110), Material = Enum.Material.Neon, Parent = v })
+			if j == 1 then
+				v.PrimaryPart = c
+			end
+		end
+		v.Parent = parent
+	end
+	v.Name = name or "Vein"
+	light(v.PrimaryPart :: BasePart, Color3.fromRGB(255, 170, 70), range, 1.3)
+	return v :: Model
+end
+
 local function rockAt(y: number, s: number): Enum.Material
 	local band = math.floor((-y + math.noise(s / 300, 0.3) * 40) / 70) % 4
 	return ({ Enum.Material.Sandstone, Enum.Material.Rock, Enum.Material.Slate, Enum.Material.Basalt })[band + 1]
@@ -131,12 +202,18 @@ local function detail(model: Model, cf: CFrame, w: number, h: number, rng: Rando
 	for _ = 1, 2 do
 		local x = rng:NextNumber(-w / 2 + 5, w / 2 - 5)
 		local len = rng:NextNumber(3, 8)
-		part({ Name = "Stalactite", ClassName = "WedgePart", Size = Vector3.new(rng:NextNumber(1.5, 3), len, rng:NextNumber(1.5, 3)), CFrame = cf * CFrame.new(x, h * 0.86 - len / 2, rng:NextNumber(-6, 6)) * CFrame.Angles(math.pi, rng:NextNumber(0, 3), 0), Color = Color3.fromRGB(120, 92, 80), Material = Enum.Material.Rock, CanCollide = false, Parent = model })
+		local top = cf * CFrame.new(x, h * 0.86, rng:NextNumber(-6, 6)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0)
+		prop("Stalactite", top, len / 8, model, function()
+			part({ Name = "Stalactite", ClassName = "WedgePart", Size = Vector3.new(rng:NextNumber(1.5, 3), len, rng:NextNumber(1.5, 3)), CFrame = top * CFrame.new(0, -len / 2, 0) * CFrame.Angles(math.pi, 0, 0), Color = Color3.fromRGB(120, 92, 80), Material = Enum.Material.Rock, CanCollide = false, Parent = model })
+		end)
 	end
 	local side = rng:NextNumber() < 0.5 and -1 or 1
-	for _ = 1, 2 do
-		part({ Name = "Rubble", Size = Vector3.new(rng:NextNumber(1.5, 3.5), rng:NextNumber(1, 2.5), rng:NextNumber(1.5, 3.5)), CFrame = cf * CFrame.new(side * (w / 2 - rng:NextNumber(1, 4)), 0.8, rng:NextNumber(-8, 8)) * CFrame.Angles(rng:NextNumber(0, 1), rng:NextNumber(0, 3), rng:NextNumber(0, 1)), Color = Color3.fromRGB(140, 104, 84), Material = Enum.Material.Slate, Parent = model })
-	end
+	local at = cf * CFrame.new(side * (w / 2 - 3), 0, rng:NextNumber(-8, 8)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0)
+	prop("RockCluster", at, rng:NextNumber(0.3, 0.45), model, function()
+		for _ = 1, 2 do
+			part({ Name = "Rubble", Size = Vector3.new(rng:NextNumber(1.5, 3.5), rng:NextNumber(1, 2.5), rng:NextNumber(1.5, 3.5)), CFrame = at * CFrame.new(rng:NextNumber(-2, 2), 0.8, rng:NextNumber(-2, 2)) * CFrame.Angles(rng:NextNumber(0, 1), rng:NextNumber(0, 3), rng:NextNumber(0, 1)), Color = Color3.fromRGB(140, 104, 84), Material = Enum.Material.Slate, Parent = model })
+		end
+	end)
 end
 
 local function hollow(cf: CFrame, len: number, w: number, h: number, rng: Random)
@@ -155,30 +232,10 @@ local function hollow(cf: CFrame, len: number, w: number, h: number, rng: Random
 end
 
 local function vein(model: Model, cf: CFrame, w: number, h: number, rng: Random, big: boolean?): Model
-	-- a glowstone vein: a cluster of amber crystals on a wall, with a light
+	-- a glowstone vein: amber crystals bursting out of a wall
 	local side = rng:NextNumber() < 0.5 and -1 or 1
-	local base = cf * CFrame.new(side * (w / 2 - 0.5), rng:NextNumber(3, h * 0.6), rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(-side * 70))
-	local v = Instance.new("Model")
-	v.Name = big and "Vein" or "Glow"
-	local n = big and 6 or 3
-	for i = 1, n do
-		local size = (big and 1.6 or 1) * rng:NextNumber(0.8, 1.4)
-		local c = part({
-			Name = "Crystal",
-			Size = Vector3.new(1.4, 4.5, 1.4) * size,
-			CFrame = base * CFrame.new(rng:NextNumber(-2, 2), rng:NextNumber(0, 2), rng:NextNumber(-2.5, 2.5)) * CFrame.Angles(rng:NextNumber(-0.6, 0.6), rng:NextNumber(0, 3), rng:NextNumber(-0.6, 0.6)),
-			Color = i % 2 == 0 and AMBER or Color3.fromRGB(255, 214, 110),
-			Material = Enum.Material.Neon,
-			CanCollide = big == true,
-			Parent = v,
-		})
-		if i == 1 then
-			light(c, Color3.fromRGB(255, 170, 70), big and 24 or 18, big and 1.3 or 0.9)
-			v.PrimaryPart = c
-		end
-	end
-	v.Parent = model
-	return v
+	local base = cf * CFrame.new(side * (w / 2 - 0.5), rng:NextNumber(3, h * 0.6), rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(side * 70))
+	return glowVein(model, base, rng, big and 1.2 or 0.75, big and 24 or 18, big and "Vein" or "Glow")
 end
 
 local function signPost(model: Model, cf: CFrame, w: number, text: string)
@@ -205,10 +262,12 @@ end
 local function beacon(model: Model, cf: CFrame, name: string)
 	local pos = (cf * CFrame.new(-24, 0, 0)).Position
 	local rng = Random.new(#name)
-	for i = 1, 10 do
-		local a = i / 10 * math.pi * 2
-		part({ Name = "Stone", Size = Vector3.new(2.6, 1.8, 2.2), CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * 4, 0.6, math.sin(a) * 4)) * CFrame.Angles(0, -a, rng:NextNumber(-0.2, 0.2)), Color = Color3.fromRGB(120, 112, 104), Material = Enum.Material.Slate, Parent = model })
-	end
+	prop("BeaconRing", CFrame.new(pos), 1, model, function()
+		for i = 1, 10 do
+			local a = i / 10 * math.pi * 2
+			part({ Name = "Stone", Size = Vector3.new(2.6, 1.8, 2.2), CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * 4, 0.6, math.sin(a) * 4)) * CFrame.Angles(0, -a, rng:NextNumber(-0.2, 0.2)), Color = Color3.fromRGB(120, 112, 104), Material = Enum.Material.Slate, Parent = model })
+		end
+	end)
 	local core = part({ Name = "Beacon", Size = Vector3.new(3, 4.5, 3), CFrame = CFrame.new(pos + Vector3.new(0, 2.6, 0)) * CFrame.Angles(0.3, 0.6, 0.2), Color = AMBER, Material = Enum.Material.Neon, Parent = model })
 	core:SetAttribute("Stop", name)
 	light(core, Color3.fromRGB(255, 170, 80), 60, 3)
@@ -234,8 +293,17 @@ local function beacon(model: Model, cf: CFrame, name: string)
 end
 
 local function tent(model: Model, at: CFrame, color: Color3)
-	for _, side in { -1, 1 } do
-		part({ ClassName = "WedgePart", Name = "Tent", Size = Vector3.new(8, 5, 3.5), CFrame = at * CFrame.new(side * 1.75, 2.5, 0) * CFrame.Angles(0, side > 0 and math.rad(90) or math.rad(-90), 0), Color = color, Material = Enum.Material.Fabric, Parent = model })
+	local t = prop("Tent", at, 1, model, function()
+		for _, side in { -1, 1 } do
+			part({ ClassName = "WedgePart", Name = "Tent", Size = Vector3.new(8, 5, 3.5), CFrame = at * CFrame.new(side * 1.75, 2.5, 0) * CFrame.Angles(0, side > 0 and math.rad(90) or math.rad(-90), 0), Color = color, Material = Enum.Material.Fabric, Parent = model })
+		end
+	end)
+	if t then
+		for _, p in t:GetChildren() do
+			if p.Name == "Cloth" then
+				(p :: BasePart).Color = color
+			end
+		end
 	end
 end
 
@@ -248,19 +316,12 @@ local function buildStop(model: Model, stop)
 		for i = 1, 8 do
 			local side = i % 2 == 0 and 1 or -1
 			local base = cf * CFrame.new(side * (w / 2 + rng:NextNumber(-2, 4)), 0, -96 + i * 22) * CFrame.Angles(0, rng:NextNumber(0, 6), 0)
-			part({ Name = "Outcrop", Size = Vector3.new(9, 5, 8), CFrame = base * CFrame.new(0, 1.5, 0), Color = ROCK_RED[i % 3 + 1], Material = Enum.Material.Sandstone, Parent = model })
-			local v = Instance.new("Model")
-			v.Name = "Vein"
-			for j = 1, 6 do
-				local c = part({ Name = "Crystal", Size = Vector3.new(1.8, 5.5, 1.8) * rng:NextNumber(0.8, 1.3), CFrame = base * CFrame.new(rng:NextNumber(-2.5, 2.5), 5, rng:NextNumber(-2.5, 2.5)) * CFrame.Angles(rng:NextNumber(-0.5, 0.5), rng:NextNumber(0, 3), rng:NextNumber(-0.5, 0.5)), Color = j % 2 == 0 and AMBER or Color3.fromRGB(255, 214, 110), Material = Enum.Material.Neon, Parent = v })
-				if j == 1 then
-					light(c, Color3.fromRGB(255, 170, 70), 22, 1.2)
-					v.PrimaryPart = c
-				end
-			end
+			prop("RockCluster", base, 0.75, model, function()
+				part({ Name = "Outcrop", Size = Vector3.new(9, 5, 8), CFrame = base * CFrame.new(0, 1.5, 0), Color = ROCK_RED[i % 3 + 1], Material = Enum.Material.Sandstone, Parent = model })
+			end)
+			local v = glowVein(model, base * CFrame.new(0, 2.6, 0), rng, 1.1, 22)
 			v:SetAttribute("HP", 12)
 			v:SetAttribute("Stop", stop.name)
-			v.Parent = model
 			table.insert(World.veins, v)
 		end
 	else
@@ -277,17 +338,33 @@ local function buildStop(model: Model, stop)
 	tent(model, cf * CFrame.new(28, 0, -14) * CFrame.Angles(0, 0.4, 0), Color3.fromRGB(190, 70, 50))
 	tent(model, cf * CFrame.new(32, 0, 10) * CFrame.Angles(0, -0.3, 0), Color3.fromRGB(70, 120, 170))
 	for i = 1, 5 do
-		part({ Name = "Crate", Size = Vector3.new(2.6, 2.6, 2.6), CFrame = cf * CFrame.new(18 + (i % 3) * 3, 1.3 + math.floor(i / 3) * 2.6, 26 + (i % 2) * 3) * CFrame.Angles(0, rng:NextNumber(0, 1), 0), Color = Color3.fromRGB(160, 110, 66), Material = Enum.Material.WoodPlanks, Parent = model })
+		local ccf = cf * CFrame.new(18 + (i % 3) * 3, math.floor(i / 3) * 2.6, 26 + (i % 2) * 3) * CFrame.Angles(0, rng:NextNumber(0, 1), 0)
+		prop("Crate", ccf, 1, model, function()
+			part({ Name = "Crate", Size = Vector3.new(2.6, 2.6, 2.6), CFrame = ccf * CFrame.new(0, 1.3, 0), Color = Color3.fromRGB(160, 110, 66), Material = Enum.Material.WoodPlanks, Parent = model })
+		end)
 	end
+	prop("Minecart", cf * CFrame.new(-30, 0, -26) * CFrame.Angles(0, rng:NextNumber(-0.3, 0.3), 0), 1, model, function() end)
 	for _, z in { -40, 40 } do
 		for _, x in { -40, 40 } do
-			local pole = part({ Name = "LanternPole", Size = Vector3.new(0.8, 10, 0.8), CFrame = cf * CFrame.new(x, 5, z), Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Wood, Parent = model })
-			local lamp = part({ Name = "Lantern", Size = Vector3.new(1.4, 1.6, 1.4), CFrame = pole.CFrame * CFrame.new(0, 5.6, 0), Color = Color3.fromRGB(255, 200, 110), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
-			light(lamp, Color3.fromRGB(255, 190, 110), 30, 1.6)
+			local pcf = cf * CFrame.new(x, 0, z) * CFrame.Angles(0, x > 0 and math.pi or 0, 0)
+			local post = prop("LanternPost", pcf, 1, model, function()
+				local pole = part({ Name = "LanternPole", Size = Vector3.new(0.8, 10, 0.8), CFrame = pcf * CFrame.new(0, 5, 0), Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Wood, Parent = model })
+				local lamp = part({ Name = "Lantern", Size = Vector3.new(1.4, 1.6, 1.4), CFrame = pole.CFrame * CFrame.new(0, 5.6, 0), Color = Color3.fromRGB(255, 200, 110), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+				light(lamp, Color3.fromRGB(255, 190, 110), 30, 1.6)
+			end)
+			if post then
+				light(post:FindFirstChild("Glow") :: BasePart, Color3.fromRGB(255, 190, 110), 30, 1.6)
+			end
 		end
 	end
-	local boardPart = part({ Name = "NoticeBoard", Size = Vector3.new(6, 4, 0.5), CFrame = cf * CFrame.new(-12, 4.5, 34) * CFrame.Angles(0, math.rad(200), 0), Color = Color3.fromRGB(140, 96, 60), Material = Enum.Material.WoodPlanks, Parent = model })
-	part({ Name = "Post", Size = Vector3.new(0.6, 4.5, 0.6), CFrame = boardPart.CFrame * CFrame.new(0, -3.5, 0.3), Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Wood, Parent = model })
+	local bcf = cf * CFrame.new(-12, 0, 34) * CFrame.Angles(0, math.rad(200), 0)
+	local board = prop("NoticeBoard", bcf, 1, model, function()
+		local boardPart = part({ Name = "NoticeBoard", Size = Vector3.new(6, 4, 0.5), CFrame = bcf * CFrame.new(0, 4.5, 0), Color = Color3.fromRGB(140, 96, 60), Material = Enum.Material.WoodPlanks, Parent = model })
+		part({ Name = "Post", Size = Vector3.new(0.6, 4.5, 0.6), CFrame = boardPart.CFrame * CFrame.new(0, -3.5, 0.3), Color = Color3.fromRGB(90, 60, 40), Material = Enum.Material.Wood, Parent = model })
+	end)
+	if board then
+		board.Name = "NoticeBoard"
+	end
 end
 
 local function buildCavern(model: Model, cf: CFrame, w: number, h: number, rng: Random)
@@ -341,45 +418,6 @@ end
 
 
 -- a Blender prop from Starport (src/shared/Models/Props), or a part fallback until it's uploaded
-local PROP_PAINT = {
-	Rock = { Color3.fromRGB(190, 104, 70), Enum.Material.Sandstone },
-	RockDark = { Color3.fromRGB(140, 80, 58), Enum.Material.Slate },
-	Wood = { Color3.fromRGB(150, 98, 58), Enum.Material.WoodPlanks },
-	WoodDark = { Color3.fromRGB(104, 66, 40), Enum.Material.Wood },
-	Glow = { Color3.fromRGB(255, 186, 70), Enum.Material.Neon },
-	Steel = { Color3.fromRGB(110, 116, 126), Enum.Material.Metal },
-	Cloth = { Color3.fromRGB(190, 70, 50), Enum.Material.Fabric },
-	Moss = { Color3.fromRGB(90, 140, 70), Enum.Material.Grass },
-}
-local function prop(name: string, cf: CFrame, scale: number, model: Model, fallback: () -> ()): Model?
-	local models = Shared:FindFirstChild("Models")
-	local props = models and models:FindFirstChild("Props")
-	local src = props and props:FindFirstChild(name)
-	if not src then
-		fallback()
-		return nil
-	end
-	local c = src:Clone()
-	if scale ~= 1 then
-		c:ScaleTo(scale)
-	end
-	c:PivotTo(cf)
-	for _, p in c:GetDescendants() do
-		if p:IsA("BasePart") then
-			p.Anchored = true
-			p.CollisionGroup = "World"
-			for prefix, look in PROP_PAINT do
-				if p.Name:sub(1, #prefix) == prefix and #prefix > #(p:GetAttribute("Paint") or "") then
-					p.Color = look[1]
-					p.Material = look[2]
-					p:SetAttribute("Paint", prefix)
-				end
-			end
-		end
-	end
-	c.Parent = model
-	return c
-end
 
 local function stalagmite(model: Model, at: CFrame, height: number, rng: Random)
 	prop("Stalagmite", at, height / 30, model, function()
@@ -394,23 +432,25 @@ end
 
 local function arch(model: Model, centre: CFrame, radius: number)
 	-- a natural sandstone arch spanning the cavern, from floor to floor over the route
-	local n = 14
-	for i = 0, n - 1 do
-		local a0 = math.pi * i / n
-		local a1 = math.pi * (i + 1) / n
-		local p0 = Vector3.new(math.cos(a0) * radius, math.sin(a0) * radius, 0)
-		local p1 = Vector3.new(math.cos(a1) * radius, math.sin(a1) * radius, 0)
-		local mid = (p0 + p1) / 2
-		local thick = 22 + math.sin(a0 * 2) * 4
-		part({
-			Name = "Arch",
-			Size = Vector3.new((p1 - p0).Magnitude + 6, thick, 26),
-			CFrame = centre * CFrame.new(mid) * CFrame.Angles(0, 0, math.atan2(p1.Y - p0.Y, p1.X - p0.X)),
-			Color = ROCK_RED[i % 3 + 1],
-			Material = Enum.Material.Sandstone,
-			Parent = model,
-		})
-	end
+	prop("Arch", centre, radius / 100, model, function()
+		local n = 14
+		for i = 0, n - 1 do
+			local a0 = math.pi * i / n
+			local a1 = math.pi * (i + 1) / n
+			local p0 = Vector3.new(math.cos(a0) * radius, math.sin(a0) * radius, 0)
+			local p1 = Vector3.new(math.cos(a1) * radius, math.sin(a1) * radius, 0)
+			local mid = (p0 + p1) / 2
+			local thick = 22 + math.sin(a0 * 2) * 4
+			part({
+				Name = "Arch",
+				Size = Vector3.new((p1 - p0).Magnitude + 6, thick, 26),
+				CFrame = centre * CFrame.new(mid) * CFrame.Angles(0, 0, math.atan2(p1.Y - p0.Y, p1.X - p0.X)),
+				Color = ROCK_RED[i % 3 + 1],
+				Material = Enum.Material.Sandstone,
+				Parent = model,
+			})
+		end
+	end)
 end
 
 local function lightShaft(model: Model, top: Vector3, bottom: Vector3)
@@ -523,6 +563,10 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 			-- a shelf back to the wall: the route runs along a ledge here
 			local gap = W / 2 - math.abs(off)
 			part({ Name = "Ledge", Size = Vector3.new(gap + 12, 16, len + 2), CFrame = cf * CFrame.new(wallSide * (deckW / 2 + gap / 2), -8, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+			if gap > 14 and rng:NextNumber() < 0.3 then
+				-- the Quarrymen worked these ledges: an old ore cart left by the wall
+				prop("Minecart", cf * CFrame.new(wallSide * (deckW / 2 + math.min(gap, 20) / 2), 0, rng:NextNumber(-10, 10)) * CFrame.Angles(0, math.rad(90) + rng:NextNumber(-0.4, 0.4), 0), 1.4, model, function() end)
+			end
 		elseif k % 7 == 0 then
 			-- a rock pillar down to the floor
 			local h = fl - 26
@@ -549,6 +593,12 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 			if math.abs(x - off) > 30 then
 				stalagmite(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)), rng:NextNumber(20, 55), rng)
 			end
+		end
+	end
+	if rng:NextNumber() < 0.5 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		if math.abs(x - off) > 40 then
+			prop("RockCluster", ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0), rng:NextNumber(1.5, 3), model, function() end)
 		end
 	end
 	if rng:NextNumber() < 0.35 then
@@ -615,7 +665,10 @@ local function buildChunk(k: number)
 		if h2.s >= s0 and h2.s < s0 + CHUNK_LEN then
 			local hcf = route:sample(h2.s)
 			if h2.kind == "Boulder" then
-				part({ Name = "Boulder", Size = Vector3.new(9, 8, 9), CFrame = hcf * CFrame.new(h2.offset, 3.5, 0) * CFrame.Angles(0.3, h2.s % 3, 0.2), Color = Color3.fromRGB(110, 96, 86), Material = Enum.Material.Rock, Parent = model })
+				local bcf = hcf * CFrame.new(h2.offset, 0, 0) * CFrame.Angles(0, h2.s % 6, 0)
+				prop("Boulder", bcf, 1.1, model, function()
+					part({ Name = "Boulder", Size = Vector3.new(9, 8, 9), CFrame = bcf * CFrame.new(0, 3.5, 0) * CFrame.Angles(0.3, 0, 0.2), Color = Color3.fromRGB(110, 96, 86), Material = Enum.Material.Rock, Parent = model })
+				end)
 			end
 		end
 	end
