@@ -282,6 +282,55 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	end
 end)
 
+-- riding the rig like a train: jump on it and you land on the same spot ---------------
+-- Standing on the deck, Roblox carries you with it. In the air you'd keep the
+-- speed you jumped with while the rig turns and dives downhill under you, so
+-- you'd drift off. While you're in the air above the deck, you move with the
+-- rig's frame instead (its turns and drops carry you), and your own jump and
+-- movement stay relative to the deck. Leave the deck's footprint and you get
+-- the rig's speed back and fall off naturally; a shove (PlatformStand) is never carried.
+local lastDeckCF: CFrame? = nil
+local carrying = false
+
+local function overDeck(d: BasePart, pos: Vector3): boolean
+	local rel = d.CFrame:PointToObjectSpace(pos)
+	local R = Config.Rig
+	return math.abs(rel.X) <= R.DECK_W / 2 + 1 and math.abs(rel.Z) <= R.DECK_L / 2 + 1 and rel.Y > -1 and rel.Y < 30
+end
+
+RunService.Heartbeat:Connect(function()
+	local d, r, hum = deck(), root(), humanoid()
+	if not d or not r or not hum then
+		lastDeckCF = nil
+		carrying = false
+		return
+	end
+	local deckCF = d.CFrame
+	local state = hum:GetState()
+	local airborne = state == Enum.HumanoidStateType.Jumping or state == Enum.HumanoidStateType.Freefall
+	local want = airborne and not hum.PlatformStand and overDeck(d, r.Position)
+	if want and not carrying then
+		-- take the rig's own motion out of your velocity: the deck's frame carries that now
+		r.AssemblyLinearVelocity -= d.AssemblyLinearVelocity
+		carrying = true
+	elseif carrying and not want then
+		if airborne and not hum.PlatformStand then
+			-- jumped off the edge: you leave with the rig's speed, like stepping off a train
+			r.AssemblyLinearVelocity += d.AssemblyLinearVelocity
+		end
+		carrying = false
+	end
+	if carrying and lastDeckCF then
+		r.CFrame = deckCF * lastDeckCF:ToObjectSpace(r.CFrame)
+		-- your sideways speed is only your own input; the rig's motion is the frame's
+		local v = r.AssemblyLinearVelocity
+		local md = hum.MoveDirection * hum.WalkSpeed
+		r.AssemblyLinearVelocity = Vector3.new(md.X, v.Y, md.Z)
+	end
+	lastDeckCF = deckCF
+	player:SetAttribute("Carrying", carrying) -- (local only: for playtests)
+end)
+
 -- every frame -------------------------------------------------------------------------
 local acc = 0
 local rumbleT = 0
