@@ -47,7 +47,7 @@ Nov 19, 2026 · @Star
 |---|---|---|
 | 5:30–6:35 | Rapids. A crewmate falls off. | "DON'T GET LEFT BEHIND! Swim back to the raft" with a red vignette and a RAFT marker (59 m, 202 m, 224 m). At about 220 m: "SWEPT AWAY · The river carried you back", then a respawn on the raft. |
 | 6:40 | "90% of explorers have made it this far" (5.1 mi). | Social-proof milestone. |
-| 6:55–7:15 | Raft beached on a sandbar, 0 MPH. | The **Push Off** prompt (F) costs 19 R$. The crew got free by paddling and pushing. |
+| 6:55–7:15 | Raft slows to 0 MPH beside another player. | The **Push Off** prompt (F, 19 R$) appears on a player: it **shoves that player off the raft** (owner correction; I first read it as getting unstuck). Nothing in the game gets the raft stuck. |
 | 7:20 | Yellow diamond warning signs before hazards. | Pictograms: rapids, gators. |
 | 8:55 | **Landing (8.9 mi), a daytime stop.** | Chests, crates and houses. First journal note: "Storm clouds at night? Get to a camp. Fast!" signed by a group of earlier explorers. |
 | 9:50 | The crew pushed on instead of waiting for night. | **Choice:** stay at a landing or race to the next camp. |
@@ -172,7 +172,7 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 **Monetisation timing:**
 - The Starter Pack button is always on the HUD.
 - The popup came at about 15 min; the purchase at about 25 min.
-- Turbo (25 R$) and Push Off (19 R$) are contextual: a gauge pill and a world prompt.
+- Turbo (25 R$) and Push Off (19 R$, shove a player off the raft) are contextual: a gauge pill and a world prompt on the player.
 
 ---
 
@@ -184,7 +184,7 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 - The raft is an **open wooden platform with no walls**. Players stand anywhere, can be knocked off by impacts or monsters, swim, and get swept back.
 - Raft health: "Repair your raft with wood!" at camps.
 - Upgrades seen: corner posts with lanterns, barrels or floats, a slightly larger deck.
-- Beaching: the raft stops on sandbars. Fix it with Push Off (19 R$) or by paddling and pushing.
+- **Nothing gets the raft stuck** (owner). Push Off (19 R$) is a paid shove that knocks another player off the raft.
 
 ### 3.2 Survival
 - Hunger drains steadily, faster when paddling (judgement). Health drops from monsters and falls.
@@ -194,7 +194,7 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 | Activity | How it works |
 |---|---|
 | Punching trees | No axe at the start. Fists, "Click Punch". Logs pop out (+10) and go into the Bag. |
-| Wood | Repairs the raft, fuels the fire (+0.1× each) and builds the raft at the start. |
+| Wood | **The only resource in the game** (owner). Builds the raft at the start, repairs it and fuels the fire (+0.1× each). Food comes from fishing. |
 | Fishing | Rod in hotbar slot 2. Cast, "…" wait, "! CLICK" bite, reel, or "Got away". Works from the raft or the dock. |
 | Cooking | Cookfire panel: recipe list, selected recipe detail, ingredient count, **hold-to-cook** green bar. |
 | Eating and dropping | Holding food shows "Click Eat · Q Drop". Items can be dropped for crewmates. |
@@ -204,9 +204,9 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 ### 3.4 Threats
 | Threat | Behaviour |
 |---|---|
-| **Signature stalker** | A towering, gaunt shadow figure with very long arms and claws, white pin-point eyes and lightning around it. It "fears fire", hunts at night and in storms, stalks the camp ring and sweeps light beams. It's teased in the intro and shown again at every night camp, but it **never kills on screen**. It's pressure. |
+| **Signature stalker** | A towering, gaunt shadow figure with very long arms and claws, white pin-point eyes and lightning around it. It "fears fire", hunts at night and in storms, stalks the camp ring and sweeps light beams. It's teased in the intro and shown again at every night camp, but it **never kills on screen**. It's pressure. **It isn't aggressive at the first few camps and gets progressively faster further down** (owner). |
 | **Zone river threat** | Gators. "Gators hunt swimmers." They grab you with the SPAM! QTE and knock players off the raft. |
-| **Environmental** | Rapids, rocks, ice floes ("KNOCKED OFF!"), sandbars, and a large creature that smashes the raft (jungle). |
+| **Environmental** | Rapids, rocks, ice floes ("KNOCKED OFF!") and a large creature that smashes the raft (jungle). |
 
 ### 3.5 Meta
 - Currency earned per run (flame drop).
@@ -232,7 +232,7 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 | **Speedometer** | Right middle, about 9% of width. | Radial ticks that fill green, big number, "MPH". Turbo pill below (fireball, "TURBO", T key cap, 25 R$ purple pill). |
 | **Hotbar** | Bottom centre. | 3–7 dark square slots with a number top-left; the selected slot gets a white frame. "Bag" slot last. Stack count ("x4"). |
 | **Action hint** | Bottom right. | Dark rounded box: white "Click" key cap, then a bold verb (Paddle / Punch / Fish / Reel / Eat). Second row "Q Drop". |
-| **World prompt** | On the target. | Round key cap "F" plus "Push Off" and a Robux price. |
+| **World prompt** | On the target player. | Round key cap "F" plus "Push Off" and a Robux price. |
 | **Crew departure** | Top centre. | "LEAVING IN 28" (white, red number), portrait row with green ticks, "3/4 aboard". Variants: "ALL ABOARD!" (green), "WAITING FOR CREW · 1/2 aboard · 1 more to leave". |
 | **Raft leaving** | | Orange "RAFT IS LEAVING", orange timer bar, "Get back to the raft". Edge marker: yellow "RAFT" tag, distance, red seconds box, arrow. |
 | **Left behind** | | Red screen vignette, red "DON'T GET LEFT BEHIND!", "Swim back to the raft". |
@@ -278,4 +278,4 @@ This is a real funnel shown as a dare. It doubles as the game's own retention cu
 3. **Saves.** No checkpoint was visible, and 2 of 4 players left at about 13 min. Add **Waystations** that save the expedition so a 100-mile trip spans several sessions. That is the D1 hook.
 4. **Crew drop-off.** When players leave, the raft still needs paddlers. Add NPC rowers or scale paddle power to crew size.
 5. **Variety per stop.** Landings mostly repeat chests and fire. Give every stop one unique thing: a trader, a puzzle, a rescue, a fork.
-6. **The Push Off price.** Charging Robux to get unstuck reads as a toll. Keep a free crew push (hold F together for 3 s) and sell instant push only as a convenience.
+6. **Push Off is a paid shove, not a fix.** It knocks another player off the raft for 19 R$. The raft never gets stuck, so there is no toll to remove.

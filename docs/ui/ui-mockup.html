@@ -39,16 +39,25 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 .y{color:var(--yellow)} .r{color:var(--red)} .or{color:var(--orange2)} .g{color:var(--green)}
 
 /* scene backdrops */
-.bg-surface{background:linear-gradient(180deg,#8fd0f0 0%,#c9e9f4 30%,#5aa66a 31%,#3f8f55 52%,#58b9a8 53%,#3fa093 100%)}
-.bg-grotto{background:radial-gradient(60% 40% at 50% 20%,#4be0d0 0%,transparent 70%),radial-gradient(30% 25% at 15% 30%,#a65cff88,transparent 70%),linear-gradient(180deg,#1b3b52 0%,#245a6c 45%,#2a8c86 46%,#1f6f72 100%)}
-.bg-camp{background:radial-gradient(45% 40% at 50% 70%,#ffb347cc 0%,#d9772255 40%,transparent 70%),linear-gradient(180deg,#0e1a2c 0%,#1a2b44 50%,#24402e 51%,#1b3324 100%)}
+/* Surface: sky, forest line, grass, dirt track. Underground: cavern glow over rock floors. */
+.bg-surface{background:radial-gradient(34% 14% at 42% 62%,#8a6440 0 60%,transparent 61%),linear-gradient(180deg,#8fd0f0 0%,#c9e9f4 30%,#2f6b3a 31%,#3f7f45 38%,#5aa66a 39%,#4c9b3b 100%)}
+.bg-grotto{background:radial-gradient(60% 40% at 50% 20%,#4be0d0 0%,transparent 70%),radial-gradient(30% 25% at 15% 30%,#a65cff88,transparent 70%),linear-gradient(180deg,#1b3b52 0%,#245a6c 45%,#3a3350 46%,#2a2238 100%)}
+.bg-crystal{background:radial-gradient(40% 35% at 25% 25%,#bfe9ff 0%,transparent 70%),radial-gradient(35% 30% at 80% 20%,#8fd6ff99,transparent 70%),linear-gradient(180deg,#2c4a6e 0%,#4f7aa6 44%,#7d9cbc 45%,#5e7e9e 100%)}
+.bg-camp{background:radial-gradient(45% 40% at 50% 70%,#ffb347cc 0%,#d9772255 40%,transparent 70%),linear-gradient(180deg,#0e1a2c 0%,#1a2b44 50%,#3a3026 51%,#2a221b 100%)}
 .bg-dark{background:radial-gradient(70% 60% at 50% 50%,#2a3b46 0%,#0b1015 100%)}
-.bg-ice{background:linear-gradient(180deg,#9ab7d6 0%,#c9dcef 40%,#8fd6ea 41%,#e8f6fb 100%)}
-.bg-under{background:radial-gradient(80% 60% at 50% 0%,#58b6ea 0%,#1f6fb1 55%,#0d3d73 100%)}
-.bg-lobby{background:linear-gradient(180deg,#5d8cc4 0%,#9cc0e0 28%,#4c9b3b 29%,#3a8030 70%,#3b8fa0 71%,#2e7b8c 100%)}
+.bg-ice{background:linear-gradient(180deg,#9ab7d6 0%,#c9dcef 40%,#a9c8de 41%,#e8f6fb 100%)}
+.bg-dust{background:radial-gradient(80% 60% at 50% 0%,#e0a868 0%,#9a6438 55%,#3a2414 100%)}
+.bg-lobby{background:radial-gradient(7% 4.5% at 71% 31%,#0b0b0f 0 55%,#4a3420 56% 78%,transparent 79%),linear-gradient(180deg,#5d8cc4 0%,#9cc0e0 28%,#2f6b3a 29%,#3a8030 34%,#4c9b3b 35%,#3a8030 100%)}
 .bg-overlay{background:linear-gradient(180deg,#30402e,#1d281c)}
-.bubbles{inset:0;background-image:radial-gradient(circle at 12% 70%,#ffffff55 0 .7cqw,transparent .8cqw),radial-gradient(circle at 80% 30%,#ffffff40 0 .9cqw,transparent 1cqw),radial-gradient(circle at 60% 80%,#ffffff35 0 .5cqw,transparent .6cqw),radial-gradient(circle at 30% 20%,#ffffff40 0 .6cqw,transparent .7cqw),radial-gradient(circle at 90% 75%,#ffffff30 0 .8cqw,transparent .9cqw),radial-gradient(circle at 45% 45%,#ffffff25 0 .4cqw,transparent .5cqw)}
-.raft{width:24cqw;height:13cqw;left:38cqw;top:30cqw;background:repeating-linear-gradient(90deg,#c88a4a 0 1.6cqw,#8a5528 1.6cqw 1.9cqw);transform:perspective(40cqw) rotateX(55deg) rotateZ(-8deg);border:.4cqw solid #6b3f1c;border-radius:.4cqw}
+.dust{inset:0;background-image:radial-gradient(circle at 12% 70%,#ffe2b855 0 .5cqw,transparent .6cqw),radial-gradient(circle at 80% 30%,#ffe2b840 0 .7cqw,transparent .8cqw),radial-gradient(circle at 60% 80%,#ffe2b835 0 .4cqw,transparent .5cqw),radial-gradient(circle at 30% 20%,#ffe2b840 0 .5cqw,transparent .6cqw),radial-gradient(circle at 90% 75%,#ffe2b830 0 .6cqw,transparent .7cqw),radial-gradient(circle at 45% 45%,#ffe2b825 0 .3cqw,transparent .4cqw)}
+/* The Drill Rig: open plank deck on two treads, drill bit at the front, lantern posts at the corners.
+   All inner sizes are % so a smaller rig scales. */
+.rig{width:24cqw;height:13cqw;left:38cqw;top:30cqw;transform:perspective(40cqw) rotateX(55deg) rotateZ(-8deg)}
+.rig .tr{top:-4%;bottom:-4%;width:11%;background:repeating-linear-gradient(180deg,#2a2a2e 0 .8cqw,#5a5b62 .8cqw 1.15cqw);border:.25cqw solid #111;border-radius:.8cqw}
+.rig .tr.l{left:0}.rig .tr.r{right:0}
+.rig .deck{top:0;bottom:0;left:10%;right:10%;background:repeating-linear-gradient(90deg,#c88a4a 0 1.6cqw,#8a5528 1.6cqw 1.9cqw);border:.3cqw solid #6b3f1c;border-radius:.3cqw}
+.rig .bit{left:32%;width:36%;top:-62%;height:64%;background:repeating-linear-gradient(150deg,#b4bac6 0 .7cqw,#3e434e .7cqw 1.2cqw);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.rig .post{width:5%;height:9%;border-radius:50%;background:#ffd21f;box-shadow:0 0 1.2cqw .3cqw #ffd21fcc;border:.1cqw solid #6a4a00}
 
 /* Roblox top bar */
 .rbx{top:.9cqw;left:.9cqw;display:flex;gap:.5cqw}
@@ -99,6 +108,12 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 .turbo .fire{left:-.4cqw;top:-.5cqw;width:2.6cqw;height:2.6cqw}
 .turbo .key{right:-.6cqw;top:-1.2cqw;width:1.3cqw;height:1.3cqw;background:#fff;border:.15cqw solid #000;border-radius:.2cqw;color:#000;font-size:.9cqw;display:grid;place-items:center}
 .turbo .price{right:.6cqw;top:1.8cqw;font-size:.95cqw}
+/* tread power: one bar per side of the rig, beside the speedometer */
+.treads{right:12.3cqw;top:20.4cqw;display:flex;gap:.5cqw;align-items:flex-end}
+.treads .tb{position:relative;width:1.3cqw;height:6.2cqw;border:.2cqw solid #111;background:#3a3a3a}
+.treads .tb b{position:absolute;left:0;right:0;bottom:0;background:var(--green)}
+.treads .tl{position:absolute;bottom:-2cqw;left:50%;transform:translateX(-50%);font-size:1.1cqw}
+.treads .turn{position:absolute;top:-2.3cqw;left:50%;transform:translateX(-50%);font-size:1.5cqw}
 
 /* bottom */
 .hotbar{bottom:.4cqw;display:flex;gap:.25cqw}
@@ -165,11 +180,32 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 /* misc */
 .vig-red{inset:0;background:radial-gradient(ellipse at center,transparent 35%,#ff2d4a99 75%,#ff2d4add 100%)}
 .vig-dark{inset:0;background:radial-gradient(ellipse at 55% 50%,transparent 20%,#000a 70%)}
-.raftmark{display:grid;justify-items:center;gap:.2cqw}
-.raftmark .tag{position:static;background:var(--yellow);border:.2cqw solid #3a2a00;padding:.2cqw .6cqw;font-size:1.3cqw;color:#fff;-webkit-text-stroke:.15cqw #6a4a00;paint-order:stroke fill;font-style:italic}
-.raftmark .d{position:static;font-size:1.1cqw;color:#fff;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill}
-.raftmark .sec{position:static;background:var(--red);border:.2cqw solid #4a0000;padding:.15cqw .8cqw;font-size:1.4cqw;color:#fff;font-style:italic}
-.raftmark svg{position:static;width:1.6cqw;height:1.6cqw}
+.rigmark{display:grid;justify-items:center;gap:.2cqw}
+.rigmark .tag{position:static;background:var(--yellow);border:.2cqw solid #3a2a00;padding:.2cqw .6cqw;font-size:1.3cqw;color:#fff;-webkit-text-stroke:.15cqw #6a4a00;paint-order:stroke fill;font-style:italic}
+.rigmark .d{position:static;font-size:1.1cqw;color:#fff;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill}
+.rigmark .sec{position:static;background:var(--red);border:.2cqw solid #4a0000;padding:.15cqw .8cqw;font-size:1.4cqw;color:#fff;font-style:italic}
+.rigmark svg{position:static;width:1.6cqw;height:1.6cqw}
+/* lobby: launch bays, leaderboards, Create Party and Classes panels */
+.bay{width:13cqw;height:5.5cqw;border:.4cqw solid #fff;background:#ffffff22;transform:perspective(30cqw) rotateX(60deg)}
+.bay.on{border-color:#5be34a;background:#5be34a33;box-shadow:0 0 1.5cqw #5be34a}
+.bay.mine{border-color:#ffd21f;background:#ffd21f33}
+.baylbl{display:grid;justify-items:center;gap:.2cqw}
+.baylbl > *{position:static}
+.board{background:#6b4426;border:.35cqw solid #2b1a0e;padding:.6cqw}
+.board .bt{position:static;display:block;text-align:center;font-size:1.3cqw}
+.board .tabs{position:static;display:flex;gap:.3cqw;margin:.4cqw 0}
+.board .tabs span{position:static;flex:1;text-align:center;font-size:.8cqw;padding:.15cqw 0;background:#2a5a9a;color:#fff}
+.board .tabs span.on{background:#3fb83a}
+.board .row{position:static;display:flex;justify-content:space-between;font:400 .75cqw system-ui,sans-serif;color:#f4e6cc;padding:.12cqw 0}
+.board .row.you{color:var(--green);font-weight:700}
+.sizebtn{position:relative !important;width:5cqw;height:5cqw;background:linear-gradient(#5f6878,#3e4552);border:.3cqw solid #111;display:grid;place-items:center;font-size:3cqw}
+.sizebtn.on{background:linear-gradient(#7af266,#39c52a);box-shadow:0 0 0 .3cqw #fff}
+.crow{display:flex;align-items:center;gap:1.4cqw;background:#2b1a0e;border:.25cqw solid #111;padding:.8cqw 1.4cqw}
+.crow > *{position:static}
+.crow svg{width:4cqw;height:4cqw}
+.crow .nm{flex:1;font-size:2.6cqw}
+.crow .cost{display:flex;align-items:center;gap:.4cqw;font-size:2.6cqw;color:var(--yellow)}
+.crow .cost svg{position:static;width:2.6cqw;height:2.8cqw}
 .qte{width:8.8cqw;height:8.8cqw;border-radius:50%;background:conic-gradient(var(--green) 0 72%,#fff 72%);display:grid;place-items:center;box-shadow:0 0 1cqw #0008}
 .qte::before{content:"";position:absolute;inset:.6cqw;border-radius:50%;background:#2a2a2a}
 .qte .core{position:relative;width:6.2cqw;height:6.2cqw;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ff8a95,#e8344a);border:.25cqw solid #fff;display:grid;place-items:center;font-size:1.6cqw}
@@ -193,7 +229,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 <body>
 <header>
   <h1>100 Miles to Earth's Core: 1:1 UI mockup</h1>
-  <p>Every screen copies the reference game's layout, sizes and colours, measured from the 2560×1440 recording (see <code>docs/research/reference-ui/</code>), and swaps in our game's wording. Sizes are in container units, so each 16:9 frame scales exactly. Backgrounds are placeholders; icons are flat stand-ins for the final 2D paintings.</p>
+  <p>Every screen copies the reference game's layout, sizes and colours, measured from the 2560×1440 recording (see <code>docs/research/reference-ui/</code>), and swaps in our game: a Drill Rig crew going down to the Earth's core, steered by cranking the tread on your side of the deck. The lobby screens follow the reference lobby recording (see <code>docs/research/reference-lobby/</code>). Sizes are in container units, so each 16:9 frame scales exactly. Backgrounds are placeholders; icons are flat stand-ins for the final 2D paintings.</p>
   <div class="toggle" role="group" aria-label="Wording">
     <button type="button" data-mode="ours" aria-pressed="true">Our wording</button>
     <button type="button" data-mode="ref" aria-pressed="false">Reference wording</button>
@@ -211,12 +247,19 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
     <symbol id="i-camp" viewBox="0 0 40 40"><path d="M6 34L20 8l14 26z" fill="#d98a3a" stroke="#111" stroke-width="2.5"/><path d="M17 34l3-8 3 8z" fill="#ffd21f" stroke="#111" stroke-width="1.5"/></symbol>
     <symbol id="i-robux" viewBox="0 0 40 40"><path d="M20 3l15 8.5v17L20 37 5 28.5v-17z" fill="none" stroke="#fff" stroke-width="5"/><rect x="15" y="15" width="10" height="10" fill="#fff"/></symbol>
     <symbol id="i-check" viewBox="0 0 40 40"><path d="M8 21l8 8 16-18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-paddle" viewBox="0 0 40 40"><path d="M8 34L26 12" stroke="#c88a4a" stroke-width="4"/><ellipse cx="30" cy="8" rx="5" ry="7" transform="rotate(40 30 8)" fill="#c88a4a" stroke="#111" stroke-width="2"/></symbol>
+    <symbol id="i-crank" viewBox="0 0 40 40"><path d="M20 36V14" stroke="#111" stroke-width="6"/><path d="M20 36V14" stroke="#8a8f9a" stroke-width="3"/><path d="M6 12l28-6" stroke="#111" stroke-width="7" stroke-linecap="round"/><path d="M6 12l28-6" stroke="#c88a4a" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="10" r="3.5" fill="#ffd21f" stroke="#111" stroke-width="2"/><rect x="13" y="32" width="14" height="5" rx="1" fill="#5a5b62" stroke="#111" stroke-width="2"/></symbol>
+    <symbol id="i-pick" viewBox="0 0 40 40"><path d="M10 36L28 10" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 10" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M14 8c8-4 18-2 22 6-6-3-13-4-20-2z" fill="#b8bec8" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/></symbol>
     <symbol id="i-rod" viewBox="0 0 40 40"><path d="M6 36L34 4" stroke="#8a5528" stroke-width="3"/><path d="M34 4v20" stroke="#ddd" stroke-width="1"/></symbol>
     <symbol id="i-bag" viewBox="0 0 40 40"><path d="M10 16h20l3 20H7z" fill="#b07a4a" stroke="#111" stroke-width="2.5"/><path d="M15 16a5 5 0 0 1 10 0" fill="none" stroke="#111" stroke-width="2.5"/></symbol>
     <symbol id="i-fish" viewBox="0 0 60 40"><path d="M8 20c10-12 28-12 38 0-10 12-28 12-38 0z" fill="#d8955a" stroke="#111" stroke-width="2.5"/><path d="M46 20l10-8v16z" fill="#d8955a" stroke="#111" stroke-width="2.5"/><path d="M20 12l2 16M28 11l2 18M36 13l1 14" stroke="#5a3010" stroke-width="2.5"/><path d="M2 30L16 22" stroke="#5a3010" stroke-width="4"/></symbol>
     <symbol id="i-stew" viewBox="0 0 60 40"><path d="M6 16h48a24 22 0 0 1-48 0z" fill="#8a5a3a" stroke="#111" stroke-width="2.5"/><ellipse cx="30" cy="16" rx="24" ry="6" fill="#e88a4a" stroke="#111" stroke-width="2"/><rect x="22" y="12" width="5" height="4" fill="#fff"/><rect x="33" y="13" width="5" height="3" fill="#fde9a6"/><path d="M38 2l-6 14" stroke="#ccc" stroke-width="3"/></symbol>
-    <symbol id="i-oar" viewBox="0 0 80 30"><path d="M4 22L52 12" stroke="#2a2a33" stroke-width="5"/><path d="M50 6c10-4 24-2 26 6s-14 10-24 8z" fill="#3b3f52" stroke="#111" stroke-width="2"/><path d="M58 10l6 3-4 3 8 1" stroke="#8fd6ff" stroke-width="1.5" fill="none"/></symbol>
+    <symbol id="i-brasscrank" viewBox="0 0 80 30"><path d="M40 28V10" stroke="#111" stroke-width="6"/><path d="M40 28V10" stroke="#c9a23a" stroke-width="3"/><path d="M8 10l64-6" stroke="#111" stroke-width="7" stroke-linecap="round"/><path d="M8 10l64-6" stroke="#e8c050" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="7" r="4" fill="#fff2b0" stroke="#111" stroke-width="2"/><path d="M14 6l4 4M62 3l4 4" stroke="#fff6c8" stroke-width="1.5"/></symbol>
+    <symbol id="i-wood" viewBox="0 0 40 40"><rect x="4" y="13" width="30" height="14" rx="7" fill="#a8743f" stroke="#111" stroke-width="2.5"/><ellipse cx="32" cy="20" rx="5" ry="7" fill="#e8c08a" stroke="#111" stroke-width="2.5"/><ellipse cx="32" cy="20" rx="2" ry="3" fill="none" stroke="#a8743f" stroke-width="1.5"/></symbol>
+    <symbol id="i-axe" viewBox="0 0 40 40"><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></symbol>
+    <symbol id="i-lumber" viewBox="0 0 40 40"><g transform="translate(40 0) scale(-1 1)"><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></g><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></symbol>
+    <symbol id="i-chef" viewBox="0 0 40 40"><path d="M10 22a7 7 0 0 1 2-13 8 8 0 0 1 16 0 7 7 0 0 1 2 13z" fill="#fff" stroke="#111" stroke-width="2.5"/><rect x="11" y="22" width="18" height="9" rx="2" fill="#f4ecd2" stroke="#111" stroke-width="2.5"/></symbol>
+    <symbol id="i-medic" viewBox="0 0 40 40"><rect x="13" y="5" width="14" height="6" rx="2" fill="none" stroke="#8a5a34" stroke-width="2.5"/><rect x="5" y="10" width="30" height="25" rx="5" fill="#eef2f6" stroke="#111" stroke-width="2.5"/><path d="M20 15v15M12.5 22.5h15" stroke="#2fc43a" stroke-width="5"/></symbol>
+    <symbol id="i-stats" viewBox="0 0 40 40"><rect x="6" y="20" width="7" height="14" fill="#ffd21f" stroke="#111" stroke-width="2"/><rect x="17" y="10" width="7" height="24" fill="#5be34a" stroke="#111" stroke-width="2"/><rect x="28" y="15" width="7" height="19" fill="#7fb6f2" stroke="#111" stroke-width="2"/></symbol>
     <symbol id="i-x" viewBox="0 0 40 40"><path d="M8 8l24 24M32 8L8 32" stroke="#111" stroke-width="10" stroke-linecap="round"/><path d="M8 8l24 24M32 8L8 32" stroke="#e8212e" stroke-width="6" stroke-linecap="round"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 40 40"><path d="M12 4h16v14h8L20 36 4 18h8z" fill="#ffd21f" stroke="#3a2a00" stroke-width="2.5"/></symbol>
     <symbol id="i-book" viewBox="0 0 60 60"><rect x="10" y="8" width="38" height="46" rx="4" fill="#b5462e" stroke="#111" stroke-width="3"/><rect x="14" y="8" width="34" height="40" rx="3" fill="#d9a066" stroke="#111" stroke-width="2"/><path d="M22 54v6l3-3 3 3v-6" fill="#c22" stroke="#111" stroke-width="1.5"/></symbol>
@@ -228,21 +271,23 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 
 <main class="grid">
 
-<!-- 1. RIVER HUD -->
+<!-- 1. DRILL RIG HUD -->
 <figure>
-<div class="screen bg-surface" aria-label="River HUD while paddling">
-  <div class="raft"></div>
+<div class="screen bg-crystal" aria-label="Drill Rig HUD while cranking">
+  <div class="rig"><i class="tr l"></i><i class="tr r"></i><i class="deck"></i><i class="bit"></i><i class="post" style="left:9%;top:-3%"></i><i class="post" style="right:9%;top:-3%"></i><i class="post" style="left:9%;bottom:-3%"></i><i class="post" style="right:9%;bottom:-3%"></i></div>
+  <div style="left:56.6cqw;top:31.4cqw;width:1.6cqw;height:1.6cqw;border-radius:.3cqw;background:#f2c94c;border:.15cqw solid #111"></div>
+  <div style="left:56.2cqw;top:33cqw;width:2.4cqw;height:3.4cqw;border-radius:.3cqw;background:#3a7bd5;border:.15cqw solid #111"></div>
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
   <div class="plist"><div>andreappp66</div><div>rawit436</div><div>Starcloud</div><div>Vanessag</div></div>
 
-  <div class="toprow cx" style="top:3.2cqw"><span class="o" style="font-size:4.4cqw" data-ours="26.1 Miles Down" data-ref="26.1 Miles">26.1 Miles Down</span><span class="badge sun"><svg><use href="#i-sun"/></svg></span></div>
+  <div class="toprow cx" style="top:3.2cqw"><span class="o" style="font-size:4.4cqw" data-ours="26.1 Miles Down" data-ref="26.1 Miles">26.1 Miles Down</span><span class="badge glow"><svg><use href="#i-crystal"/></svg></span></div>
   <div class="objective cx">
     <svg><use href="#i-moon"/></svg>
     <span class="o thin or" style="position:static" data-ours="Reach camp before Lights Out!" data-ref="Reach camp before dark!">Reach camp before Lights Out!</span>
     <span class="o thin" style="position:static">2.3 mi</span>
   </div>
   <div class="route cx" title="Route bar: zones of 10/10/15/20/22/23 miles"><span class="fill" style="width:26%"><i></i></span><span class="ws" style="left:10%"></span><span class="ws" style="left:20%"></span><span class="ws" style="left:35%"></span><span class="ws" style="left:45%"></span><span class="ws" style="left:55%"></span><span class="ws" style="left:66%"></span><span class="ws" style="left:77%"></span><span class="ws" style="left:88%"></span><span class="pos" style="left:26%"></span><span class="end"></span></div>
-  <div class="o thin toast cx" style="top:15.2cqw" data-ours="90% of explorers have made it this far" data-ref="90% of explorers have made it this far"><span class="y" style="position:static">90%</span> of explorers have made it this far</div>
+  <div class="o thin toast cx" style="top:15.2cqw" data-ours="of explorers have made it this far" data-ref="of explorers have made it this far"><span class="y" style="position:static">38%</span> of explorers have made it this far</div>
 
   <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
   <div class="o thin statlabel" style="top:23.6cqw">Hunger</div>
@@ -252,20 +297,21 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 
   <div class="speedo" style="--sp:70deg"><div class="o num cx" style="font-style:italic">20</div><div class="o thin unit cx">MPH</div></div>
   <div class="turbo"><div class="pill o thin">TURBO</div><svg class="fire"><use href="#i-fire"/></svg><div class="key">T</div><div class="price"><svg><use href="#i-robux"/></svg>25</div></div>
+  <div class="treads" title="Tread power, left and right"><div class="tb"><b style="height:35%"></b><span class="o thin tl">L</span></div><div class="tb"><b style="height:80%"></b><span class="o thin tl">R</span><span class="o thin turn y">&#8630;</span></div></div>
 
-  <div class="prompt" style="left:58cqw;top:31.5cqw"><div class="kc">F</div><div class="t">Push Off<br><span style="display:inline-flex;align-items:center;gap:.15cqw"><svg style="width:.8cqw;height:.8cqw"><use href="#i-robux"/></svg>15</span></div></div>
+  <div class="prompt" style="left:59.6cqw;top:30.6cqw"><div class="kc">F</div><div class="t">Push Off<br><span style="display:inline-flex;align-items:center;gap:.15cqw"><svg style="width:.8cqw;height:.8cqw"><use href="#i-robux"/></svg>19</span></div></div>
 
-  <div class="hotbar cx"><div class="slot sel"><small>1</small><svg><use href="#i-paddle"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
-  <div class="hint"><span class="k">Click</span>Paddle</div>
+  <div class="hotbar cx"><div class="slot sel"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
+  <div class="hint"><span class="k">Click</span><span style="position:static" data-ours="Crank" data-ref="Paddle">Crank</span></div>
 </div>
-<figcaption>1 · River HUD (paddling)<span>Reference f0112 (0:01:52). Distance and glow badge, objective line, route bar (a whole-run map: 6 zones of 10/10/15/20/22/23 mi as measured from the reference, passed zones lit, white raft marker at 26.1 mi, yellow Mile 100 tick, plus our Waystation pips), explorer % toast, Starter Pack button, Hunger/Health, speedometer + Turbo, Push Off prompt, hotbar, action hint.</span></figcaption>
+<figcaption>1 · Drill Rig HUD (cranking)<span>Reference f0112 (0:01:52). Distance and glow badge, objective line, route bar (a whole-run map: 6 zones of 10/10/15/20/22/23 mi as measured from the reference, passed zones lit, white rig marker at 26.1 mi in the Crystal Hollows, yellow Mile 100 tick, plus our Waystation pips), explorer % toast, Starter Pack button, Hunger/Health, speedometer + Turbo, tread-power bars (ours: the right side is cranking harder, so the rig turns left), the Push Off prompt on another player (19 R$: shoves them off the rig), hotbar, action hint. The rig is an open plank deck on two treads with the drill bit in front and a lantern on each corner.</span></figcaption>
 </figure>
 
 <!-- 2. CAMP / DARK HUD -->
 <figure>
 <div class="screen bg-camp" aria-label="Camp HUD during Lights Out">
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
-  <div class="toprow cx" style="top:.6cqw;opacity:.7"><span class="o" style="font-size:3.2cqw">2.6 Miles</span><span class="badge moon" style="width:4cqw;height:4cqw"><svg><use href="#i-moon"/></svg></span></div>
+  <div class="toprow cx" style="top:.6cqw;opacity:.7"><span class="o" style="font-size:3.2cqw" data-ours="2.6 Miles Down" data-ref="2.6 Miles">2.6 Miles Down</span><span class="badge moon" style="width:4cqw;height:4cqw"><svg><use href="#i-moon"/></svg></span></div>
   <div class="o thin floater" style="left:64cqw;top:1.4cqw">+0.1x</div>
   <div class="nightrow cx" style="left:48cqw">
     <svg><use href="#i-moon"/></svg>
@@ -275,7 +321,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   </div>
   <div class="crewrow" style="left:30.4cqw">
     <div class="av" style="--skin:#eee;--shirt:#111"></div><div class="av" style="--skin:#2b1b1b;--shirt:#111"></div><div class="av" style="--skin:#f2c94c;--shirt:#2a2a2a"></div><div class="av off"></div>
-    <span class="o thin crewmsg" data-ours="Add fuel to end the Dark" data-ref="Add wood to go faster">Add fuel to end the Dark</span>
+    <span class="o thin crewmsg" data-ours="Add wood to end the Dark" data-ref="Add wood to go faster">Add wood to end the Dark</span>
   </div>
   <div class="ribbon orange o thin cx" style="top:15.5cqw" data-ours="Safe in the light" data-ref="Safe by the fire">Safe in the light</div>
   <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
@@ -285,16 +331,16 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="bar" style="top:29.7cqw"><b style="width:100%;background:var(--hp)"></b></div>
   <div style="left:38cqw;top:30cqw;width:22cqw;height:14cqw;border:.4cqw solid var(--yellow);border-radius:50%;opacity:.9"></div>
   <div style="left:46.5cqw;top:33cqw;width:5cqw;height:6cqw"><svg style="position:static;width:100%;height:100%"><use href="#i-fire"/></svg></div>
-  <div class="hotbar cx"><div class="slot"><small>1</small><svg><use href="#i-paddle"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
+  <div class="hotbar cx"><div class="slot"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
   <div class="hint"><span class="k">Click</span>Punch</div>
 </div>
-<figcaption>2 · Camp during Lights Out<span>Reference f0205 (0:03:25) and f0186. Distance shrinks and fades, the night bar (moon→sun, multiplier, +0.1x floaters), crew portraits lit when inside the ring, one-line message, "Safe in the light" ribbon. Other messages: "Get by the fire to speed up the Dark", "Fire's dying! Add fuel", "Fire's out! He's coming!"</span></figcaption>
+<figcaption>2 · Camp during Lights Out<span>Reference f0205 (0:03:25) and f0186. Distance shrinks and fades, the night bar (moon→sun, multiplier, +0.1x floaters per log), crew portraits lit when inside the ring, one-line message, "Safe in the light" ribbon. Other messages: "Get by the fire to speed up the Dark", "Fire's dying! Add wood", "Fire's out! He's coming!" Wood is the only fuel, as in the reference. At the first few camps the Hollow only watches from the edge; it gets faster at each camp further down.</span></figcaption>
 </figure>
 
 <!-- 3. DEPARTURE -->
 <figure>
 <div class="screen bg-grotto" aria-label="Crew departure countdown">
-  <div class="raft" style="top:26cqw"></div>
+  <div class="rig" style="top:26cqw"><i class="tr l"></i><i class="tr r"></i><i class="deck"></i><i class="bit"></i><i class="post" style="left:9%;top:-3%"></i><i class="post" style="right:9%;top:-3%"></i><i class="post" style="left:9%;bottom:-3%"></i><i class="post" style="right:9%;bottom:-3%"></i></div>
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
   <div class="o cx" style="top:3.6cqw;font-size:4.2cqw">LEAVING IN <span class="r" style="position:static">28</span></div>
   <div class="crewrow cx" style="top:9cqw;gap:1.1cqw">
@@ -308,53 +354,53 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="o thin cx" style="top:32.6cqw;font-size:1.9cqw">Leaving in <span class="r" style="position:static">3</span></div>
   <div class="o cx" style="top:38.5cqw;font-size:3cqw">WAITING FOR CREW</div>
   <div class="o thin cx" style="top:42.4cqw;font-size:1.4cqw">1/2 aboard · <span class="y" style="position:static">1 more</span> to leave</div>
-  <div class="hint"><span class="k">Click</span>Paddle</div>
+  <div class="hint"><span class="k">Click</span><span style="position:static" data-ours="Crank" data-ref="Paddle">Crank</span></div>
 </div>
 <figcaption>3 · Leaving camp<span>Reference f0097 and 5:10–5:15. The 30 s countdown with ready ticks (top), "ALL ABOARD!" when everyone is on (skips to 3 s), "WAITING FOR CREW" when someone is ashore. Three states shown in one frame for review; only one shows at a time in game.</span></figcaption>
 </figure>
 
-<!-- 4. RAFT LEAVING -->
+<!-- 4. RIG LEAVING -->
 <figure>
-<div class="screen bg-surface" aria-label="Raft is leaving warning">
-  <div class="raft" style="left:30cqw;top:28cqw;width:16cqw;height:9cqw"></div>
+<div class="screen bg-surface" aria-label="Rig is leaving warning">
+  <div class="rig" style="left:30cqw;top:28cqw;width:16cqw;height:9cqw"><i class="tr l"></i><i class="tr r"></i><i class="deck"></i><i class="bit"></i></div>
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
-  <div class="o cx" style="top:2.6cqw;font-size:3cqw;color:var(--orange2)">RAFT IS LEAVING</div>
+  <div class="o cx" style="top:2.6cqw;font-size:3cqw;color:var(--orange2)" data-ours="RIG IS LEAVING" data-ref="RAFT IS LEAVING">RIG IS LEAVING</div>
   <div class="cx" style="top:6.4cqw;width:20cqw;height:1.1cqw;border:.22cqw solid #111;background:#333"><b style="position:absolute;left:0;top:0;bottom:0;width:62%;background:var(--orange)"></b></div>
-  <div class="o thin cx" style="top:8.6cqw;font-size:1.3cqw">Get back to the raft</div>
-  <div class="raftmark" style="left:34.5cqw;top:16cqw"><div class="tag">RAFT</div><div class="d">46m</div><div class="sec">15s</div><svg><use href="#i-arrow"/></svg></div>
+  <div class="o thin cx" style="top:8.6cqw;font-size:1.3cqw" data-ours="Get back to the rig" data-ref="Get back to the raft">Get back to the rig</div>
+  <div class="rigmark" style="left:34.5cqw;top:16cqw"><div class="tag" data-ours="RIG" data-ref="RAFT">RIG</div><div class="d">46m</div><div class="sec">15s</div><svg><use href="#i-arrow"/></svg></div>
   <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
   <div class="o thin statlabel" style="top:23.6cqw">Hunger</div><div class="bar" style="top:25.3cqw"><b style="width:97%;background:var(--hunger)"></b></div>
   <div class="o thin statlabel" style="top:28.1cqw">Health</div><div class="bar" style="top:29.7cqw"><b style="width:100%;background:var(--hp)"></b></div>
   <div class="hint"><span class="k">Click</span>Punch</div>
 </div>
-<figcaption>4 · Raft is leaving<span>Reference 1:35 and 13:25. Shows when the raft departs with a crewmate still ashore: timer bar plus a raft marker with distance and seconds.</span></figcaption>
+<figcaption>4 · Rig is leaving<span>Reference 1:35 and 13:25. Shows when the rig departs with a crewmate still off the deck: timer bar plus a rig marker with distance and seconds.</span></figcaption>
 </figure>
 
 <!-- 5. LEFT BEHIND -->
 <figure>
 <div class="screen bg-ice" aria-label="Don't get left behind">
-  <div class="raft" style="left:50cqw;top:13cqw;width:9cqw;height:5cqw"></div>
+  <div class="rig" style="left:50cqw;top:13cqw;width:9cqw;height:5cqw"><i class="tr l"></i><i class="tr r"></i><i class="deck"></i><i class="bit"></i></div>
   <div class="vig-red"></div>
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
   <div class="o cx r" style="top:2.4cqw;font-size:2.9cqw;-webkit-text-stroke:.28cqw #3a0000">DON'T GET LEFT BEHIND!</div>
   <div class="cx" style="top:6.2cqw;width:20cqw;height:1.1cqw;border:.22cqw solid #111;background:#333"><b style="position:absolute;left:0;top:0;bottom:0;width:30%;background:var(--red)"></b></div>
-  <div class="o thin cx" style="top:8.4cqw;font-size:1.3cqw">Swim back to the raft</div>
-  <div class="raftmark" style="left:52cqw;top:4.5cqw"><div class="tag">RAFT</div><div class="d">59m</div><svg><use href="#i-arrow"/></svg></div>
-  <div class="o y cx" style="top:24cqw;font-size:2.3cqw;-webkit-text-stroke:.22cqw #4a3000">KNOCKED OFF!</div>
+  <div class="o thin cx" style="top:8.4cqw;font-size:1.3cqw" data-ours="Run back to the rig" data-ref="Swim back to the raft">Run back to the rig</div>
+  <div class="rigmark" style="left:52cqw;top:4.5cqw"><div class="tag" data-ours="RIG" data-ref="RAFT">RIG</div><div class="d">59m</div><svg><use href="#i-arrow"/></svg></div>
+  <div class="o y cx" style="top:24cqw;font-size:2.3cqw;-webkit-text-stroke:.22cqw #4a3000" data-ours="PUSHED OFF!" data-ref="KNOCKED OFF!">PUSHED OFF!</div>
   <div class="o thin statlabel" style="top:23.6cqw">Hunger</div><div class="bar" style="top:25.3cqw"><b style="width:60%;background:var(--hunger)"></b></div>
   <div class="o thin statlabel" style="top:28.1cqw">Health</div><div class="bar" style="top:29.7cqw"><b style="width:72%;background:var(--hp)"></b></div>
 </div>
-<figcaption>5 · Overboard<span>Reference 5:55, 6:15, 23:20. "KNOCKED OFF!" toast, then a red vignette with the raft marker. Ours adds the crew Rope Ring rescue.</span></figcaption>
+<figcaption>5 · Off the rig<span>Reference 5:55, 6:15, 23:20. A toast ("KNOCKED OFF!" after a hit, "PUSHED OFF!" when another player used Push Off on you), then a red vignette with the rig marker. Ours adds the crew Tow Line rescue.</span></figcaption>
 </figure>
 
-<!-- 6. SWEPT AWAY -->
+<!-- 6. LEFT BEHIND -->
 <figure>
-<div class="screen bg-under" aria-label="Swept away">
-  <div class="bubbles"></div>
-  <div class="o cx" style="top:22cqw;font-size:2.6cqw">SWEPT AWAY</div>
-  <div class="o thin cx" style="top:26cqw;font-size:1.6cqw;font-style:normal">The river carried you back</div>
+<div class="screen bg-dust" aria-label="Left behind">
+  <div class="dust"></div>
+  <div class="o cx" style="top:22cqw;font-size:2.6cqw" data-ours="LEFT BEHIND" data-ref="SWEPT AWAY">LEFT BEHIND</div>
+  <div class="o thin cx" style="top:26cqw;font-size:1.6cqw;font-style:normal" data-ours="The winch hauled you back" data-ref="The river carried you back">The winch hauled you back</div>
 </div>
-<figcaption>6 · Swept away<span>Reference 6:20. Full-screen fade when a swimmer falls about 220 m behind; respawn on the raft. The same blue bubble style is the loading screen.</span></figcaption>
+<figcaption>6 · Left behind<span>Reference 6:20 ("SWEPT AWAY"). Full-screen fade when a player falls about 220 m behind the rig; respawn on the deck. The same rock-dust style is the loading screen (the reference uses blue bubbles).</span></figcaption>
 </figure>
 
 <!-- 7. COOKFIRE -->
@@ -375,7 +421,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
     <div class="btn-green" style="left:19.6cqw;top:22.3cqw;width:25.9cqw;height:5.8cqw"><span class="fill"></span><span class="o" style="position:relative;font-size:2.6cqw;top:-.5cqw">COOK</span><span class="plain" style="bottom:.35cqw;left:0;right:0;text-align:center;font-size:1.1cqw;color:#1b3a12">(hold down)</span></div>
   </div>
 </div>
-<figcaption>7 · Cookfire<span>Reference f1145 (19:05). Recipe list (selected card cream, green tick = owned), detail inset, ingredient count, hold-to-fill COOK. Our recipes: Cooked Fish, Glowcap Skewer, Fish Stew, Hot Chowder, Antidote Stew, Ember Chili, Golden Feast.</span></figcaption>
+<figcaption>7 · Cookfire<span>Reference f1145 (19:05). Recipe list (selected card cream, green tick = owned), detail inset, ingredient count, hold-to-fill COOK. Food comes only from fishing, as in the reference: Cooked Fish, Fish Stew, and one dish per zone made from that zone's fish (for example a Glow Minnow Skewer in zone 2).</span></figcaption>
 </figure>
 
 <!-- 8. STARTER PACK -->
@@ -393,12 +439,12 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
       <span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e8dcc8"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e0a040"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#5a3a2a"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#3a6ad0"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e870b0"></span>
       <span class="plain" style="position:static;font-size:1.2cqw;color:var(--yellow);-webkit-text-stroke:.12cqw #000;paint-order:stroke fill;margin-left:.4cqw">Name it, pick its colours</span>
     </div>
-    <div class="inset" style="left:25.4cqw;top:1.9cqw;width:24cqw;height:7.8cqw"><svg style="left:1cqw;top:1.4cqw;width:12cqw;height:4.6cqw"><use href="#i-oar"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill" data-ours="Driftwood oar" data-ref="Stormwood oar">Driftwood oar</div></div>
-    <div class="inset" style="left:25.4cqw;top:10.7cqw;width:24cqw;height:7.8cqw"><svg style="left:.8cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-paddle"/></svg><svg style="left:5cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-fire"/></svg><svg style="left:9.2cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-crystal"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill">Head-start kit</div></div>
+    <div class="inset" style="left:25.4cqw;top:1.9cqw;width:24cqw;height:7.8cqw"><svg style="left:1cqw;top:1.4cqw;width:12cqw;height:4.6cqw"><use href="#i-brasscrank"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill" data-ours="Brass crank" data-ref="Stormwood oar">Brass crank</div></div>
+    <div class="inset" style="left:25.4cqw;top:10.7cqw;width:24cqw;height:7.8cqw"><svg style="left:.8cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-axe"/></svg><svg style="left:5cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-wood"/></svg><svg style="left:9.2cqw;top:2cqw;width:4.4cqw;height:3cqw"><use href="#i-fish"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill">Head-start kit</div></div>
     <div class="btn-buy" style="left:29.6cqw;top:19.2cqw;width:15.6cqw;height:6cqw"><span class="o" style="position:relative;top:-.9cqw;font-size:2.4cqw;font-style:normal">Buy</span><span class="price" style="bottom:.3cqw;background:none;border:none;font-size:1.9cqw;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill"><svg style="width:1.6cqw;height:1.6cqw"><use href="#i-robux"/></svg>49</span></div>
   </div>
 </div>
-<figcaption>8 · Starter Pack (49 R$)<span>Reference f0897 (14:57). Same wooden panel family as the Cookfire. Ours: pet pup, Driftwood Oar cosmetic, head-start kit (axe, cooked fish ×3, lantern). Popup shows once at the first Waystation; the HUD button is always there.</span></figcaption>
+<figcaption>8 · Starter Pack (49 R$)<span>Reference f0897 (14:57). Same wooden panel family as the Cookfire. Ours: pet pup, Brass Crank cosmetic, head-start kit (axe, a bundle of wood, cooked fish ×3). Popup shows once at the first Waystation; the HUD button is always there.</span></figcaption>
 </figure>
 
 <!-- 9. FIELD NOTE -->
@@ -415,7 +461,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   </div>
   <div class="newpill o" style="left:30.9cqw;top:6.2cqw;width:16cqw;height:8.6cqw">NEW!</div>
 </div>
-<figcaption>9 · Field Note<span>Reference f0545 (9:05). Taped paper card, tilted NEW! pill, charcoal sketch, one or two lines, faction signature. 40 notes across five earlier expeditions; collected into the lobby Journal.</span></figcaption>
+<figcaption>9 · Field Note<span>Reference f0545 (9:05). Taped paper card, tilted NEW! pill, charcoal sketch, one or two lines, faction signature. 6 notes and 2 pages per zone (49 in all) from five earlier expeditions, collected into the Journal and claimed for Embers at camp.</span></figcaption>
 </figure>
 
 <!-- 10. PET CUSTOMISER -->
@@ -439,10 +485,10 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 <!-- 11. QTE -->
 <figure>
 <div class="screen bg-grotto" aria-label="Spam QTE when grabbed">
-  <div class="raft" style="left:52cqw;top:16cqw;width:22cqw;height:12cqw"></div>
+  <div class="rig" style="left:52cqw;top:16cqw;width:22cqw;height:12cqw"><i class="tr l"></i><i class="tr r"></i><i class="deck"></i><i class="bit"></i><i class="post" style="left:9%;top:-3%"></i><i class="post" style="right:9%;top:-3%"></i></div>
   <div class="vig-dark"></div>
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
-  <div class="toprow cx" style="top:.8cqw"><span class="o" style="font-size:3.4cqw">12.1 Miles</span><span class="badge moon" style="width:4.2cqw;height:4.2cqw"><svg><use href="#i-moon"/></svg></span></div>
+  <div class="toprow cx" style="top:.8cqw"><span class="o" style="font-size:3.4cqw" data-ours="12.1 Miles Down" data-ref="12.1 Miles">12.1 Miles Down</span><span class="badge moon" style="width:4.2cqw;height:4.2cqw"><svg><use href="#i-moon"/></svg></span></div>
   <div class="objective cx" style="top:6.2cqw">
     <svg><use href="#i-storm"/></svg>
     <span class="o thin r" style="position:static">He's hunting! Get to camp</span>
@@ -457,8 +503,8 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 
 <!-- 12. LOADING / CREW -->
 <figure>
-<div class="screen bg-under" aria-label="Waiting for your crew">
-  <div class="bubbles"></div>
+<div class="screen bg-dust" aria-label="Waiting for your crew">
+  <div class="dust"></div>
   <div class="o cx" style="top:5.6cqw;font-size:4.4cqw">WAITING FOR YOUR CREW</div>
   <div class="o thin cx" style="top:10.9cqw;font-size:1.9cqw">Starting in <span class="y" style="position:static">13</span></div>
   <div class="cx" style="top:14.6cqw;display:flex;gap:1.6cqw">
@@ -474,24 +520,67 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 <figcaption>12 · Loading and crew wait<span>Reference 0:10–0:30. Ours keeps it but caps the wait at 10 s, and solo players skip it (time-to-control target ≤ 10 s).</span></figcaption>
 </figure>
 
-<!-- 13. LOBBY -->
+<!-- 13. LOBBY: TOPSIDE CAMP -->
 <figure>
-<div class="screen bg-lobby" aria-label="Lobby HUD">
+<div class="screen bg-lobby" aria-label="Topside Camp lobby">
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
+  <div style="right:4cqw;top:.9cqw;height:2.6cqw;padding:0 1cqw;border-radius:1.3cqw;background:#1c1d20e6;display:grid;place-items:center;font:400 1cqw system-ui,sans-serif;color:#fff">STATS</div>
+  <div class="plist" style="width:7.4cqw"><div>explorer_one · 87.2</div><div>deepdigger · 81.9</div><div>Starcloud · 55.9</div><div>cavecrew7 · 20.1</div><div>glowfan · 0</div></div>
+  <div class="board" style="left:23.5cqw;top:12.5cqw;width:11.5cqw"><span class="o thin bt">FASTEST RUN</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>51:06</span></div><div class="row"><span>#2 deepdigger</span><span>51:06</span></div><div class="row"><span>#3 cavecrew7</span><span>52:38</span></div><div class="row"><span>#4 glowfan</span><span>55:45</span></div><div class="row"><span>#5 rockhopper</span><span>55:45</span></div><div class="row you"><span>#1 You</span><span>None</span></div></div>
+  <div class="board" style="left:41.5cqw;top:13.5cqw;width:11.5cqw"><span class="o thin bt">EMBERS EARNED</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>12,875</span></div><div class="row"><span>#2 deepdigger</span><span>8,985</span></div><div class="row"><span>#3 cavecrew7</span><span>8,440</span></div><div class="row"><span>#4 glowfan</span><span>8,363</span></div><div class="row"><span>#5 rockhopper</span><span>7,952</span></div><div class="row you"><span>#1 You</span><span>685</span></div></div>
+  <div class="board" style="left:57.5cqw;top:13cqw;width:11.5cqw"><span class="o thin bt">DEEPEST TOTAL</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>1062 mi</span></div><div class="row"><span>#2 deepdigger</span><span>722 mi</span></div><div class="row"><span>#3 cavecrew7</span><span>619 mi</span></div><div class="row"><span>#4 glowfan</span><span>599 mi</span></div><div class="row"><span>#5 rockhopper</span><span>574 mi</span></div><div class="row you"><span>#1 You</span><span>55.9 mi</span></div></div>
+  <div class="board" style="left:78cqw;top:15cqw;width:10.5cqw;text-align:center"><svg style="position:static;width:3cqw;height:3cqw"><use href="#i-medic"/></svg><span class="o thin bt">FREE REVIVE</span><div class="row" style="justify-content:center">Join the group</div></div>
+  <div style="left:2cqw;top:22cqw;width:11cqw;height:8cqw;background:#7a2a2a;clip-path:polygon(0 40%,50% 0,100% 40%,100% 100%,0 100%)"></div>
+  <div class="o y" style="left:1.6cqw;top:17.4cqw;font-size:3.4cqw;font-style:normal;-webkit-text-stroke:.3cqw #3a2000">CLASSES</div>
   <div class="cx" style="top:1.2cqw;display:flex;gap:2.4cqw;left:50cqw">
     <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-book"/></svg><span class="n">1</span></div><span class="o" style="position:static;font-size:2.3cqw">Journal</span></div>
     <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-invite"/></svg></div><span class="o" style="position:static;font-size:2.3cqw">Invite</span></div>
-    <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-badge"/></svg><span class="n">1</span></div><span class="o" style="position:static;font-size:2.3cqw">Badges</span></div>
+    <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-badge"/></svg><span class="n">5</span></div><span class="o" style="position:static;font-size:2.3cqw">Badges</span></div>
   </div>
-  <div class="cx" style="top:11.3cqw;display:flex;align-items:center;gap:.4cqw"><svg style="position:static;width:4cqw;height:4.4cqw"><use href="#i-shard"/></svg><span class="o" style="position:static;font-size:3.6cqw">0</span></div>
-  <div class="o y" style="left:22cqw;top:13cqw;font-size:4.6cqw;font-style:normal;-webkit-text-stroke:.35cqw #3a2000">CLASSES</div>
-  <div class="o thin" style="left:56cqw;top:19cqw;font-size:1.8cqw;font-style:normal">1/4 PLAYERS</div>
-  <div class="o thin g" style="left:56.6cqw;top:21.2cqw;font-size:1.1cqw;font-style:normal">Starting in 13s</div>
-  <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
-  <div class="bigbtn o" style="left:39.75cqw;top:41cqw;width:20.5cqw;height:6.6cqw;background:linear-gradient(#5fd04a,#2f9a25);font-style:normal" data-ours="PLAY" data-ref="PLAY">PLAY</div>
-  <div class="bigbtn o" style="left:63cqw;top:42.4cqw;width:16cqw;height:4.2cqw;font-size:2.2cqw;background:linear-gradient(#ffcf3a,#f39a12);font-style:normal">CONTINUE · MILE 35</div>
+  <div class="cx" style="top:9.2cqw;display:flex;align-items:center;gap:.4cqw"><svg style="position:static;width:4cqw;height:4.4cqw"><use href="#i-shard"/></svg><span class="o" style="position:static;font-size:3.6cqw">685</span></div>
+  <div class="bay" style="left:3cqw;top:41cqw;width:20cqw;height:9cqw"></div>
+  <div class="baylbl" style="left:5cqw;top:33.5cqw"><span class="o" style="font-size:3.4cqw;font-style:normal">PLAY</span><span class="o thin" style="font-size:1.7cqw;font-style:normal">Step in to make a party</span></div>
+  <div class="bay on" style="left:66cqw;top:36.5cqw;width:16cqw;height:7cqw"></div>
+  <div class="baylbl" style="left:67cqw;top:29.6cqw"><span class="o thin" style="font-size:2cqw;font-style:normal">1/4 PLAYERS</span><span class="o thin g" style="font-size:1.3cqw;font-style:normal">Starting in 7s</span><span class="o thin" style="font-size:1.3cqw;font-style:normal">Starcloud</span></div>
+  <div class="bay" style="left:84cqw;top:44cqw;width:18cqw;height:8cqw"></div>
+  <div class="bigbtn o" style="left:39.75cqw;top:46.4cqw;width:20.5cqw;height:6.6cqw;background:linear-gradient(#5fd04a,#2f9a25);font-style:normal">PLAY</div>
+  <div class="bigbtn o" style="left:61.6cqw;top:47.6cqw;width:20cqw;height:4.2cqw;font-size:1.9cqw;background:linear-gradient(#ffcf3a,#f39a12);font-style:normal">CONTINUE · MILE 35</div>
 </div>
-<figcaption>13 · Lobby<span>Reference f0006 / f0001. Journal, Invite and Badges with red counts, meta currency (ours: Deepstones), Classes hut, party pads, Starter Pack button, big PLAY. Ours adds CONTINUE from the last Waystation save.</span></figcaption>
+<figcaption>13 · Topside Camp (lobby)<span>Reference lobby recording 0:24 and 1:12. Journal (1 to claim), Invite and Badges (5 to claim) with red counts, Embers (meta currency) under them, STATS button top right, player list with lifetime miles, leaderboards with Global / Friends tabs and a pinned "You" row (Fastest Run, Embers Earned; ours renames Total Miles to Deepest Total), Free Revive board, Classes hut, launch bays (white = empty, green = a party counting down from 20 s), big PLAY. Ours adds CONTINUE from the last Waystation save, and the sinkhole on the horizon. Leaderboard names are placeholders.</span></figcaption>
+</figure>
+
+<!-- 14. CREATE PARTY -->
+<figure>
+<div class="screen bg-lobby" aria-label="Create Party panel">
+  <div class="bay mine" style="left:38cqw;top:43cqw;width:24cqw;height:9cqw"></div>
+  <div class="o ptitle" style="left:33.8cqw;top:14.6cqw">Create Party</div>
+  <svg class="xbtn" style="left:63.2cqw;top:15.2cqw"><use href="#i-x"/></svg>
+  <div class="panel" style="left:33.8cqw;top:18.75cqw;width:32.4cqw;height:21.3cqw">
+    <span class="nail" style="left:.8cqw;top:2cqw"></span><span class="nail" style="left:.8cqw;top:9cqw"></span><span class="nail" style="left:.8cqw;top:16cqw"></span><span class="nail" style="right:.8cqw;top:2cqw"></span><span class="nail" style="right:.8cqw;top:9cqw"></span><span class="nail" style="right:.8cqw;top:16cqw"></span>
+    <div class="o thin" style="left:2.2cqw;top:1.9cqw;font-size:1.7cqw;font-style:normal">Players</div>
+    <div style="left:2.5cqw;top:4.2cqw;display:flex;gap:.66cqw"><span class="sizebtn o">1</span><span class="sizebtn o">2</span><span class="sizebtn o">3</span><span class="sizebtn o on">4</span><span class="sizebtn o">5</span></div>
+    <div style="left:7.6cqw;top:10cqw;width:3.9cqw;height:3.9cqw;background:linear-gradient(#5f6878,#3e4552);border:.3cqw solid #111"></div>
+    <div class="o thin" style="left:12.2cqw;top:10.9cqw;font-size:2cqw;font-style:normal">Friends Only</div>
+    <div class="btn-green" style="left:7.9cqw;top:15cqw;width:16.5cqw;height:4.8cqw"><span class="o" style="position:relative;font-size:2.6cqw;font-style:normal">CREATE</span></div>
+  </div>
+</div>
+<figcaption>14 · Create Party<span>Reference lobby recording 1:18. Opens when you step into an empty launch bay. Party size 1–5 with 4 selected by default, Friends Only tickbox, CREATE. The 20 s countdown then starts on the bay; people joining do not reset it, a full party drops to 5 s, and a party that is not full starts anyway.</span></figcaption>
+</figure>
+
+<!-- 15. CLASSES -->
+<figure>
+<div class="screen bg-lobby" aria-label="Classes panel">
+  <div style="inset:0;background:#0004"></div>
+  <div class="o ptitle" style="left:22.9cqw;top:9.6cqw">Classes</div>
+  <svg class="xbtn" style="left:73cqw;top:10cqw"><use href="#i-x"/></svg>
+  <div class="panel" style="left:22.5cqw;top:13.7cqw;width:55cqw;height:32.6cqw">
+    <span class="nail" style="left:1cqw;top:2.6cqw"></span><span class="nail" style="left:1cqw;top:10cqw"></span><span class="nail" style="left:1cqw;top:17.4cqw"></span><span class="nail" style="left:1cqw;top:24.8cqw"></span><span class="nail" style="right:1cqw;top:2.6cqw"></span><span class="nail" style="right:1cqw;top:10cqw"></span><span class="nail" style="right:1cqw;top:17.4cqw"></span><span class="nail" style="right:1cqw;top:24.8cqw"></span>
+    <div class="crow" style="left:2.8cqw;top:1.8cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-lumber"/></svg><span class="o thin nm" style="font-style:normal">Lumberjack</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>150</span></div>
+    <div class="crow" style="left:2.8cqw;top:9.2cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-chef"/></svg><span class="o thin nm" style="font-style:normal">Cook</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>750</span></div>
+    <div class="crow" style="left:2.8cqw;top:16.6cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-medic"/></svg><span class="o thin nm" style="font-style:normal">Medic</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>1500</span></div>
+  </div>
+</div>
+<figcaption>15 · Classes<span>Reference lobby recording 0:30. The same three classes and prices as the reference, all about wood, food or helping the crew: Lumberjack (starts with an axe, +1 wood per chop; 150 Embers or 49 R$), Cook (starts with a cooked fish, food fills 15% more; 750 or 149 R$), Medic (starts with a bandage, revives 15% faster; 1500 or 299 R$). Picking one opens a try-on room with the outfit on your avatar, a green Embers button ("Need N" in grey when short) and a pink Robux button.</span></figcaption>
 </figure>
 
 </main>
