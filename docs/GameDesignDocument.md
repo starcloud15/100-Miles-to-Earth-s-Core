@@ -41,7 +41,7 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built.**
 1. **The route is the level.** A guided path you can steer, not a track you ride. Every turn shows something new.
 2. **Always deeper.** The depth counter is the score, the goal and the brag. It always moves, and it always shows the next stop.
 3. **Stop, scramble, go.** Stops are short, busy and optional. The crew chooses between "camp here" and "push for the next one".
-4. **Light is life.** The one resource *is* light. Spend Glowstone to fix the rig, or burn it to keep the Hollow away. That choice runs the whole game.
+4. **Light is life.** The one resource *is* light. Glowstone is **everywhere**, and crews gather lots of it. The question is never "do we have enough?" but "do we have time?": mine one more vein, or reach the Beacon before Lights Out.
 5. **Every layer of the Earth feels new.** Each zone changes the palette, the rock, the creatures, the threats, what you forage and **one survival rule**.
 
 ### Audience and session
@@ -74,7 +74,7 @@ Each row keeps **what the system does** in the reference and replaces **what it 
 |---|---|---|---|
 | Vehicle | A raft on a river | **An open-deck Drill Rig on a planned route down through the Earth** | The owner's theme. The guided-but-steerable feel stays. |
 | Moving and steering | Paddling: each player paddles on their side; strokes add speed and turn the raft | **Cranking: each player pumps a crank on their side of the deck; it drives that side's tread** (section 5) | Same feel, same "everyone has a job", our own verb. |
-| The one resource | Wood: builds the raft, repairs it, feeds the fire | **Glowstone**: a warm, glowing rock. It **powers up the rig** at the start, **repairs** it, and **feeds the Beacon** and lanterns that keep the Hollow away (section 11) | One resource with three uses keeps every stop readable. Making the resource *light itself* ties it to the monster and to "Light is life". |
+| The one resource | Wood: builds the raft, repairs it, feeds the fire | **Glowstone**: a warm, glowing rock. It **powers up the rig** at the start, **repairs** it, and **feeds the Beacon** and lanterns that keep the Hollow away (section 11) | One resource with three uses keeps every stop readable. Making the resource *light itself* ties it to the monster. **Plentiful, like the reference's wood** (owner): the pressure is time, not supply. |
 | How you get it | Punching, then chopping trees | **Smashing glowing rock, then mining veins with a pickaxe**; loose chunks on the route can be scooped up by steering over them | Digging fits a journey into the Earth. |
 | Food | Fishing at docks, then cooking | **Foraging**: pulling mushrooms, roots and cave fruit with a timing minigame, then cooking at the camp **Cookpot** (section 11) | A different, underground activity with the same role: a skill moment, a collection and survival. |
 | The safe place at night | A campfire ring, "Add wood to go faster" | The **Beacon**: a glowstone lamp tower at each camp. "Add glowstone to end the Dark" | Same night bar and crew job, our own object. |
@@ -391,25 +391,38 @@ Speed rises a little at every camp (for example +8% per camp from zone 3; tune i
 Only Hunger and Health show on the HUD by default. The zone stat appears only in its zone, so the HUD stays clean (owner rule).
 
 ### Glowstone: the one resource
+- **Plentiful by design** (owner: in the reference, wood piles up; there were hundreds left over a quarter of the way down). Gathering is fast and generous, and crews should finish most stops with **more than they need**. The pressure comes from time (the stop timer, Lights Out, the Hollow), never from running short.
 - **Getting it:**
   - Smash it with fists at first (the opener).
   - A pickaxe from the first camp chest mines 3× faster.
-  - Every stop has glowstone veins in its walls; they look different in each zone (section 9.2).
-  - Loose chunks on the route can be scooped up by steering over them.
-  - Veins respawn per stop and are shared by the crew.
-- **Spending it:** three places, and the choice between them is the whole economy:
-  1. **Repair the rig** (section 6.2).
-  2. **Feed the light:** the Beacon at camp and the rig's lanterns at night (section 8).
-  3. **Build up the rig** (section 6.3).
-- **Feel:** chunks glow warmer the more you hold, and the crew's carried glowstone lights up the deck. A crew low on glowstone literally looks darker.
+  - Every stop has **many** glowstone veins in its walls; they look different in each zone (section 9.2). A vein never runs dry during a stop, and mined spots regrow in about 20 s.
+  - Loose chunks lie all along the route; steering over them scoops them up.
+  - Veins are shared by the crew; every player gets their own chunks.
+- **Rates** (targets, judgement; tune in playtests):
+
+  | Source | Rate |
+  |---|---|
+  | Fists | About 1 chunk a second |
+  | Pickaxe | 2–3 chunks a second |
+  | A 60 s stop, one player with a pickaxe | About 100 chunks |
+  | Loose chunks on the route | About 15–25 a mile with light steering |
+
+- **Spending it** goes to three places. Costs are small next to income, so the crew decides **what to do first**, not whether it can afford it:
+  1. **Repair the rig** (5–10 chunks a crack, section 6.2).
+  2. **Feed the light:** the Beacon at camp (about 20–30 chunks for a fast night) and the rig's lanterns at night (section 8).
+  3. **Build up the rig** (30–120 chunks per build, section 6.3).
+- **Target:** by Mile 25 a typical player carries a few hundred spare chunks. The bag stack goes to 999, so a big haul shows as a big number.
+- **Feel:** chunks glow warmer the more you hold, and the crew's carried glowstone lights up the deck. A rich haul is a good feeling, not a reason to hoard.
 
 ### Foraging: the food
-- **What:** underground mushrooms, roots and cave fruit growing at every stop: forage patches at camps, groves at landings, and rare finds in side caves.
+- **What:** underground mushrooms, roots and cave fruit growing at every stop: dense forage patches at camps, groves at landings, and rare finds in side caves.
+- **Plentiful by design** (owner: in the reference you can catch a fish about every 10 s). Target **about one find every 10 s** of foraging, so a 60 s stop gives each player about 5–6 finds. Patches are dense and regrow within about 30 s, so they never run out during a stop.
 - **The Pull** (our skill moment, replacing the reference's fishing reel):
   - Grab a plant and hold. A meter fills while the stalk strains and glows.
   - **Let go when it glows green** for a perfect pull: a full-size find, sometimes a double.
   - Too early and it snaps (a small piece). Too late and it bursts into a puff of spores (nothing, and a sneeze).
-  - 2–5 s per pull, readable on a phone.
+  - 2–4 s per pull, readable on a phone. With walking between plants, that's about one find every 10 s.
+  - A missed pull costs only those seconds; the next plant is right there.
 - **Tools:** the Forager's Trowel (Twig, then Iron, then Crystal). Better trowels widen the green zone and raise the chance of rare finds.
 - **Collection:** each zone has 3–4 forage types plus 1 rare. The **Forage Log** collects all of them (about 25), with a sketch and one line each.
 - **Cooking** at the camp **Cookpot**: pick a recipe, see ingredients, **hold COOK** (the reference's hold-to-fill UI). Recipes unlock from Field Notes and traders.
@@ -606,7 +619,7 @@ Principles (owner rules and the knowledge base):
 
 | Product | Type | Price (R$) | Where it shows | Notes |
 |---|---|---|---|---|
-| **Starter Pack**: a **Glow Mole** pet (name and colours; lights a small radius around you and fetches dropped items), a **Brass Crank** cosmetic, a head-start kit (Iron Pickaxe, 20 glowstone, 3 Cave Stews) | Gamepass | **49** | HUD button always. One popup at the **first Waystation** (Mile 10, about 9–10 min). | The reference's offer shape (popup about 15 min, bought at about 25 min, recording). Best seller in Run a Resort (live). |
+| **Starter Pack**: a **Glow Mole** pet (name and colours; lights a small radius around you and fetches dropped items), a **Brass Crank** cosmetic, a head-start kit (Iron Pickaxe, 100 glowstone, 3 Cave Stews) | Gamepass | **49** | HUD button always. One popup at the **first Waystation** (Mile 10, about 9–10 min). | The reference's offer shape (popup about 15 min, bought at about 25 min, recording). Best seller in Run a Resort (live). |
 | **Turbo** (crew-wide +20 MPH, 20 s) | Dev product | **25** | Pill under the speedometer (T) | Free Boost Crystals also exist. |
 | **Push Off** (shove a player off the rig) | Dev product | **19** | World prompt on the target player (F) | The reference's price and placement (recording). Safeguards in 5.6. |
 | **Revive** (self, on the spot) | Dev product | **19** | Down screen | 1 free Revive Flare per day through the group. |
@@ -674,7 +687,7 @@ Principles (owner rules and the knowledge base):
 - Per-version first-session counters: under 60 s, under 180 s, reached camp 1, reached Waystation 1.
 - Time in camp before the first run, and the party size chosen.
 - Mile reached and quit mile.
-- Glowstone balance at each camp (is the repair-or-light choice tight enough?) and perfect-pull rate.
+- Glowstone carried at each camp (target: a growing surplus; if crews run short, raise the rates) and forage finds per minute (target about 6).
 - Push Off uses: who pushed whom, and whether the target quit soon after (a griefing check).
 - Quit reason context: open window, in the Dark or not, thrown off or not.
 - Frame rate, crew size at quit.
