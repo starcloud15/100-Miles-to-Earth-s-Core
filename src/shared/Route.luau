@@ -1,19 +1,22 @@
 --[[
-	The planned route (GDD 5.1): a spline that always trends downward, built
-	from modular pieces shuffled by a seed. Server and client build the same
-	route from the same seed.
+	The planned route (GDD 5.1, docs/match-spec.md §4): a steep downhill dig
+	that bends every 10-20 s at speed, built from pieces shuffled by a seed.
+	Server and client build the same route from the same seed.
 
-	Distances along the route are "s" in studs; sideways offsets are "x"
-	(positive = to the right when facing down the route).
+	Zone 1: an open gorge at the surface, The Drop (a spiral down a sinkhole
+	shaft), then enclosed tunnels with chutes, caverns, rock bands and named
+	stop chambers at fixed miles. Nothing to pick up along the way: glowstone
+	is mined at stops (owner, like the reference's trees at camps).
+
+	"s" is the distance along the route in studs; "x" is the sideways offset
+	(positive = right when facing down the route).
 ]]
 
 local Config = require(script.Parent.Config)
 
 local Route = {}
 Route.__index = Route
-Route.STEP = 4 -- studs between nodes
-
-export type Node = { p: Vector3, yaw: number, w: number }
+Route.STEP = 4
 
 local function forwardOf(yaw: number): Vector3
 	return Vector3.new(-math.sin(yaw), 0, -math.cos(yaw))
@@ -23,128 +26,120 @@ function Route.new(seed: number, miles: number)
 	local rng = Random.new(seed)
 	local self = setmetatable({}, Route)
 	self.seed = seed
-	self.nodes = {} :: { Node }
+	self.nodes = {} -- { p, yaw, w, h, kind }
 	self.hazards = {} -- { s, len, offset, radius, kind }
-	self.pickups = {} -- { id, s, offset, amount }
 	self.signs = {} -- { s, kind, text }
 	self.pieces = {} -- { s0, s1, kind }
+	self.stops = {} -- { s, name, kind }
+	self.caverns = {} -- { s0, s1 }
 
 	local STEP = Route.STEP
-	local total = miles * Config.STUDS_PER_MILE
-	local pos, yaw, width = Vector3.zero, 0, 80
-	table.insert(self.nodes, { p = pos, yaw = yaw, w = width })
+	local SPM = Config.STUDS_PER_MILE
+	local total = miles * SPM
+	local T = Config.Tunnel
+	local pos, yaw = Vector3.zero, 0
+	local width, height = 64, 0
+	table.insert(self.nodes, { p = pos, yaw = yaw, w = width, h = height, kind = "Gorge" })
 
 	local function length()
 		return (#self.nodes - 1) * STEP
 	end
 
-	-- one piece: `len` studs turning `turnDeg` in total, dropping `slope` studs per stud
-	local function run(len: number, turnDeg: number, slope: number, toWidth: number, kind: string)
+	local function run(len: number, turnDeg: number, slope: number, toWidth: number, toHeight: number, kind: string)
 		local n = math.max(1, math.floor(len / STEP + 0.5))
-		local dyaw = math.rad(turnDeg) / n
-		local w0 = width
+		local w0, h0 = width, height
 		local s0 = length()
 		for i = 1, n do
-			yaw += dyaw
+			-- ease the turn in and out so bends feel like curves, not kinks
+			local t = (i - 0.5) / n
+			yaw += math.rad(turnDeg) / n * (1 - math.cos(t * math.pi * 2)) * 1
 			pos += forwardOf(yaw) * STEP + Vector3.new(0, slope * STEP, 0)
-			width = w0 + (toWidth - w0) * math.min(1, i / math.min(n, 12))
-			table.insert(self.nodes, { p = pos, yaw = yaw, w = width })
+			local k = math.min(1, i / math.min(n, 10))
+			width = w0 + (toWidth - w0) * k
+			height = h0 + (toHeight - h0) * k
+			table.insert(self.nodes, { p = pos, yaw = yaw, w = width, h = height, kind = kind })
 		end
 		local s1 = length()
 		table.insert(self.pieces, { s0 = s0, s1 = s1, kind = kind })
 		return s0, s1
 	end
 
-	local nextId = 0
-	local function trail(s: number, offset: number, count: number, spacing: number, drift: number)
-		for i = 0, count - 1 do
-			nextId += 1
-			table.insert(self.pickups, {
-				id = nextId,
-				s = s + i * spacing,
-				offset = offset + drift * i,
-				amount = rng:NextInteger(1, 3),
-			})
-		end
+	local function sign(s: number, kind: string, text: string)
+		table.insert(self.signs, { s = s, kind = kind, text = text })
 	end
 
-	local function pillar(s: number, offset: number)
-		table.insert(self.hazards, { s = s, len = 8, offset = offset, radius = 4, kind = "Pillar" })
-		table.insert(self.signs, { s = s - 150, kind = "Warning", offset = offset })
+	local function boulder(s: number, offset: number)
+		table.insert(self.hazards, { s = s, len = 8, offset = offset, radius = 4, kind = "Boulder" })
+		sign(s - 520, "Warning", "ROCK!")
 	end
 
-	-- hazards and loot inside an ordinary piece: something to steer for and around
-	local function dress(a: number, b: number, w: number)
-		local span = b - a
-		if span < 160 then
-			return
+	-- the surface: an open red-rock gorge, gentle bends, already going down
+	while length() < Config.SURFACE_MILES * SPM - 300 do
+		local turn = rng:NextNumber(18, 36) * (rng:NextNumber() < 0.5 and -1 or 1)
+		local a, b = run(rng:NextInteger(320, 460), turn, -0.12, 64, 0, "Gorge")
+		if b - a > 300 then
+			boulder(a + rng:NextNumber(150, b - a - 60), rng:NextNumber(-0.25, 0.25) * 64)
 		end
-		local count = rng:NextInteger(0, 2)
-		local lastS = -math.huge
-		for _ = 1, count do
-			local s = a + rng:NextNumber(80, span - 40)
-			if math.abs(s - lastS) > 120 then
-				pillar(s, rng:NextNumber(-0.3, 0.3) * w)
-				lastS = s
-			end
-		end
-		local side = rng:NextNumber(-0.3, 0.3) * w
-		trail(a + rng:NextNumber(30, math.max(40, span - 160)), side, rng:NextInteger(4, 6), 28, rng:NextNumber(-3, 3))
 	end
+	run(260, 0, -0.18, 52, 0, "Gorge")
 
-	-- the surface quarry, then pieces until the zone is long enough
-	run(160, 0, -0.02, 80, "Start")
-	trail(90, 0, 4, 24, 0)
-	local dropAt = 1 * Config.STUDS_PER_MILE
-	local forkAt = 5 * Config.STUDS_PER_MILE
-	local dropDone, forkDone = false, false
+	-- The Drop: one and a half turns down the inside of the sinkhole shaft
+	sign(length() - 300, "Drop", "THE DROP")
+	local dropDir = rng:NextNumber() < 0.5 and -1 or 1
+	local d0, d1 = run(1150, 540 * dropDir, -0.3, T.WIDTH, T.HEIGHT, "Drop")
+	self.drop = { s0 = d0, s1 = d1, dir = dropDir }
+
+	-- tunnels down to the end, with stops at fixed miles
+	local stopIndex = 1
+	local sinceCavern = 0
 	while length() < total do
 		local s = length()
-		if not dropDone and s >= dropAt then
-			-- The Drop (GDD 9.1): spiralling down the sinkhole wall into the first cavern
-			dropDone = true
-			table.insert(self.signs, { s = s - 120, kind = "Drop", text = "THE DROP" })
-			local a = run(960, 540 * (rng:NextNumber() < 0.5 and -1 or 1), -0.16, 70, "Drop")
-			trail(a + 220, 0, 5, 30, 0)
-			trail(a + 620, 0, 5, 30, 0)
-		elseif not forkDone and s >= forkAt then
-			-- a fork (GDD 5.4): steer left for loot, right for calm
-			forkDone = true
-			run(80, 0, -0.04, 120, "ForkOpen")
-			local a, b = run(320, 0, -0.04, 120, "Fork")
-			table.insert(self.hazards, { s = (a + b) / 2, len = b - a - 40, offset = 0, radius = 8, kind = "Divider" })
-			table.insert(self.signs, { s = a - 220, kind = "Fork", text = "FORK AHEAD", left = "Glowstone", right = "Calm" })
-			trail(a + 40, -32, 9, 30, 0)
-			run(80, 0, -0.04, 80, "ForkClose")
+		local stop = Config.STOPS[stopIndex]
+		if stop and s >= stop.mile * SPM - 260 then
+			-- a stop chamber: wide, high and flat; the rig stops dead in the middle
+			stopIndex += 1
+			run(60, 0, -0.04, 110, 46, "StopIn")
+			local a, b = run(200, rng:NextNumber(-12, 12), 0, 110, 46, "Stop")
+			table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind })
+			run(60, 0, -0.04, T.WIDTH, T.HEIGHT, "StopOut")
+			sinceCavern = 0
+		elseif sinceCavern > 1500 and rng:NextNumber() < 0.5 then
+			-- a cavern breaks up the enclosure, like the reference's wide pools
+			local a, b = run(rng:NextInteger(300, 380), rng:NextNumber(-20, 20), -0.06, 120, 64, "Cavern")
+			table.insert(self.caverns, { s0 = a, s1 = b })
+			run(50, 0, -0.12, T.WIDTH, T.HEIGHT, "Tunnel")
+			sinceCavern = 0
 		else
 			local r = rng:NextNumber()
 			local a, b
-			if r < 0.3 then
-				a, b = run(rng:NextInteger(200, 320), 0, -rng:NextNumber(0.03, 0.08), 80, "Straight")
-			elseif r < 0.6 then
-				local turn = rng:NextNumber(35, 70) * (rng:NextNumber() < 0.5 and -1 or 1)
-				a, b = run(rng:NextInteger(220, 300), turn, -0.05, 80, "Bend")
-			elseif r < 0.75 then
-				local turn = rng:NextNumber(30, 50) * (rng:NextNumber() < 0.5 and -1 or 1)
-				a = run(160, turn, -0.05, 80, "S")
-				local _
-				_, b = run(160, -turn, -0.05, 80, "S")
-			elseif r < 0.88 then
-				a, b = run(rng:NextInteger(140, 200), 0, -0.16, 70, "Chute")
+			if r < 0.22 then
+				-- a chute: steep and fast, signposted well ahead
+				local L = rng:NextInteger(160, 260)
+				sign(s - 650, "Chute", "STEEP DROP!")
+				a, b = run(L, rng:NextNumber(-25, 25), -0.45, T.WIDTH, T.HEIGHT, "Chute")
 			else
-				a, b = run(rng:NextInteger(220, 300), rng:NextNumber(-20, 20), -0.03, 110, "Cavern")
-				trail(a + 60, -25, 5, 26, 2)
+				local turn = rng:NextNumber(25, 65) * (rng:NextNumber() < 0.5 and -1 or 1)
+				a, b = run(rng:NextInteger(420, 720), turn, -rng:NextNumber(0.15, 0.25), T.WIDTH, T.HEIGHT, "Tunnel")
+				if rng:NextNumber() < 0.45 then
+					-- a hard rock band across the bore: grinding, shake, a hit
+					local hs = a + rng:NextNumber(120, b - a - 80)
+					table.insert(self.hazards, { s = hs, len = 10, offset = 0, radius = 99, kind = "RockBand" })
+					sign(hs - 560, "Warning", "HARD ROCK!")
+				end
+				if rng:NextNumber() < 0.5 then
+					boulder(a + rng:NextNumber(100, b - a - 60), rng:NextNumber(-0.3, 0.3) * T.WIDTH)
+				end
 			end
-			dress(a, b, width)
+			sinceCavern += b - a
 		end
 	end
 	self.length = length()
 	return self
 end
 
--- the route's frame at distance s: position on the centre line, facing down
--- the route (pitched with the slope), and the lane width there
-function Route:sample(s: number): (CFrame, number, number)
+-- the route's frame at distance s: position on the floor's centre line,
+-- facing down the route (pitched with the slope), the lane width and height there
+function Route:sample(s: number): (CFrame, number, number, number)
 	local n = self.nodes
 	s = math.clamp(s, 0, self.length)
 	local f = s / Route.STEP
@@ -156,14 +151,17 @@ function Route:sample(s: number): (CFrame, number, number)
 	local a, b = n[i], n[i + 1]
 	local p = a.p:Lerp(b.p, t)
 	local w = a.w + (b.w - a.w) * t
+	local h = a.h + (b.h - a.h) * t
 	local d = b.p - a.p
 	local slope = d.Y / math.max(0.001, Vector3.new(d.X, 0, d.Z).Magnitude)
-	return CFrame.lookAt(p, p + d.Unit), w, slope
+	return CFrame.lookAt(p, p + d.Unit), w, slope, h
 end
 
--- where a point is relative to the route: distance along it, sideways offset
--- and height above it. Searches around `guess` (spiral loops stack up, so a
--- global search could pick the wrong loop).
+function Route:kindAt(s: number): string
+	local i = math.clamp(math.floor(s / Route.STEP) + 1, 1, #self.nodes)
+	return self.nodes[i].kind
+end
+
 function Route:locate(pos: Vector3, guess: number, window: number): (number, number, number)
 	local n = self.nodes
 	local i0 = math.max(1, math.floor((guess - window) / Route.STEP) + 1)
@@ -179,6 +177,15 @@ function Route:locate(pos: Vector3, guess: number, window: number): (number, num
 	local cf = self:sample(s)
 	local rel = cf:PointToObjectSpace(pos)
 	return s - rel.Z, rel.X, rel.Y
+end
+
+function Route:nextStop(s: number)
+	for _, st in self.stops do
+		if st.s > s + 1 then
+			return st
+		end
+	end
+	return nil
 end
 
 return Route

@@ -1,6 +1,6 @@
 # Proposal: the map's look, atmosphere and the lobby backdrop
 
-Nov 20, 2026. **Status: proposal, for the owner to approve.** Built from the frame analysis ([research/frames/](research/frames/)): what makes the reference look rich, applied to a descent.
+Nov 20, 2026. **Status: approved by the owner on Nov 20, 2026, with lobby backdrop A.** Built from the frame analysis ([research/frames/](research/frames/)): what makes the reference look rich, applied to a descent.
 
 ## Why ours looks plain now
 - Flat grey blocks in a straight, wide trench, with one colour and no fog or grading.

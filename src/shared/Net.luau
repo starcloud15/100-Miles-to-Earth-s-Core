@@ -14,6 +14,9 @@ local EVENTS = {
 	"TowLine", -- client -> server: reel an off-rig player back (target)
 	"PushOff", -- client -> server: shove a player off the deck (target)
 	"Shove", -- server -> client: launch your own character (velocity)
+	"Mine", -- client -> server: hit a glowstone vein at a stop (vein model)
+	"Delve", -- client -> server: "cast" or "reel" the Delver's Hook
+	"Eat", -- client -> server: eat a find
 	-- Topside Camp
 	"PartyPrompt", -- server -> client: you stepped into an empty bay (bay name)
 	"PartyCreate", -- client -> server: make the party (size, friendsOnly)
