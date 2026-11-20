@@ -276,6 +276,31 @@ Each zone adds **one rule** (pillar 5). The long zones (3–6) are **split into 
 
 The zones follow the Earth's real layers loosely: **crust** (zones 1–4), **mantle** (zone 5) and **core** (zone 6).
 
+### 9.0 How a zone is built: dig in, the cavern, dig out (owner, Nov 20, 2026)
+The descent isn't an endless tunnel. Every zone is mostly **one giant cavern**:
+1. **Dig in (about 20–40 s):** the drill breaks through rock, with shake, dust and tight walls. It keeps the drilling fantasy and works as a loading beat.
+2. **Breakthrough into the zone's mega-cavern (most of the zone):** the rock shatters and the space opens up. The ceiling is hundreds of studs up and the floor far below. The route runs along **ledges, rock arches, bridges and overpasses** through the middle, still bending every 10–20 s like the reference's river.
+
+   Each cavern carries its zone's identity: its fog colour, light shafts, a landmark seen from far off, and distant motion. Stops sit on **outcrops and platforms** that look out over the space.
+3. **Dig out:** a short bore down to the next zone's cavern.
+
+The long zones (3–6) have **two caverns**, one per sub-biome, joined by a short dig.
+
+**Why:**
+- A huge space can show atmosphere (fog, shafts, landmarks), so every zone is recognisable from one screenshot.
+- It matches the reference's long open views.
+- Height makes falling off tense. The left-behind bar and the pull-back keep it fair: you drop to the floor, slide after the rig, and the winch hauls you back.
+- It's cheaper to run than miles of carved tunnel. Only the current cavern is loaded, and live carving is limited to the short digs.
+
+| # | Zone | Its cavern(s) |
+|---|---|---|
+| 1 | Sunfall Gorge | The surface gorge and The Drop, then **the Hollow Below**: a red sandstone cathedral with sunlight shafts through roof cracks, a waterfall from the surface and old mining trestles as bridges |
+| 2 | Glowshroom Grotto | A forest of giant teal and violet mushrooms; the route crosses mushroom caps under drifting spore "snow" |
+| 3 | Crystal Hollows / Old Deepmine | An ice-blue crystal cathedral with frozen falls and crystal bridges; then lamplit scaffolds, rails and a lift-cage drop |
+| 4 | Fossil Sea / Sporewood Shores | An underground ocean with a horizon, a geode "moon" and a giant skeleton's ribs as the overpass; then a red and green mushroom jungle |
+| 5 | Emberflow / Obsidian Rifts | Basalt ledges over a lava river with rising embers; then glassy black canyons lit from below |
+| 6 | Heartstone Ruins / The Core Approach | Golden temples on bridges across the void; then a spiral down into the light |
+
 ### 9.1 The ladder
 
 | # | Miles | Length | Target time | Zone and sub-biomes | Look and light | Route | New rule | Stops (camps / landings / saves) |
@@ -497,7 +522,7 @@ The owner's view, backed by the knowledge base: atmosphere drives early staying 
    - Roblox Atmosphere density 0.3–0.45 per zone, tinted by zone. Hide far geometry; let set pieces fade in, never pop in.
    - Light shafts from cracks above (beams and volumetric parts).
 5. **Earlier explorers were here.**
-   - Wrecked rigs, abandoned camps, skeletons with a dead lantern, Field Notes signed by five expeditions (the Gorge Settlers, the Steam Drill Crew, the Miners' Guild, the Survey Scientists, the Last Expedition).
+   - Wrecked rigs, abandoned camps, skeletons with a dead lantern, Field Notes signed by six expeditions, one per zone (the Quarrymen, the Lamp Keepers, the Ice Survey, the Deep Fleet, the Ember Watch and the ancient Heart Keepers); the full story and every note are in [story.md](story.md).
    - The "% of explorers have made it this far" line. One of the reference's best atmosphere tricks, and nearly free.
 6. **Monster cadence: seen, heard, hunted.**
    - Glimpse in zone 1, clicks in zone 2, the first real hunt in zone 3 (section 10.1).

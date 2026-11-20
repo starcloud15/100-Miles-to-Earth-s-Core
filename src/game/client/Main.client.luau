@@ -285,6 +285,57 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	end
 end)
 
+-- sliding after the rig: a real slide animation instead of fast walking ----------------
+-- (uploaded through Starport as animations/Character/Slide; until then, Studio
+-- previews it from the same pose data in Shared.Poses)
+local Art = require(Shared.Art)
+local Poses = require(Shared.Poses)
+local slideTrack: AnimationTrack? = nil
+local slideChar: Model? = nil
+
+local function getSlideTrack(hum: Humanoid): AnimationTrack?
+	if slideTrack and slideChar == hum.Parent then
+		return slideTrack
+	end
+	local id = Art.get("animations", "Character/Slide")
+	if not id and RunService:IsStudio() then
+		local ok, res = pcall(function()
+			local kfs = Poses.build(Poses.Slide, Instance, CFrame, Enum)
+			return game:GetService("KeyframeSequenceProvider"):RegisterKeyframeSequence(kfs)
+		end)
+		id = ok and res or nil
+	end
+	local animator = hum:FindFirstChildOfClass("Animator")
+	if not id or not animator then
+		return nil
+	end
+	local anim = Instance.new("Animation")
+	anim.AnimationId = id
+	slideTrack = animator:LoadAnimation(anim)
+	slideTrack.Looped = true
+	slideTrack.Priority = Enum.AnimationPriority.Action4
+	slideChar = hum.Parent
+	return slideTrack
+end
+
+RunService.Heartbeat:Connect(function()
+	local hum = humanoid()
+	if not hum then
+		return
+	end
+	local off = player:GetAttribute("OffRig") == true
+	local grounded = hum.FloorMaterial ~= Enum.Material.Air and not hum.PlatformStand
+	local want = off and grounded and hum.MoveDirection.Magnitude > 0.1
+	local track = (want or (slideTrack and slideTrack.IsPlaying)) and getSlideTrack(hum)
+	if track then
+		if want and not track.IsPlaying then
+			track:Play(0.15)
+		elseif not want and track.IsPlaying then
+			track:Stop(0.2)
+		end
+	end
+end)
+
 -- riding the rig like a train: jump on it and you land on the same spot ---------------
 -- Standing on the deck, Roblox carries you with it. In the air you'd keep the
 -- speed you jumped with while the rig turns and dives downhill under you, so

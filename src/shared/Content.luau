@@ -43,6 +43,7 @@ Content.TOTAL_NOTES = 6 * #Config.ZONES
 Content.TOTAL_PAGES = 2 * #Config.ZONES + 1
 Content.NOTE_REWARD = 10
 Content.PAGE_REWARD = 25
+-- the expeditions who left the notes (their text is in Story.luau; docs/story.md)
 Content.NOTE_AUTHORS = { "the Quarrymen", "the Lamp Keepers", "the Ice Survey", "the Deep Fleet", "the Ember Watch", "the Heart Keepers" }
 
 -- Your Stats panel sections (GDD 14.4); `key` reads the profile
