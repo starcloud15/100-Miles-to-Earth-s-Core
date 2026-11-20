@@ -882,7 +882,7 @@ local SECTIONS = {
 	Cavern = { amb = Color3.fromRGB(90, 120, 130), fog = Color3.fromRGB(70, 170, 180), density = 0.34, haze = 2.2, tint = Color3.fromRGB(230, 250, 255) },
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
 	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
-	Hall = { amb = Color3.fromRGB(150, 118, 100), fog = Color3.fromRGB(232, 168, 120), density = 0.2, haze = 1.3, tint = Color3.fromRGB(255, 244, 232) },
+	Hall = { amb = Color3.fromRGB(150, 118, 100), fog = Color3.fromRGB(226, 150, 104), density = 0.3, haze = 2.0, tint = Color3.fromRGB(255, 244, 232) },
 }
 
 -- glow: 1 = full glow, 0 = Lights Out (the reference's day -> dusk -> night grading)

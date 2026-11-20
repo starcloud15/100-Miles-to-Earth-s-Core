@@ -133,6 +133,13 @@
             "style": "rbxm",
             "dir": "src/shared/Models/Tools"
           }
+        },
+        {
+          "folder": "assets/models/creatures",
+          "target": {
+            "style": "rbxm",
+            "dir": "src/shared/Models/Creatures"
+          }
         }
       ]
     }

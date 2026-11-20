@@ -109,6 +109,29 @@ local Config = {
 		TARGET_COOLDOWN = 30,
 		RANGE = 12,
 	},
+
+	-- creatures that get onto the rig (the reference's piranhas/eels and gators):
+	-- a boarder drops onto the deck and bites; a grabber seizes one of the crew.
+	-- SPAM! to knock them off (docs/research/frames seg-2, seg-5, seg-6)
+	Creatures = {
+		FIRST_MILE = 1.2,
+		BOARD_EVERY = { 20, 38 }, -- seconds between boarders, underground and moving
+		GRAB_EVERY = { 45, 75 },
+		BOARD_CLICKS = 7, -- the reference's ring fills in about 2 s of clicking
+		GRAB_CLICKS = 10,
+		BITE = 6, -- a boarder bites the nearest of the crew
+		BITE_EVERY = 2.2,
+		BITE_RANGE = 7,
+		BOARD_LIFE = 20, -- it leaves on its own after this
+		GRAB_DPS = 14, -- the gator grab took about 38% in a couple of seconds
+		GRAB_TIME = 3.5, -- then it drags you off the rig
+		DRAG = 0.7, -- the rig's speed while something rides the deck
+		CLICK_RATE = 14, -- clicks a second the server counts, per player
+		-- the creatures of each zone (docs/story.md): { boarder, grabber }
+		ZONES = {
+			{ board = "Cragskitter", grab = "Burrowmaw" },
+		},
+	},
 }
 
 return Config

@@ -19,6 +19,7 @@ local World = require(script.Parent.World)
 local Rig = require(script.Parent.Rig)
 local Crew = require(script.Parent.Crew)
 local Run = require(script.Parent.Run)
+local Creatures = require(script.Parent.Creatures)
 
 for _, g in { "World", "Rig", "Crew" } do
 	PhysicsService:RegisterCollisionGroup(g)
@@ -63,6 +64,7 @@ end)
 World.spawnVeins(route:sample(40))
 Crew.init(rig, route, state, World)
 Run.init(rig, route, state, World, Crew)
+Creatures.init(rig, route, state, Crew)
 
 -- the Beacons' feed prompts and the rig's repair prompt
 local repair = Instance.new("ProximityPrompt")
@@ -137,6 +139,7 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 	Crew.step(dt)
 	Run.step(dt)
+	Creatures.step(dt)
 	if rig.moving and not wasMoving then
 		Crew.depart()
 	end

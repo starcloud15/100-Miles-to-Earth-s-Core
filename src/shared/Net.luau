@@ -26,6 +26,7 @@ local EVENTS = {
 	"BuyClass", -- client -> server: (class id, "deepstones" | "robux")
 	"EquipClass", -- client -> server: (class id)
 	"FreeRevive", -- client -> server: claim the free Revive Flare
+	"Spam", -- client -> server: a click on a creature's SPAM! button (creature id)
 }
 local FUNCTIONS = {
 	"BoardFetch", -- client -> server: (board, "Global" | "Friends") -> rows, you

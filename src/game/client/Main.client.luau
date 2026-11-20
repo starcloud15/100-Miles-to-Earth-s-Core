@@ -471,3 +471,6 @@ RunService.RenderStepped:Connect(function(dt)
 	Hud.setHint(held and verbs[held] or nil)
 	updatePushPrompts()
 end)
+
+-- creatures on the rig and their SPAM! buttons
+require(script.Parent:WaitForChild("Creatures")).init({ deck = deck, shake = shake, toast = Hud.toast })

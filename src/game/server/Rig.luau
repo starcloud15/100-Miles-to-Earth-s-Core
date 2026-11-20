@@ -525,6 +525,7 @@ function Rig:step(dt: number)
 		if now < self.slowUntil then
 			target *= 0.25 -- grinding through hard rock
 		end
+		target *= self.drag or 1 -- something riding the deck
 		target = math.min(target, C.MAX_SPEED)
 		if self.stopAt then
 			-- brake so we stop dead at the stop, like the raft at a dock

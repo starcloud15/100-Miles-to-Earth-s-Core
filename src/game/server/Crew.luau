@@ -456,4 +456,20 @@ function Crew.boardAll()
 	end
 end
 
+-- a creature dragged this player off the rig
+function Crew.throwOff(player: Player)
+	shove(player, nil, "Dragged")
+end
+
+-- creature damage: never kills on its own (like starving), leaves 1 HP
+function Crew.hurt(player: Player, amount: number, kind: string?)
+	local _, hum = rootOf(player)
+	if hum and hum.Health > 0 then
+		hum.Health = math.max(1, hum.Health - amount)
+		if kind then
+			notify(player, kind)
+		end
+	end
+end
+
 return Crew
