@@ -1,10 +1,13 @@
 # 100 Miles to Earth's Core: Game Design Document and Proposal
 
-Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built. Each section is up for owner approval.**
+Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built. Approved by the owner so far: the Drill Rig as the vehicle, crews of 1–5 (default 4), and growing zones (10/10/15/20/22/23 mi). Everything else is up for approval.**
 
 **Sources:**
-- The reference recording, analysed frame by frame in [research/reference-recording-analysis.md](research/reference-recording-analysis.md).
+- The reference gameplay recording, analysed frame by frame in [research/reference-recording-analysis.md](research/reference-recording-analysis.md).
+- The reference lobby recording, analysed in [research/reference-lobby-analysis.md](research/reference-lobby-analysis.md).
 - The Run a Resort knowledge base: Roblox Home signals, bounce, retention, economy and atmosphere.
+
+The reference is a raft game on a river. **We use it only as a game model**: its pacing, stops, nights, monster, lobby, UI and monetisation. Our game is a journey **down through the Earth**, from the surface to the Core.
 
 **Number labels**, as in our other docs:
 
@@ -19,37 +22,37 @@ Nov 19, 2026 · @Star · **Status: proposal. Nothing here is built. Each section
 
 ## 1. Vision and pillars
 
-**100 Miles to Earth's Core** is a 1–6 player co-op Roblox survival game. Your crew builds a raft on the surface and rides one underground river **100 miles straight down to the Core**. The current carries you; your paddles steer and speed you. Every few minutes the river offers a place to stop. Then the **Lights Out** comes, and something in the dark follows the light.
+**100 Miles to Earth's Core** is a 1–5 player co-op Roblox survival game. Your crew builds the deck of an old **Drill Rig** at the surface and drills **100 miles down to the Core**. The rig follows a planned route on its own; your crew cranks the treads to speed it up and steer it. Every few minutes the route breaks out into a cavern where you can stop. Then the **Lights Out** comes, and something in the dark follows the light.
 
-**Elevator pitch:** "Raft down a river to the centre of the Earth with your friends, and make camp before the lights go out."
+**Elevator pitch:** "Drill to the centre of the Earth with your friends, and make camp before the lights go out."
 
 ### Pillars
 
-1. **The river is the level.** A guided path you can steer, not a track you ride. Every bend shows something new.
+1. **The route is the level.** A guided path you can steer, not a track you ride. Every turn shows something new.
 2. **Always deeper.** The depth counter is the score, the goal and the brag. It always moves, and it always shows the next stop.
 3. **Stop, scramble, go.** Stops are short, busy and optional. The crew chooses between "camp here" and "push for the next one".
-4. **Light is safety.** Warm light means safe and cold dark means danger, everywhere: camps, lanterns, the raft, the Core itself.
-5. **Every layer of the Earth feels new.** Each zone changes the palette, the river, the fish, the threats and **one survival rule**.
+4. **Light is safety.** Warm light means safe and cold dark means danger, everywhere: camps, lanterns, the rig, the Core itself.
+5. **Every layer of the Earth feels new.** Each zone changes the palette, the rock, the creatures, the threats and **one survival rule**.
 
 ### Audience and session
 
 | Item | Target |
 |---|---|
-| Audience | Roblox 9–16, fans of raft/river, *99 Nights*-style survival and co-op journey games. Kid-friendly scary, never gory. |
-| Players | 1–6 per raft (public crews of 4, private up to 6). Solo is fully playable. |
-| Full descent | **100 miles in about 100–120 min** (the reference does about 0.84 mi/min, recording). Spread over **3–5 sessions** through Waystation saves. |
+| Audience | Roblox 9–16, fans of *99 Nights*-style survival and co-op journey games. Kid-friendly scary, never gory. |
+| Players | **1–5 per rig. The party creator picks the size; 4 is the default** (the reference's lobby, recording). Solo is fully playable. |
+| Full descent | **100 miles in about 100–120 min** (the reference does about 0.84 mi/min, recording; its fastest crews take about 51 min, recording). Spread over **3–5 sessions** through Waystation saves. |
 | One zone | **Grows as you go down:** 10, 10, 15, 20, 22 and 23 miles, about 9 to 24 min each (the reference's ladder, measured from its route bar). |
-| One day loop | Camp, ride, landing, ride, dusk race, camp: **7–8 min** (the reference's rhythm, recording). |
+| One day loop | Camp, drill, landing, drill, dusk race, camp: **7–8 min** (the reference's rhythm, recording). |
 | Session goal | **20 min average, 15 min minimum** (owner's target). One session should reach at least one Waystation. |
 | Win | Reach Mile 100 and survive the Core finale. |
-| Fail | The whole crew is down, or the raft sinks with nobody to rebuild it. You keep meta rewards and resume from the last Waystation. |
+| Fail | The whole crew is down, or the rig stalls with nobody to repair it. You keep meta rewards and resume from the last Waystation. |
 
 ### The "not enclosed" rule (assumption, please confirm)
 
 I read "platform must not be enclosed" in two ways. I've designed for both.
 
-1. **The raft is always an open deck.** No walls, roofs or cages, ever, including upgrades: corner posts, lanterns and low cleats only. Being knocked off, swimming back and pulling a crewmate up is core drama. A walled raft kills it.
-2. **The world must never feel like a closed tube.** Underground does not mean tunnel. Every zone is a chain of **huge open caverns**: ceilings 200–800 studs high, light shafts, glowing "skies" of fungus, crystal or magma, side vistas, waterfalls in and out. Tight tunnels appear only as short, deliberate squeezes (5–15 s) between big reveals. This keeps it readable on phones, lets fog and light do their work, and avoids the claustrophobia that sends players away.
+1. **The rig is always an open deck.** No walls, roofs, cabins or cages, ever, including upgrades: railings at knee height, lantern posts and low cargo crates only. Being thrown off, running to catch up and pulling a crewmate back aboard is core drama. A closed cabin kills it.
+2. **The world must never feel like a closed tube.** Drilling does not mean a tunnel all the way down. The route is a chain of **huge open caverns** joined by **short bores** (5–15 s each). In the caverns the rig crawls down spiral ledges, crosses rock bridges and drives along causeways, under ceilings 200–800 studs high with glowing "skies" of fungus, crystal or magma. This keeps it readable on phones, lets fog and light do their work, and avoids the claustrophobia that sends players away.
 
 ---
 
@@ -57,18 +60,22 @@ I read "platform must not be enclosed" in two ways. I've designed for both.
 
 | Reference (recording) | Our version | Why |
 |---|---|---|
-| Control about 65 s after Play: party pad, loading, 25 s cutscene | **Control within 10 s of load.** Solo players skip the pad. The cutscene becomes in-world: the monster is glimpsed from the raft at 1:20. | Bounce is a top Home signal. Run a Resort's 22 s cutscene didn't help, and 60% skipped within 3 s (live). |
-| "Punch trees for wood 0/12", then "Put wood in raft 40/60", raft leaves at about 35 s | The same verbs, faster. Punch trees, logs fly to the raft and visibly snap into planks, **launch at about 30 s**. | Same verb, early payoff. Something you made gets used within seconds. |
+| A raft on a river | **An open-deck Drill Rig on a planned route down through the Earth** | The owner's theme. The guided-but-steerable feel stays. |
+| Paddling: each player paddles on their side; strokes add speed and turn the raft | **Cranking: each player pumps a crank on their side of the deck; it drives that side's tread** (section 5) | Same verb, same canoe-style steering, everyone has a job. |
+| Control about 65 s after Play: party pad, loading, 25 s cutscene | **Control within 10 s of load.** The cutscene becomes in-world: the monster is glimpsed from the rig at 1:20. | Bounce is a top Home signal. Run a Resort's 22 s cutscene didn't help, and 60% skipped within 3 s (live). |
+| "Punch trees for wood 0/12", then "Put wood in raft 40/60", the raft leaves at about 35 s | The same verbs, faster. Punch trees, logs fly to the rig and visibly snap into deck planks, **launch at about 30 s**. | Same verb, early payoff. Something you made gets used within seconds. |
 | Day and sun dusk, "Reach camp before dark!" | The surface has a real sun. Underground, the **Lights Out**: the cavern glow dims on a clock. | Keeps the tempo device; makes sense underground. |
-| Monster "fears fire", stalks the camp ring | **The Hollow**: fears light, stalks the camp, hunts rafts with no lantern in the dark. | Signature threat, pressure not punishment. |
+| Monster "fears fire", stalks the camp ring | **The Hollow**: fears light, stalks the camp, hunts rigs with no lantern in the dark. | Signature threat, pressure not punishment. |
 | Night bar with "Add wood to go faster" (up to 2.9×) and crew portraits | Kept, as a **Beacon Fire** fed with fuel that changes by zone: wood, then glowcaps, then coal, then crystals, then magma stone. | Turns waiting into a crew job. Fuel changing by zone is the "new rule per zone" hook. |
-| Gator SPAM! QTE | One river threat per zone with the same QTE language. | Readable on phones, gives one-tap agency. |
-| Fishing, cooking (Cooked Fish, Fish Stew) | Fishing gets 3–4 new species per zone. 12+ recipes with buffs. | Collection plus survival. |
-| Journal lore notes from 4 factions | **Field Notes** from 5 earlier expeditions. 40 to collect. | Curiosity is the best predictor of free playtime (research). |
-| "% of explorers have made it this far" | Kept, at every 5 miles. | Social proof and a dare, and it costs nothing. |
-| No visible saves; 2 of 4 players gone at about 13 min | **Waystations** at every zone border, plus mid-zone in the long zones, save the expedition and are the D1 hook. NPC deckhands fill empty seats. | Lets 100 miles span sessions; protects solo players and dropped crews. |
-| Push Off costs 19 R$ | **Free crew push** (hold F together, 3 s) or a 5 s solo shove. Robux is only the instant version. | Avoid a toll; "skips must pay what they advertise" (Run a Resort rule). |
-| Starter Pack 49 R$: pet, oar, head-start kit | Kept as a model (section 13). | The best seller in Run a Resort too: 21 of 44 sales (live). |
+| Gator SPAM! QTE | One route threat per zone with the same QTE language. | Readable on phones, gives one-tap agency. |
+| Chopping trees for wood | Chopping at the surface, then **mining**: ore veins on the route, blockages to break, side tunnels at landings. | Drilling down makes mining the natural verb. |
+| Fishing, cooking (Cooked Fish, Fish Stew) | Fishing in **underground pools and lakes at stops**: 3–4 new species per zone. 12+ recipes with buffs. | Collection plus survival. |
+| Journal: 6 notes + 2 pages per zone, 4 factions (recording) | Same shape: 6 Field Notes + 2 Journal Pages per zone, **49 in all**, from 5 earlier expeditions. | Curiosity is the best predictor of free playtime (research). |
+| "% of explorers have made it this far" | Kept, at every 5 miles and on the Stats panel. | Social proof and a dare, and it costs nothing. |
+| No visible saves; 2 of 4 players gone at about 13 min | **Waystations** at every zone border, plus mid-zone in the long zones, save the expedition and are the D1 hook. NPC deckhands fill empty cranks. | Lets 100 miles span sessions; protects solo players and dropped crews. |
+| Push Off costs 19 R$ | **Free crew unjam** (hold F together, 3 s) or a 5 s solo unjam. Robux is only the instant version. | Avoid a toll; "skips must pay what they advertise" (Run a Resort rule). |
+| Starter Pack 49 R$: pet, oar, head-start kit | Kept as a model (section 15). | The best seller in Run a Resort too: 21 of 44 sales (live). |
+| Lobby: party pads 1–5, 20 s countdown, rewards claimed in the lobby, classes 150/750/1500 Embers (recording) | Kept almost exactly (section 14). | The reference's lobby gets players into a run in 20 s and gives a reason to come back. |
 
 ---
 
@@ -78,9 +85,9 @@ Four nested loops. Each outer loop raises the stakes of the inner one.
 
 | Loop | Length | The player is asking | Ends with |
 |---|---|---|---|
-| **Stroke** | 5–30 s | "Can I dodge that rock, grab that crate, land this fish?" | Loot, a catch, a dodge, a crewmate saved |
+| **Crank** | 5–30 s | "Can I dodge that rock, hit that ore vein, break this seam?" | Ore, loot, a dodge, a crewmate saved |
 | **Day** | 7–8 min | "Do we make camp before Lights Out?" | Surviving the Dark at a camp |
-| **Zone** | 9–24 min, longer each zone | "What's down there, and can our raft handle it?" | A Waystation: save, shop, upgrade |
+| **Zone** | 9–24 min, longer each zone | "What's down there, and can our rig handle it?" | A Waystation: save, shop, upgrade |
 | **Descent and meta** | Hours to weeks | "Can we reach the Core? Faster? With every note?" | Badges, journal, classes, leaderboards, cosmetics |
 
 ---
@@ -96,16 +103,16 @@ Targets from the knowledge base:
 
 | Time after load | Beat | Screen |
 |---|---|---|
-| 0–3 s | Spawn on a sunny riverbank at noon, next to a half-built raft frame. Camera already framed like the thumbnail: river, giant sinkhole on the horizon, a beam of light far below. | "0 Miles Down" with the sun badge. |
+| 0–3 s | Spawn in a sunny forest clearing at noon, beside the old Drill Rig: treads and a giant drill bit, but no deck. Camera already framed like the thumbnail: the rig, the giant sinkhole behind it, a beam of light far below. | "0 Miles Down" with the sun badge. |
 | 3–5 s | Objective, **one line**: 👊 "Punch trees for wood 0/8". A glowing outline on the nearest tree. | No text box, no NPC wall. |
-| 5–25 s | Punch: wood chips, a log pops out and **flies to the raft by itself**, and a plank snaps onto the ghost outline. The raft visibly grows. | Counter rises. Juice on every hit (animated feedback is worth about +18%, research). |
-| 25–30 s | Raft complete. "⛵ Hop on!" with a beam on the raft. Everyone aboard means **launch**. A raft that waits 10 s leaves anyway, with a RAFT IS LEAVING timer. | |
-| 30–45 s | Paddle tutorial **is** the river: "Click to paddle". The first bend shows the sinkhole opening. Two floating crates sit in reach. | MPH gauge appears. |
-| 45–60 s | First catch moment: a crate gives a **fishing rod**. "Cast for a fish!" (bites within 5 s the first time). | First payoff. |
-| 60–90 s | **The Drop.** The river pours over the lip of the giant sinkhole. A slow, safe waterfall descent. The sky turns to a cavern full of glowing mushrooms. "1 Mile Down". | **The whole-scene "after", and the thumbnail moment.** |
-| 90–120 s | The first cavern is bright with fungus glow. "🏕 Paddle to camp 1.2 mi". | |
-| 120–150 s | The glow starts to fade. "🌙 Reach camp before Lights Out!" The Hollow is **glimpsed** on a ridge, far away, gone in a lightning flash. | First tension, no damage. |
-| 150–180 s | Arrive at **Camp Ember** (Mile 2.5). "Safe in the light." Feed the Beacon Fire, and the first night bar appears. Cook the fish you caught. | The first night lands inside 180 s, like the reference (2:55), but brighter and calmer. |
+| 5–25 s | Punch: wood chips, a log pops out and **flies to the rig by itself**, and a plank snaps onto the ghost outline of the deck. The deck visibly grows. | Counter rises. Juice on every hit (animated feedback is worth about +18%, research). |
+| 25–30 s | Deck complete. The engine coughs to life. "🛠 Hop on!" with a beam on the rig. Everyone aboard means **launch**. A rig that waits 10 s leaves anyway, with a RIG IS LEAVING timer. | |
+| 30–45 s | The crank tutorial **is** the route: "Click to crank". A crank pump appears in your hand; the rig rolls toward the sinkhole lip. Two supply caches sit just off the path. | MPH gauge appears. |
+| 45–60 s | First steering moment: "Crank on the left to turn right!" Steering into a cache gives a **pickaxe**. | First payoff. |
+| 60–90 s | **The Drop.** The drill bites into the sinkhole wall and the rig spirals down it on a ledge it carves as it goes. The sky shrinks to a coin of light above, and a cavern full of glowing mushrooms opens below. "1 Mile Down". | **The whole-scene "after", and the thumbnail moment.** |
+| 90–120 s | The first cavern is bright with fungus glow. An ore vein glitters on the route: steer into it for ore. "🏕 Drill to camp 1.2 mi". | |
+| 120–150 s | The glow starts to fade. "🌙 Reach camp before Lights Out!" The Hollow is **glimpsed** on a ridge, far away, gone in a flash of crystal light. | First tension, no damage. |
+| 150–180 s | Arrive at **Camp Ember** (Mile 2.5). "Safe in the light." Feed the Beacon Fire, and the first night bar appears. Catch a fish in the camp pool and cook it. | The first night lands inside 180 s, like the reference (2:55), but brighter and calmer. |
 
 **Rules:**
 - Never dim the screen in the first 30 s.
@@ -114,98 +121,113 @@ Targets from the knowledge base:
 
 ---
 
-## 5. The river: guided path with paddle control
+## 5. The route: guided path with crank control
 
-### 5.1 How it moves
-- The river is authored as a **spline** with a width per point (30–120 studs) and a current speed per point.
-- The raft follows the current automatically. **It never needs input to make progress**, so AFK players aren't stranded (judgement).
+### 5.1 How the route is built
+- **The route is planned in advance**, not dug by the players. It is a 3D spline that always trends downward, with a lane width per point (30–120 studs) and a base speed per point. A fixed route protects pacing, session length, atmosphere and the monster's paths, and runs well on phones (judgement; see the path discussion with the owner).
+- **The drill carves the route as the rig moves.** In the short bores, rock crumbles away in front of the bit, so the crew feels like it is cutting its own way down.
+- **The route is assembled from modular pieces per zone**: straight bores, spiral ledges, ramps, rock bridges, causeways across lakes, drops (lift shafts, collapses, spiral chutes), forks and blockages. Each server shuffles the pieces between a zone's fixed set pieces from a seed. Zone lengths and set-piece positions never change, so pacing holds and every run still feels different.
+- The rig follows the route automatically. **It never needs input to make progress**, so AFK crews aren't stranded (judgement).
 
-**Inputs:**
+### 5.2 The Drill Rig controls: two treads, one per side
+Steering works like the reference's paddle: **the side you stand on decides the direction.**
 
 | Input | What it does |
 |---|---|
-| **Click / tap Paddle** (each crew member, left or right side by where you stand) | +speed and a turn toward the opposite side, like a canoe. 4 crew paddling together hits the "sync bonus" (+15% when strokes land within 0.4 s). |
-| Lateral position | Clamped to the channel. The raft can drift ±45% of the width, so the "path" is guided but steering matters. |
-| **Brake / backpaddle** (hold) | Slows the raft near a stop or before rapids. |
-| **Turbo** (crew-shared) | Free from Boost Mushrooms found on the river. Instant with Robux. |
+| **Click / tap Crank** (anywhere on your half of the deck) | Pumps your side's tread: +speed, and a turn toward the **opposite** side. Left side only turns right; right side only turns left; both sides together go straight and fastest. |
+| **Sync bonus** | +15% when cranks on both sides land within 0.4 s of each other (the reference's paddle sync). |
+| **Hold Crank** | Brakes your side's tread: a sharp turn, or a stop at a ledge. |
+| Lateral position | Clamped to the lane. The rig can drift ±45% of the lane width, so the path is guided but steering matters. |
+| **Turbo** (crew-shared) | Free from Boost Crystals found on the route. Instant with Robux. |
 
-### 5.2 Speeds (in the reference's MPH so players read them the same, recording)
+- **Steering is left and right only.** The route handles going down, so nobody has to steer up or down. Easy in the first minute, simple on a phone.
+- **No fixed seats.** Each player gets a crank pump and uses it anywhere on their half of the deck, so 5 players never crowd one spot.
+- **Odd crews work.** With 1, 3 or 5 players, the HUD shows which side is weaker and the spare player helps there. A solo player walks across the deck (about 2 s) to switch sides, like a solo paddler.
+- **Visuals:** each player pumps a railway-handcar handle up and down. Each tread's speed shows on the deck, and HUD arrows show the turn.
+- **Why not one steering wheel:** one driver steers while everyone else watches. That loses the reference's best co-op strength, where every player has a job at every moment.
+
+### 5.3 Speeds (in the reference's MPH so players read them the same, recording)
 
 | State | MPH |
 |---|---|
-| Drift | 10–18 |
-| Crew paddling | 25–40 |
-| Rapids | 45–60 |
+| Idle creep (nobody cranking) | 10–18 |
+| Crew cranking | 25–40 |
+| Downhill chutes | 45–60 |
 | Turbo | +20 for 20 s |
 
-**Distance pacing:** about **1 mile a minute average** including stops. 100 miles is about 100–120 min.
+**Distance pacing:** about **1 mile a minute average** including stops. 100 miles is about 100–120 min. The counter reads **Miles Down**, measured along the route.
 
-### 5.3 What's on the river
-- **Loot:** floating crates, barrels, driftwood and Boost Mushrooms. Steer to grab them.
+### 5.4 What's on the route
+Steering always has a reason:
+- **Loot:** ore veins in the walls (steer into them for ore), supply caches, wrecked rigs of earlier expeditions and Boost Crystals.
 - **Hazards:**
-  - Rocks and stalagmites: raft damage, can knock players off.
-  - Sandbars: stuck.
-  - Whirlpools: spin and lose speed.
-  - Low ceilings: "DUCK!" Crouch or be knocked off.
-- **Forks** (2–3 per zone): a **safe channel** (longer, calm) or a **risky channel** (rapids, a shortcut, a loot cave). Signposted 15 s ahead with a yellow diamond sign; the reference uses these well (recording).
+  - **Hard rock** (dark, glinting): the drill jams. See 5.6.
+  - **Gas pockets** (green haze): drive through and the crew coughs and slows. Steer around.
+  - **Falling stalactites:** a shadow on the deck 1 s before impact. Damage and can throw players off.
+  - **Cracks and edges** on ledges: steer away or the rig scrapes and loses health.
+  - **Low ceilings:** "DUCK!" Crouch or be knocked off.
+- **Blockages** (1–2 per zone): a rockfall, crystal wall or root dam across the route. The crew mines or chops through in 30–60 s; the drill grinds it down slowly on its own if nobody helps, so nobody is stuck forever.
+- **Forks** (2–3 per zone): a **safe tunnel** (longer, calm) or a **risky tunnel** (a steep chute, a shortcut, a loot cave). Signposted 15 s ahead with a yellow diamond sign; the reference uses these well (recording). Steering toward a tunnel is the vote.
+- **Hidden shortcuts:** a cracked wall on a risky route can be broken open to skip about a mile.
 - **Warning signs** before every hazard type: the same yellow diamond pictogram language.
 
-### 5.4 Falling off
-- Knocked off: "KNOCKED OFF!" toast, then swim.
-- "DON'T GET LEFT BEHIND!" with a red vignette and a RAFT marker with distance.
-- Crewmates can throw a **rope ring** (a free tool) to reel you in. That's co-op.
-- More than 220 m behind: "SWEPT AWAY: the river carried you back". Respawn on the raft at -10% health. No death loop.
+### 5.5 Falling off
+- Thrown off: "THROWN OFF!" toast, then run after the rig.
+- "DON'T GET LEFT BEHIND!" with a red vignette and a RIG marker with distance.
+- Crewmates can fire the **tow line** (a free tool) to reel you back aboard. That's co-op.
+- More than 220 m behind: "LEFT BEHIND: the winch hauled you back". Respawn on the deck at -10% health. No death loop.
 
-### 5.5 Getting stuck
-- Beached on a sandbar: **Push Off**. Hold F with 2+ crew for 3 s, or alone for 5 s. Optional Robux instant push.
+### 5.6 Getting stuck
+- Jammed on hard rock: **Unjam**. Hold F with 2+ crew for 3 s, or alone for 5 s. Optional Robux instant unjam.
+- A better drill bit (section 6) jams less.
 - Never charge to make progress.
 
 ---
 
-## 6. The raft: an open platform you grow
+## 6. The Drill Rig: an open platform you grow
 
 ### 6.1 Deck
-| Size | Grid | Seats | Gained |
+| Size | Grid | Room for | Gained |
 |---|---|---|---|
-| Base | 3×4 planks | 4 | Start |
-| Wide | 4×5 | 6 | First Waystation |
-| Long | 5×6 | 8 | Zone 4 Waystation |
+| Base | 3×4 planks | 5 crew, small cargo | Start |
+| Wide | 4×5 | 5 crew, a galley and more cargo | First Waystation |
+| Long | 5×6 | 5 crew, every station, big cargo | Zone 4 Waystation |
 
-**Always open:** no walls, roofs or cages.
+**Always open:** no walls, roofs, cabins or cages.
 
-### 6.2 Raft health
-- 100–400 HP depending on the hull.
-- Repair with wood (or zone fuel) at any stop, or on the move with a hammer (slow).
-- At 0 HP the raft breaks apart: everyone swims, then must rebuild a base raft from drift planks within 60 s, or the run ends at the Waystation.
+### 6.2 Rig health
+- 100–400 HP depending on the frame.
+- Repair with planks or ore at any stop, or on the move with a hammer (slow).
+- At 0 HP the rig **stalls**: everyone hops off, and the crew must patch it with planks and ore from the cavern within 60 s, or the run ends at the last Waystation.
 
-### 6.3 Upgrades (bought at Waystations with run currency; carried for the rest of the descent)
+### 6.3 Upgrades (bought at Waystations with ore; carried for the rest of the descent)
 
 | Slot | Upgrade path | Effect |
 |---|---|---|
-| Hull | Lashed logs, then Plank deck, then Iron-banded, then Crystal-plated, then Obsidian | HP and impact resistance. Obsidian is needed in the magma zone. |
-| Floats | Barrels, then Pontoons, then Air bladders | Less knock-off chance, better in rapids. |
-| Lantern posts (4 corners) | Oil lantern, then Glowcap lamp, then Crystal lamp | **Light radius while moving.** The Hollow won't touch a raft inside its own light. Lanterns burn fuel. |
-| Prow | Plain, then Ram, then Ice-breaker | Smash small hazards and floes. |
+| Frame | Lashed logs, then Plank deck, then Iron-banded, then Crystal-plated, then Obsidian | HP and impact resistance. Obsidian is needed in the magma zone. |
+| Drill bit | Steel, then Diamond, then Heatcore | Fewer jams, faster through blockages. Heatcore is needed in zone 5. |
+| Suspension | Springs, then Shocks, then Gyro | Less chance of throwing players off. |
+| Lantern posts (4 corners) | Oil lantern, then Glowcap lamp, then Crystal lamp | **Light radius while moving.** The Hollow won't touch a rig inside its own light. Lanterns burn fuel. |
 | Galley | Cook pot on deck | Cook while moving (slower than a camp). |
-| Rod holders | ×2 / ×4 | Passive fishing while paddling. |
-| Harpoon mount | Crew-operated | Fight river threats (zone 4 onwards: the Longneck, Snapjaws). |
-| Deckhand bench | NPC rower | Fills an empty seat: solo and dropped-crew insurance. |
+| Ore hopper | ×2 / ×4 | Ore veins the rig passes fill the hopper automatically. |
+| Flare launcher | Crew-operated | Scares off route threats (zone 4 onwards: the Longneck, Snapjaws). |
+| Deckhand | NPC cranker | Fills an empty crank: solo and dropped-crew insurance. |
 
 ---
 
 ## 7. Stopping points
 
-Three kinds of stop on a fixed rhythm. Spacing comes from the reference's average of about 3.2 mi between stops (recording).
+The route breaks out into a cavern at every stop. Three kinds of stop on a fixed rhythm. Spacing comes from the reference's average of about 3.2 mi between stops (recording).
 
 | Stop | How often | Length | What's there |
 |---|---|---|---|
-| **Camp** (night stop) | About every 6 mi: 1 in zone 1, rising to 4 in zones 5–6 | The Dark lasts 60–120 s (shorter with fuel) | Beacon Fire safe ring, dock for fishing, cookfire, trees or fuel nodes, repair bench, 1–2 chests, 1 Field Note. Named: Camp Ember, Glowcap Hollow, Shard Hut… |
-| **Landing** (day stop) | Between camps: 1 in zones 1–2, 3 in zones 3–6 | 45–90 s, the crew leaves when ready | Something **unique** each time: a trader NPC, a rescue (a stranded explorer joins as a deckhand), a wreck to loot, a puzzle door, a shrine buff, a rare fish pool. |
-| **Waystation** (save stop) | Every zone border (10, 20, 35, 55, 77) plus mid-zone in the long zones (45, 66, 88). 8 in total. | No timer | **Saves the expedition.** Shop (raft upgrades, tools), meta-currency exchange, crew rejoin point, zone badge, "% of explorers" milestone. Safe: no Dark here. |
+| **Camp** (night stop) | About every 6 mi: 1 in zone 1, rising to 4 in zones 5–6 | The Dark lasts 60–120 s (shorter with fuel) | Beacon Fire safe ring, a fishing pool, cookfire, trees or fuel nodes, repair bench, 1–2 chests, 1 Field Note. Named: Camp Ember, Glowcap Hollow, Shard Hut… |
+| **Landing** (day stop) | Between camps: 1 in zones 1–2, 3 in zones 3–6 | 45–90 s, the crew leaves when ready | Something **unique** each time: a trader NPC, a rescue (a stranded explorer joins as a deckhand), a wreck to loot, a puzzle door, a shrine buff, a rare fish pool, or a **side tunnel**: soft walls to dig into for ore, notes and rare pools. |
+| **Waystation** (save stop) | Every zone border (10, 20, 35, 55, 77) plus mid-zone in the long zones (45, 66, 88). 8 in total. | No timer | **Saves the expedition.** Shop (rig upgrades, tools), crew rejoin point, zone badge, "% of explorers" milestone. Safe: no Dark here. |
 
 **Departure:**
 - Ready ticks, then "LEAVING IN 30", which skips to 3 s when all are aboard.
-- A crewmate still ashore when the raft leaves gets the RAFT IS LEAVING marker and timer, the same as the reference.
+- A crewmate still off the rig when it leaves gets the RIG IS LEAVING marker and timer, the same as the reference.
 
 **Stay or push:** at a landing with Lights Out more than 60% away, the HUD offers "🏕 Next camp 3.1 mi". The crew decides whether to race for it. The reference crew did exactly this at 8.9 mi (recording).
 
@@ -214,11 +236,11 @@ Three kinds of stop on a fixed rhythm. Spacing comes from the reference's averag
 ## 8. Lights Out (the underground day/night)
 
 - Zone 1 (the surface) has a real sun.
-- Below the sinkhole, light comes from the cavern itself: fungus, crystals, magma. That **glow cycle** is the day.
+- Below the sinkhole, light comes from the caverns themselves: fungus, crystals, magma. That **glow cycle** is the day.
   - **Bright:** about 5–6 min.
   - **Dimming:** about 60 s. Orange HUD: "🌙 Reach camp before Lights Out! 1.4 mi".
   - **Lights Out:** the Dark, 60–120 s at a camp.
-- Lights Out while still on the river: "He's hunting! Get to camp 0.3 mi" (red). The Hollow starts closing in. The raft is only safe inside its lantern light, and lanterns burn fuel fast.
+- Lights Out while still on the route: "He's hunting! Get to camp 0.3 mi" (red). The Hollow starts closing in. The rig is only safe inside its lantern light, and lanterns burn fuel fast.
 - At camp, the **Beacon Fire** sets the night bar speed:
   - Each crew member inside the ring adds speed (the portrait goes green).
   - Each fuel item adds +0.1×, up to 3.0×.
@@ -236,18 +258,20 @@ Why a growing ladder works (judgement):
 - **Later zones are long expeditions** for committed crews. Their length is the challenge.
 - **The bar sells it.** Six blocks of growing width tell the player at a glance that the deep part is the big part.
 
-Each zone adds **one rule** (pillar 5). The long zones (4–6) are **split into two sub-biomes**, so 20+ miles never feel like one place. Stops stay about 3 mi apart, so **longer zones mean more stops, not longer gaps**, exactly like the reference (2, then 3, then 5 stops in its zones 1–3, recording).
+Each zone adds **one rule** (pillar 5). The long zones (3–6) are **split into two sub-biomes**, so 15+ miles never feel like one place. Stops stay about 3 mi apart, so **longer zones mean more stops, not longer gaps**, exactly like the reference (2, then 3, then 5 stops in its zones 1–3, recording).
+
+The zones follow the Earth's real layers loosely: **crust** (zones 1–4), **mantle** (zone 5) and **core** (zone 6).
 
 ### 9.1 The ladder
 
-| # | Miles | Length | Target time | Zone and sub-biomes | Look and light | River | New rule | Stops (camps / landings / saves) |
+| # | Miles | Length | Target time | Zone and sub-biomes | Look and light | Route | New rule | Stops (camps / landings / saves) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 0–10 | **10** | about 9 min | **Sunfall Gorge**: surface valley, then the sinkhole | Sunny noon, green forest, red canyon. **The Drop** (a waterfall into the first glowing cavern) at about mile 1. | Calm, then the falls | The basics: hunger, health, punch, fish, cook | 1 / 1 / Waystation at 10 |
-| 2 | 10–20 | **10** | about 11 min | **Glowshroom Grotto** | Teal and violet bioluminescent mushroom forests, spore "snow", a fungus "sky" | Wide and slow, lily pads | **Lights Out** begins (the glow cycle) | 2 / 1 / Waystation at 20 |
-| 3 | 20–35 | **15** | about 16 min | **Crystal Hollows** (20–28), then **Old Deepmine** (28–35) | Ice blue crystal cathedrals, then warm lamplit mine works, rails and steam pipes | Ice floes, then canal locks and a mine-cart fork | **Cold** (warmth meter). The Deepmine half adds **mining**. | 2 / 3 / Waystation at 35 |
-| 4 | 35–55 | **20** | about 20 min | **Fossil Sea** (35–46), then **Sporewood Shores** (46–55) | A vast open underground ocean with a horizon, giant skeletons and a geode "moon". Then a giant red and green mushroom jungle with warm mist. | Open water with a weak current (paddle!), then twisting rapids | **Navigation**: the current is weak, so you must paddle. The shores add **spores**. | 3 / 3 / Waystations at 45 (mid) and 55 |
-| 5 | 55–77 | **22** | about 22 min | **Emberflow** (55–66), then **Obsidian Rapids** (66–77) | Black basalt, magma rivers beside the water, rising embers. Then glassy black canyons lit orange from below. | Hot water and geysers, then the fastest rapids in the game | **Heat**: an Obsidian hull and water bottles | 4 / 3 / Waystations at 66 (mid) and 77 |
-| 6 | 77–100 | **23** | about 24 min + finale | **Heartstone Ruins** (77–90), then **The Core Approach** (90–100) | Ancient gold and stone temples of the people who tended the Core-fire. Then rock turning to light, the Core rising like a dawn. | Temple aqueducts and gate puzzles, then a whirlpool spiral | **Pulses**: the light comes in beats, so move between them | 4 / 3 / Waystation at 88 (mid), then the Core |
+| 1 | 0–10 | **10** | about 9 min | **Sunfall Gorge**: the surface forest, then the sinkhole | Sunny noon, green forest, red canyon. **The Drop** (spiralling down the sinkhole wall into the first glowing cavern) at about mile 1. | Forest track, then the spiral ledge | The basics: hunger, health, punch, mine, fish, cook | 1 / 1 / Waystation at 10 |
+| 2 | 10–20 | **10** | about 11 min | **Glowshroom Grotto** | Teal and violet bioluminescent mushroom forests, spore "snow", a fungus "sky" | Wide soft-rock bores, mushroom bridges | **Lights Out** begins (the glow cycle) | 2 / 1 / Waystation at 20 |
+| 3 | 20–35 | **15** | about 16 min | **Crystal Hollows** (20–28), then **Old Deepmine** (28–35) | Ice blue crystal cathedrals, then warm lamplit mine works, rails and steam pipes | Slippery ice ledges, then old mine shafts and a lift-cage drop | **Cold** (warmth meter). The Deepmine half adds **blockages and side tunnels**. | 2 / 3 / Waystation at 35 |
+| 4 | 35–55 | **20** | about 20 min | **Fossil Sea** (35–46), then **Sporewood Shores** (46–55) | A vast underground ocean with a horizon, giant skeletons and a geode "moon". Then a giant red and green mushroom jungle with warm mist. | Long causeways across the sea, then twisting jungle ramps | **Navigation**: the causeways are narrow and the edges crumble, so steering matters most here. The shores add **spores**. | 3 / 3 / Waystations at 45 (mid) and 55 |
+| 5 | 55–77 | **22** | about 22 min | **Emberflow** (55–66), then **Obsidian Rifts** (66–77) | Black basalt, magma rivers below the ledges, rising embers. Then glassy black canyons lit orange from below. | Ledges over lava and geysers, then the steepest chutes in the game | **Heat**: an Obsidian frame, a Heatcore bit and water bottles | 4 / 3 / Waystations at 66 (mid) and 77 |
+| 6 | 77–100 | **23** | about 24 min + finale | **Heartstone Ruins** (77–90), then **The Core Approach** (90–100) | Ancient gold and stone temples of the people who tended the Core-fire. Then rock turning to light, the Core rising like a dawn. | Temple roads and gate puzzles, then a spiral down into the light | **Pulses**: the light comes in beats, so move between them | 4 / 3 / Waystation at 88 (mid), then the Core |
 
 **Totals:**
 - **16 night camps, 14 landings, 8 Waystations** (5 zone borders, 3 mid-zone).
@@ -258,26 +282,27 @@ Each zone adds **one rule** (pillar 5). The long zones (4–6) are **split into 
 
 ### 9.2 Threats, fish and fuel by zone
 
-| # | River threat | Land threat | Fish (+1 rare) | Fire fuel |
+| # | Route threat | Camp threat | Fish (+1 rare) | Fire fuel |
 |---|---|---|---|---|
-| 1 | River otters steal floating loot (comic) | None. The Hollow is glimpsed. | Sun Trout, Pebble Perch, (Golden Minnow) | Wood |
-| 2 | Lantern Eels grab swimmers (SPAM! QTE) | Spore Puffs pop and blind for 3 s | Glow Minnow, Cap Carp, (Moonscale) | Glowcaps |
-| 3 | Shardback Turtles flip floes. In the Deepmine half, Rust Pikes. | Crystal Bats swarm lanterns. In the Deepmine half, Tunnel Moles burst from banks. | Frost Pike, Prism Fish, Blind Cavefish, (Iron Gar) | Crystal shards, then coal |
-| 4 | **The Longneck** (a gentle giant that capsizes rafts if startled). On the shores, Snapjaws. | Bone Crabs. On the shores, Vine Creepers pull players off. | Coelacanth, Ammonite, Spotted Snapper, (Jungle Ray) | Driftwood and bone oil, then dry stalks |
+| 1 | Burrow Rats steal loot off the deck (comic) | None. The Hollow is glimpsed. | Sun Trout, Pebble Perch, (Golden Minnow) | Wood |
+| 2 | Lantern Eels lunge from glow pools and grab a player (SPAM! QTE) | Spore Puffs pop and blind for 3 s | Glow Minnow, Cap Carp, (Moonscale) | Glowcaps |
+| 3 | Shardback Beetles drop onto the deck. In the Deepmine half, Rail Rats. | Crystal Bats swarm lanterns. In the Deepmine half, Tunnel Moles burst from the walls. | Frost Pike, Prism Fish, Blind Cavefish, (Iron Gar) | Crystal shards, then coal |
+| 4 | **The Longneck** (a gentle giant that rocks the causeway if startled). On the shores, Snapjaws. | Bone Crabs. On the shores, Vine Creepers pull players off. | Coelacanth, Ammonite, Spotted Snapper, (Jungle Ray) | Driftwood and bone oil, then dry stalks |
 | 5 | Magma Salamanders, lava splashes | Cinder Imps steal fuel | Lava Eel, Ember Koi, (Obsidian Gar) | Magma stone (very strong) |
-| 6 | Temple Guardians (stone fish statues) | **The Hollow hunts every pulse** | Golden Arowana, (Corelight Koi) | Sacred oil |
+| 6 | Temple Guardians (stone statues that wake) | **The Hollow hunts every pulse** | Golden Arowana, (Corelight Koi) | Sacred oil |
 
 ### 9.3 Route bar (our version of the reference's)
 - **6 segments sized 10 / 10 / 15 / 20 / 22 / 23**, with thin dark dividers.
 - Passed zones light up in their own colour; zones ahead stay dark.
-- The white marker is the raft, linear in miles. A yellow tick marks Mile 100.
+- The white marker is the rig, linear in miles. A yellow tick marks Mile 100.
 - **Small Waystation pips** on the bar at 10, 20, 35, 45, 55, 66, 77 and 88. This is our addition.
 - Zone colours: forest green, grotto teal, ice blue, sea blue, ember orange and core gold.
+- Horizontal like the reference (1:1). A vertical depth bar is an option (section 20).
 
 **Finale (judgement):**
 - At Mile 100 the crew must keep the **Core Beacon** lit for 3 minutes while the Hollow makes its last hunt. All fuel collected that run counts.
-- Win: the Core flares, the Hollow is burned away and a light rises up the whole river.
-- Reward: the "Corewalker" title, a crew photo board in the lobby, unlocking **Deep Mode** (harder, new modifiers).
+- Win: the Core flares, the Hollow is burned away and a light rises up the whole route to the surface.
+- Reward: the "Corewalker" title, a crew photo board at the surface camp, unlocking **Deep Mode** (harder, new modifiers).
 
 ---
 
@@ -302,26 +327,26 @@ Each zone adds **one rule** (pillar 5). The long zones (4–6) are **split into 
 | Phase | What it does | Answer |
 |---|---|---|
 | Bright | Never appears. Glimpses only: a silhouette on a ridge, a hand on a far wall. | — |
-| Dimming | Follows along the cliffs, closer each minute. Pebble clicks. | Get to camp. |
+| Dimming | Follows along the cavern walls, closer each minute. Pebble clicks. | Get to camp. |
 | Lights Out at camp | Circles the fire ring. Reaches in when the fire is low. Sweeping **dark beams** (shadow searchlights) cross the ground; a player caught outside the ring is grabbed. | Stay in the light, add fuel. |
-| Lights Out on the river | Wades after the raft. Strikes when the raft's lantern light drops. | Lanterns lit, paddle hard. |
+| Lights Out on the route | Climbs after the rig. Strikes when the rig's lantern light drops. | Lanterns lit, crank hard. |
 
 **Grabbed:** a SPAM! QTE (crewmates can shine a lantern to help). A failure means "Taken!" and a respawn at the fire with -50% health.
 
 **Kid-safe:** no gore, no jumpscare sting louder than the ambience mix. The scare comes from scale and silence.
 
 ### 10.2 Per-zone threats (see the zones table)
-- Each zone has **one river threat** (SPAM! QTE, knock-offs, stealing loot) and **one land threat** (at stops).
+- Each zone has **one route threat** (SPAM! QTE, throwing players off, stealing loot) and **one camp threat** (at stops).
 - Introduce each with a yellow warning sign plus a Field Note before its first attack.
 
 ### 10.3 Set-piece moments (one per zone from zone 2, more in the long zones; no health-bar fights)
 | Zone | Moment |
 |---|---|
-| 2 | The Lantern Eel swarm at a narrow |
-| 3 | A Tunnel Mole bursts through the river bed in the Old Deepmine and the raft has to jump the gap |
-| 4 | The Longneck rises under the raft in the Fossil Sea: steer between its legs. Then a Snapjaw ambush on the Sporewood rapids. |
-| 5 | A magma geyser chase, then the Obsidian Rapids run (the fastest stretch in the game) |
-| 6 | The Hollow walks the temple aqueduct beside the raft through three pulses |
+| 2 | The Lantern Eel swarm across a mushroom bridge |
+| 3 | A Tunnel Mole bursts through the floor in the Old Deepmine and the rig has to jump the gap |
+| 4 | The Longneck rises beside the causeway in the Fossil Sea: steer between its legs. Then a Snapjaw ambush on the Sporewood ramps. |
+| 5 | A magma geyser chase, then the Obsidian Rifts run (the fastest stretch in the game) |
+| 6 | The Hollow walks the temple wall beside the rig through three pulses |
 
 ---
 
@@ -330,35 +355,36 @@ Each zone adds **one rule** (pillar 5). The long zones (4–6) are **split into 
 ### Stats
 | Stat | Zones | How it works |
 |---|---|---|
-| **Hunger** | All | Drains about 1% every 6 s, faster while paddling. 0 means health drains. |
+| **Hunger** | All | Drains about 1% every 6 s, faster while cranking. 0 means health drains. |
 | **Health** | All | Damage from monsters, falls and heat. Regenerates by the fire. |
 | **Warmth** | 3 | Cold drains near ice and in the Dark. Stay in light or eat hot food. |
-| **Breath / spores** | 6 | Spore clouds. Mask or antidote. |
-| **Heat** | 7 | Overheat. Water bottles, Ember-proof gear. |
+| **Breath / spores** | 4 (Sporewood Shores) | Spore clouds. Mask or antidote. |
+| **Heat** | 5 | Overheat. Water bottles, Ember-proof gear. |
 
 Only Hunger and Health show on the HUD by default. The zone stat appears only in its zone, so the HUD stays clean (owner rule).
 
 ### Activities
 - **Chopping and mining:**
   - Punch at first (zone 1, the reference's opener).
-  - An axe drops from the first chest: 3× faster.
-  - A pickaxe in the Old Deepmine half of zone 3, for ore, coal and crystals.
+  - A pickaxe from the first cache at about 50 s: mines ore veins, coal and crystals. An axe from the first camp chest chops 3× faster.
+  - Ore veins on the route fill the hopper (with the upgrade) or drop ore on the deck.
+  - Blockages and side tunnels (section 5.4, 7) are where mining is a crew job.
   - Nodes respawn per stop and are shared by the crew.
 - **Fishing:**
+  - At camp pools, landing pools and the Fossil Sea shore.
   - Cast, wait ("…"), a "!" bite cue, then a short reel minigame (hold in the green zone, 2–5 s).
   - Rods: Twig, Bamboo, Iron, Crystal, Ember. Better rods mean rarer fish and faster bites.
-  - Works from the dock or the moving raft.
-  - Each zone has 3–4 species plus 1 rare. A **Fish Log** collection (40 fish).
+  - Each zone has 3–4 species plus 1 rare. A **Fish Log** collection (about 25 fish).
 - **Cooking:**
   - Cookfire panel: pick a recipe, see ingredients, **hold COOK** (the reference's hold-to-fill).
   - Recipes unlock by finding them in Field Notes or buying them from traders.
 - **Eating and dropping:**
   - Holding food: "Click Eat · Q Drop".
-  - Dropped items float on water for 30 s (a crewmate can grab them) or stay on land until the raft leaves.
+  - Dropped items stay on the deck or ground until the rig leaves that stop.
   - A downed player drops half their bag.
-  - **Sharing food with a crewmate is a featured co-op act.** It counts toward a "Good Crewmate" badge.
+  - **Sharing food with a crewmate is a featured co-op act.** It counts toward the Camp Cook and crew badges.
 - **Looting:**
-  - Floating crates (steer to them), chests at stops, wrecks of earlier expeditions.
+  - Supply caches on the route (steer into them), chests at stops, wrecked rigs of earlier expeditions.
   - Every chest shows a toast with the item and one line on what it's for.
 
 ---
@@ -369,22 +395,22 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 | Item | Where it comes from | Use |
 |---|---|---|
 | Fists | Start | Punch trees, slow |
-| Paddle (Wooden, then Ironwood, then Crystal) | Start / Waystations | Speed. Better paddles add +5/+10% |
-| Fishing Rod (Twig, Bamboo, Iron, Crystal, Ember) | First crate / shops | Fishing |
-| Axe (Stone, then Iron) | First chest / zone 2 shop | Chop 3× and 5× faster |
-| Pickaxe (Iron, then Crystal) | Zone 3 (Old Deepmine) | Ore, coal, crystals |
-| Rope Ring | Start (free) | Reel in a crewmate who fell overboard |
+| Crank pump (Wooden, then Iron, then Crystal) | Start / Waystations | Tread power. Better pumps add +5/+10% |
+| Pickaxe (Stone, then Iron, then Crystal) | First cache / shops | Ore, coal, crystals, blockages |
+| Fishing Rod (Twig, Bamboo, Iron, Crystal, Ember) | First camp chest / shops | Fishing |
+| Axe (Stone, then Iron) | First camp chest / zone 2 shop | Chop 3× and 5× faster |
+| Tow Line | Start (free) | Reel a thrown-off crewmate back aboard |
 | Hand Lantern | Zone 2 | Personal light radius in the Dark (uses fuel) |
-| Hammer | Zone 1 Waystation | Repair the raft on the move |
-| Harpoon | Zone 4 Waystation | Fight river threats from the mount |
-| Water Bottle | Zone 7 | Cools Heat |
-| Spore Mask | Zone 6 | Immunity to spores |
+| Hammer | Zone 1 Waystation | Repair the rig on the move |
+| Flare Launcher | Zone 4 Waystation | Scare route threats from the deck mount |
+| Spore Mask | Zone 4 | Immunity to spores |
+| Water Bottle | Zone 5 | Cools Heat |
 
 ### 12.2 Resources
 - Wood, Glowcaps, Crystal shards, Coal, Iron ore, Bone, Fossil, Magma stone, Sacred oil.
-- Rope, Cloth, Drift planks.
-- **Core Shards** (run currency: earned from stops, chests and distance, spent at Waystations).
-- **Deepstones** (meta currency, kept between runs, spent in the lobby).
+- Rope, Cloth, Planks.
+- **Ore** (the run currency: from veins, stops, chests and distance; spent on rig upgrades at Waystations).
+- **Embers** (the meta currency, kept between runs, claimed and spent at the surface camp; the reference's name and model, recording. Final name to decide.)
 
 ### 12.3 Food
 | Food | Made from | Fills | Bonus |
@@ -397,12 +423,12 @@ Only Hunger and Health show on the HUD by default. The zone stat appears only in
 | Crab Boil | Bone Crab + Water | 50% | +10 max HP for 3 min |
 | Hot Chowder | 2 fish + Crystal Salt | 50% | **Warmth** (zone 3) |
 | Antidote Stew | Mushroom + Herb | 30% | **Spore immunity** for 2 min (zone 4, Sporewood Shores) |
-| Ember Chili | Lava Eel + Pepper | 40% | +paddle power, adds Heat |
+| Ember Chili | Lava Eel + Pepper | 40% | +crank power, adds Heat |
 | Golden Feast | Golden Arowana + 3 rare items | 100% | The whole crew, all buffs |
 
 ### 12.4 Camp and world props
-- Beacon Fire ring, fish drying racks, docks, lantern poles.
-- Supply chests, wrecked rafts and boats of earlier expeditions, mine carts.
+- Beacon Fire ring, fish drying racks, pool docks, lantern poles.
+- Supply chests, wrecked rigs, mine carts and lift cages of earlier expeditions.
 - Field Note boards, waystones (zone markers), trader tents.
 
 ---
@@ -420,21 +446,22 @@ The owner's view, backed by the knowledge base: atmosphere drives early staying 
    - The surface is sunny at noon, and the first cavern glows teal.
    - Average frame brightness target **at least 140 for the first 3 minutes**. Run a Resort's 94 against rivals at 169–172 hurt it (live).
 3. **Scale, then squeeze.**
-   - Alternate huge open caverns with short squeezes.
-   - Put a **reveal at every bend**: a giant skeleton, a waterfall, a city of lamps, a crystal cathedral.
+   - Alternate huge open caverns with short bores.
+   - Put a **reveal at every breakout**: a giant skeleton, a waterfall, a city of lamps, a crystal cathedral.
    - Never a long dark tunnel (the "not enclosed" rule).
-4. **Fog sells depth.**
-   - Roblox Atmosphere density 0.3–0.45 per zone, tinted by zone.
-   - Hide far geometry. Let set pieces fade in, never pop in.
+4. **Sell the depth.**
+   - The route always heads down: spirals, drops and lift shafts every few miles.
+   - Looking up shows how far you've come: the light of the last cavern far above.
+   - Roblox Atmosphere density 0.3–0.45 per zone, tinted by zone. Hide far geometry; let set pieces fade in, never pop in.
    - Light shafts from cracks above (beams and volumetric parts).
 5. **Earlier explorers were here.**
-   - Wrecked rafts, abandoned camps, skeletons with a lantern, Field Notes signed by five expeditions (the Gorge Settlers, the Steam Barge Crew, the Miners' Guild, the Survey Scientists, the Last Expedition).
+   - Wrecked rigs, abandoned camps, skeletons with a lantern, Field Notes signed by five expeditions (the Gorge Settlers, the Steam Drill Crew, the Miners' Guild, the Survey Scientists, the Last Expedition).
    - The "% of explorers have made it this far" line. This is the reference's best atmosphere trick and it's nearly free.
 6. **Monster cadence: seen, heard, hunted.**
    - Glimpse in zone 1, clicks in zone 2, the first ring hunt at the first camp.
    - **Silence before a scare:** duck the ambience for 1–2 s.
 7. **Sound** (ambience, not music; music had no measured playtime effect, research):
-   - A river loop whose intensity follows speed.
+   - A drill-and-tread loop whose intensity follows speed, crunching louder in bores.
    - Positional drips, distant rumbles, the Hollow's pebble clicks.
    - Camp crackle with a warm low hum.
    - At most 4 one-shot voices at once, pitch varied 0.9–1.15.
@@ -452,12 +479,12 @@ The owner's view, backed by the knowledge base: atmosphere drives early staying 
    | Emberflow | Rising embers |
    | Ruins | Golden motes |
 
-   Capped for phones.
+   Plus rock dust from the drill bit in every bore. Capped for phones.
 9. **The world reacts:**
-   - Fish jump near the raft.
    - Bats scatter when lanterns pass.
    - Glowcaps brighten when touched.
-   - The raft's wake lights up bioluminescent water.
+   - Crystals ring when the drill passes.
+   - Fish jump in the pools as the rig rolls in.
    - Something reacts to the crew within seconds of anything they do.
 10. **Stylised, calm palette:** chunky low-poly rock, readable silhouettes, no noisy textures. The reference's flat-shaded style reads well on phones.
 
@@ -469,44 +496,72 @@ The owner's view, backed by the knowledge base: atmosphere drives early staying 
 
 ---
 
-## 14. Meta progression and retention
+## 14. The surface camp (lobby), meta progression and retention
 
-### 14.1 Lobby (the reference's layout, kept)
-- Party pads: 1–6, with a 10 s countdown. **Solo "Start now" button.**
-- Leaderboards: Deepest, Fastest to Mile 25/50/100, Fish caught, Deepstones.
-- Journal: Field Notes 0/40 and the Fish Log.
-- Badges: one per zone, plus feats.
-- Classes hut. Invite. Free Revive board (join the group and like: 1 free revive per day).
-- The player list shows lifetime Miles.
+Everything in 14.1–14.4 copies the reference's lobby closely (see the [lobby analysis](research/reference-lobby-analysis.md)).
 
-### 14.2 Classes (bought with Deepstones; one active per run)
-| Class | Perk |
-|---|---|
-| Rower | +15% paddle power |
-| Angler | Faster bites, rare fish chance |
-| Cook | Recipes cook 2× faster, +25% food value |
-| Lamplighter | Lanterns burn 40% slower |
-| Lumberjack | Chop and mine 2× |
-| Medic | Revive crewmates faster, bandages heal more |
-| Scout | Sees hazards and loot through fog, longer warning signs |
-| Engineer | Repairs 2×, upgrades 20% cheaper |
-| Diver | Swims 2× faster, never Swept Away |
+### 14.1 The surface camp
+The lobby is **Topside Camp**, a sunny clearing at the mouth of the dig. The sinkhole is in view, so the first thing a player sees is the hole they're about to go down.
 
-Each class levels from 1 to 10 through use. Levels unlock cosmetics, never big power.
+- **Launch bays** (the reference's party pads, recording):
+  - Step into a bay to create a party: pick **1–5 players (4 selected by default)** and tick **Friends Only** if you want.
+  - Empty bays read "PLAY / Step in to make a party". Taken bays glow green and read "N/M PLAYERS / Starting in Xs" with the leader's name. Yours has a yellow outline.
+  - The **countdown starts at 20 s and never resets** when people join. It **drops to 5 s when the party is full**. An under-filled party starts anyway; solo is allowed.
+  - "STARTING! Teleporting…", then the party goes to its own reserved run server.
+- **The big PLAY button** (always on screen) puts you in the fullest open public party. If there isn't one, it starts a 1-player party with the 20 s timer.
+- **New players** spawn facing the bays with a bouncing arrow on PLAY and no panels open, so a first-timer is on the way down well inside 60 s (bounce research, Run a Resort KB).
+- **Continue: Mile X** on the bays and PLAY button when the player has a Waystation save.
+- **Leaderboards** with **Global / Friends** tabs and a pinned "You" row: **Fastest Descent**, **Embers Earned** and **Deepest Total**. An empty Friends tab says "Play with friends to fill this board!" with an **Invite Friends** button.
+- **Free Revive board:** a free revive for joining the group. The reference also rewards liking the game; we only add that after checking the current Roblox rules on incentivised votes.
+- **Classes hut** with a try-on room that shows the outfit on your own avatar.
+- **The player list** shows lifetime Miles Down.
+- **Your pet follows you** in camp and in the run.
+- **Server sizes:** about 24 players per camp server (the reference showed 14+), and one reserved server per party for the run. Friends starting together on a reserved server count as intentional co-play, an "Important" Home signal (Run a Resort KB, official).
 
-### 14.3 Retention hooks by horizon (from the knowledge base)
+### 14.2 Rewards are claimed at camp
+- The **Journal** and **Badges** pay **Embers**, claimed at camp with a big "+N EMBERS" pop-up and red notification badges on the HUD icons. In the reference, all 685 of the player's Embers after 2 runs came from these claims (recording).
+- Rewards: Field Note +10, Journal Page +25 (recording).
+- Badge rewards follow the reference's curve: 25 / 25 / 75 / 200 for distance badges, 200 for challenge badges (recording).
+- Every return to camp therefore has a reward moment right beside the class shop (judgement).
+
+### 14.3 Classes (bought with Embers or Robux; one active per run)
+
+| Class | Embers | Robux | What you get |
+|---|---|---|---|
+| **Miner** | 150 | 49 | Starts with a Stone Pickaxe, +1 ore per swing |
+| **Cook** | 750 | 149 | Starts with a Cooked Fish, food fills 15% more |
+| **Medic** | 1500 | 299 | Starts with a Bandage, revives 15% faster |
+
+- Prices and perk sizes are the reference's (recording). After 2 runs the reference player could afford the first class and was one run short of the second, so there is always a next goal in week one.
+- Perks stay small and help the crew.
+- Later classes (content drops): Engineer (repairs and unjams faster), Lamplighter (lanterns burn slower), Scout (sees hazards and ore through fog).
+
+### 14.4 Collection, badges and stats
+- **Journal:** 6 zone tabs. Each zone has **6 Field Notes** (pencil sketches with one line of story, signed by an expedition) and **2 Journal Pages**. **49 in all** (36 notes, 13 pages; the extra page is at the Core). Locked items show as grey "?" cards.
+- **Badges (13), in three groups:**
+
+  | Group | Badges |
+  |---|---|
+  | **Distance** | Breaking Ground (start), Ten Miles Down, Quarter Way (25), Halfway There (50), Almost There (75), The Core (100) |
+  | **Challenges** | Untouched (no knock-downs), Lone Driller (the Core alone), Full Journal (every page) |
+  | **Crew** | Bring a Friend (invite a friend), Lifesaver (revive 5 crewmates), Back to Life (come back with a revive item), Camp Cook (cook 50 meals) |
+
+- **Your Stats panel:** your avatar, BEST DEPTH with its zone tag and "Only X% of explorers got this far", then sections: **The Descent** (total miles, games played, time played, fastest descent, camps reached, times at the Core, Core wins), **Survival** (nights survived, times knocked down, crew revived), **Underground** (ore mined, fish caught, meals cooked, rig repairs, threats chased off) and **Your Account** (notes found, journal pages, friends brought, Embers earned, Robux spent).
+- **Favorite prompt:** the Roblox "add to favorites?" prompt the first time a player returns to camp from a run, never on the first join (the reference shows it after a return, recording).
+
+### 14.5 Retention hooks by horizon (from the knowledge base)
 
 | Horizon | Hook |
 |---|---|
 | Session | Next stop always 1–3 min away. A Waystation every 9–14 min (zone borders, plus mid-zone saves in the long zones). **End each session mid-leg**: the HUD says "Next: Waystation 3 · Crystal Hollows". |
-| D1 | **The expedition is saved** at the Waystation and the lobby shows "Continue: Mile 35". A crate found at Mile 10 opens "at the next Waystation **or tomorrow**". Opt-in notification: "Your crew's raft is waiting at Mile 35." |
-| D2–7 | Daily Expedition Orders (3 small tasks, such as "catch 2 Prism Fish"), a streak with a grace day, Field Notes to complete, class levels. |
-| D8–28 | A content drop every 2–4 weeks (new fish, notes, a fork). Weekly events: **Quake Night** (river shifts, new forks), **Glow Bloom** (double rare fish), **Hollow Moon** (harder nights, double Deepstones). Deep Mode after the first finale. |
-| Social | Co-op is an "Important" Home signal (research). Invite button, crew bonus (+10% Core Shards per friend aboard), share food and rescues for the Good Crewmate badge. |
+| D1 | **The expedition is saved** at the Waystation and the camp shows "Continue: Mile 35". Rewards waiting to be claimed at camp. Opt-in notification: "Your crew's rig is waiting at Mile 35." |
+| D2–7 | The class ladder (150 → 750 → 1500 Embers), the Journal and badges, Daily Expedition Orders (3 small tasks, such as "mine 20 crystal"), a streak with a grace day. |
+| D8–28 | A content drop every 2–4 weeks (new fish, notes, a fork, a class). Weekly events: **Quake Night** (the route reshuffles, new forks), **Glow Bloom** (double rare fish), **Hollow Moon** (harder nights, double Embers). Deep Mode after the first finale. |
+| Social | Co-op is an "Important" Home signal (research). Invite button, Friends leaderboards, Friends Only parties on reserved servers, crew badges, a crew bonus (+10% ore per friend aboard). |
 
-### 14.4 Saves
-- Waystations save: mile, raft, upgrades, inventory and run currency, **for the crew leader and each member**.
-- Anyone can start a new crew from their own furthest Waystation.
+### 14.6 Saves
+- Waystations save: mile, rig, upgrades, inventory and ore, **for the party leader and each member**.
+- Anyone can start a new party from their own furthest Waystation.
 - Run a Resort lesson: never hand out a fresh save on a failed read; retry, then ask the player to rejoin.
 
 ---
@@ -522,15 +577,15 @@ Principles (owner rules and the knowledge base):
 
 | Product | Type | Price (R$) | Where it shows | Notes |
 |---|---|---|---|---|
-| **Starter Pack** (pet pup with name and colours, Driftwood Oar cosmetic, head-start kit: axe, 3 cooked fish, lantern) | Gamepass | **49** | HUD button always. One popup at the **first Waystation** (Mile 10, about 9–10 min). | The reference's best-shaped offer (popup about 15 min, bought at about 25 min, recording). Best seller in Run a Resort (live). |
-| **Turbo** (crew-wide +20 MPH, 20 s) | Dev product | **25** | Pill under the speedometer (T) | Free Boost Mushrooms also exist. |
-| **Instant Push Off** | Dev product | **15** | World prompt when beached | The free crew push is always there too. |
-| **Revive** (self, on the spot) | Dev product | **19** | Down screen | 1 free per day through the group. Medic class revives free. |
-| **Raft skins** (Pirate, Viking, Crystal Swan, Bathtub, Pizza…) | Gamepass / shop | 99–249 | Waystation and lobby | Cosmetic only, still an open deck. |
-| **Paddle skins, campfire skins, trails, pets** | Shop | 49–199 | Lobby | Pets follow you and fetch dropped items (QoL). |
-| **Big Raft** (+2 seats and cargo from the start) | Gamepass | 199 | Lobby | Convenience. Base raft grows anyway. |
-| **Deepstone packs** | Dev product | 49 / 129 / 299 | Lobby only | Buy classes faster. Classes are also earnable. |
-| **Expedition Pass** (season) | Pass | 299 | Lobby | Deterministic free plus premium cosmetic tracks. No crates. |
+| **Starter Pack** (pet pup with name and colours, a Brass Crank cosmetic, head-start kit: iron pickaxe, 3 cooked fish, lantern) | Gamepass | **49** | HUD button always. One popup at the **first Waystation** (Mile 10, about 9–10 min). | The reference's best-shaped offer (popup about 15 min, bought at about 25 min, recording). Best seller in Run a Resort (live). |
+| **Turbo** (crew-wide +20 MPH, 20 s) | Dev product | **25** | Pill under the speedometer (T) | Free Boost Crystals also exist. |
+| **Instant Unjam** | Dev product | **15** | World prompt when jammed | The free crew unjam is always there too. |
+| **Revive** (self, on the spot) | Dev product | **19** | Down screen | 1 free per day through the group. The Medic revives faster. |
+| **Classes** | Dev product | 49 / 149 / 299 | Classes hut | Also earnable with Embers (the reference's model, recording). |
+| **Rig skins** (Pirate Drill, Steam Mole, Crystal Beetle, Bathtub, Pizza…) | Gamepass / shop | 99–249 | Waystation and camp | Cosmetic only, still an open deck. |
+| **Crank skins, campfire skins, trails, pets** | Shop | 49–199 | Camp | Pets follow you and fetch dropped items (QoL). |
+| **Big Rig** (the Wide deck and extra cargo from the start) | Gamepass | 199 | Camp | Convenience. The deck grows anyway. |
+| **Expedition Pass** (season) | Pass | 299 | Camp | Deterministic free plus premium cosmetic tracks. No crates. |
 | **Private crew server** | VIP server | 100/month | Roblox | Co-play signal. |
 
 **Projected first purchase window (judgement):**
@@ -541,29 +596,30 @@ Principles (owner rules and the knowledge base):
 
 ## 16. UI: 1:1 with the reference, reskinned for depth
 
-**Full mockup:** [ui/ui-mockup.html](ui/ui-mockup.html). Open it in a browser. Positions and sizes are measured from the 2560×1440 recording, and every screen is a 16:9 frame.
+**Mockup:** [ui/ui-mockup.html](ui/ui-mockup.html). Positions and sizes are measured from the 2560×1440 recording, and every screen is a 16:9 frame. **It still shows the river and raft wording and needs updating to the Drill Rig.**
 
 | Reference | Ours | Change |
 |---|---|---|
 | "0.2 Miles" + sun badge | "0.2 Miles Down" + glow badge (sun on the surface, a glowing crystal underground, a moon in the Dark) | Wording only |
 | "Reach camp before dark!" | "Reach camp before Lights Out!" | |
 | "He's hunting! Get to camp" | Same | |
-| Zone-segmented route bar | Same: **6 segments sized 10/10/15/20/22/23 mi**, passed zones lit in their own colour, white raft marker, yellow Mile 100 tick. We add Waystation pips. | Pips added |
+| Zone-segmented route bar | Same: **6 segments sized 10/10/15/20/22/23 mi**, passed zones lit in their own colour, white rig marker, yellow Mile 100 tick. We add Waystation pips. | Pips added |
 | Hunger and Health bars | Same, plus a zone stat bar only when relevant (Warmth, Heat) | |
-| Speedometer + Turbo 25 R$ | Same | |
+| Speedometer + Turbo 25 R$ | Same, plus two small tread-power arrows | Tread arrows |
 | Starter Pack puppy button 49 R$ | Same | |
-| Hotbar + Bag, "Click · Paddle" hint | Same | |
+| Hotbar + Bag, "Click · Paddle" hint | Same, "Click · Crank" | |
 | Night bar, crew portraits, "Add wood to go faster" | Same. "Add fuel to end the Dark". | Fuel icon changes per zone |
 | LEAVING IN / ALL ABOARD / WAITING FOR CREW | Same | |
-| RAFT IS LEAVING / DON'T GET LEFT BEHIND / SWEPT AWAY | Same | |
+| RAFT IS LEAVING / DON'T GET LEFT BEHIND / SWEPT AWAY | RIG IS LEAVING / DON'T GET LEFT BEHIND / LEFT BEHIND | |
 | Cookfire, Starter Pack, Journal note, Meet your puppy, SPAM! | Same layouts, our content | |
-| Lobby: Journal / Invite / Badges + currency + PLAY | Same + "Continue Mile X" | Continue button added |
+| Lobby: Journal / Invite / Badges + currency + STATS + PLAY, party pads, Create Party (1–5, Friends Only) | Same, + "Continue Mile X" | Continue added |
 
 **Implementation notes:**
 - Build as ScreenGuis with `UIScale` from the 2560×1440 reference. Positions use Scale, not Offset.
 - Font: `Enum.Font.Cartoon` / FontFace "Comic Neue Angular" Bold and Bold Italic, as in the reference. Use `UIStroke` 2.5–3 px black on HUD text, no stroke inside panels.
+- Panels: brown wood boards with dark inner panels, a white title outside the top-left and a red X close button (the reference's lobby panels, recording).
 - HUD icons are flat 2D paintings (2–3 tones, thick dark outline), per the owner's rule.
-- Phone: test on a real phone. Caps: popups at 50% of screen height, safe area respected, the hotbar never covers the joystick, and the PADDLE button matches the Roblox jump button.
+- Phone: test on a real phone. Caps: popups at 50% of screen height, safe area respected, the hotbar never covers the joystick, and the CRANK button matches the Roblox jump button.
 
 ---
 
@@ -572,6 +628,7 @@ Principles (owner rules and the knowledge base):
 | Metric | Target | Basis |
 |---|---|---|
 | Time to control after load | **≤ 10 s** (reference about 65 s from Play) | Bounce research |
+| Time from first join to run start | **≤ 30 s** (20 s bay countdown at most) | The reference's 20 s countdown (recording) |
 | Home bounce under 60 s | **≤ 15%** | Benchmark median about 14–18% (research) |
 | Home bounce 61–180 s | **≤ 18%** | PRISON RP median 20.4% (research) |
 | Home PTR | ≥ 3% | Band about 2.0–4.7% (research) |
@@ -580,19 +637,21 @@ Principles (owner rules and the knowledge base):
 | D7 | ≥ 2.5% | |
 | Reach first camp | ≥ 85% of new players | judgement |
 | Reach first Waystation (Mile 10) | ≥ 70% | The reference shows 76% reaching Mile 10 (recording) |
+| Parties with 2+ players | ≥ 50% | judgement; co-play signal |
 
 **Telemetry from day one** (Run a Resort's counters that paid off):
 - Per-version first-session counters: under 60 s, under 180 s, reached camp 1, reached Waystation 1.
+- Time in camp before the first run, and the party size chosen.
 - Mile reached and quit mile.
-- Stuck taps.
-- Quit reason context: open window, in the Dark or not, in water or not.
+- Stuck taps and jam count.
+- Quit reason context: open window, in the Dark or not, thrown off or not.
 - Frame rate, crew size at quit.
-- The **% of explorers per mile**: the same data drives the in-game toast.
+- The **% of explorers per mile**: the same data drives the in-game toast and the Stats panel.
 
 ---
 
 ## 18. Thumbnail and promise
-- **Same verb, bigger scale.** A crew on an open raft, paddles up, going over **the Drop** into a glowing cavern, the Hollow's silhouette faint on the wall. Players do all of it in the first 90 s.
+- **Same verb, bigger scale.** A crew on an open Drill Rig, cranks pumping, spiralling down the sinkhole wall into a glowing cavern, the Hollow's silhouette faint on the far wall. Players do all of it in the first 90 s.
 - Tile 2: the Beacon Fire ring at night, the crew safe in warm light and the Hollow's eyes outside.
 - Title tile text, if any: "100 MILES DOWN".
 - Upload a plain gameplay video of the first 90 s.
@@ -603,21 +662,26 @@ Principles (owner rules and the knowledge base):
 
 | Milestone | Scope | Outcome |
 |---|---|---|
-| **M0: Greybox river** (1 week) | Spline river, current, paddle and steer, open raft physics, knock-off and swim, HUD (distance, speed) | The core verb feels good on a phone |
-| **M1: Zone 1 vertical slice** (2 weeks) | First 3 minutes as scripted. Punching and the raft build, fishing, cooking, Camp Ember, Lights Out, the Hollow glimpse and ring hunt, 1 Landing, Waystation 1 save. Full UI set from the mockup. Telemetry. | **Soft launch.** Measure bounce and first-camp reach. |
-| **M2: Zone 2** (2 weeks) | Glowshroom Grotto, Lantern Eels QTE, forks, Field Notes, Starter Pack, Turbo, Push Off | First monetisation read |
-| M3: Zones 3–4 (15 and 20 mi) | Warmth, mining, navigation, spores, raft upgrades, classes, mid-zone saves | D1/D7 read |
+| **M0: Greybox descent** (1 week) | A downward route spline built from about 6 piece types, the rig with two treads, crank pumps and side-based steering, open-deck physics, thrown off and tow line, one fork, one blockage, one jam and unjam, HUD (distance, speed, tread arrows) | The core verb feels good on a phone |
+| **M1: Zone 1 vertical slice** (2 weeks) | First 3 minutes as scripted. Punching and the deck build, The Drop, mining, fishing, cooking, Camp Ember, Lights Out, the Hollow glimpse and ring hunt, 1 Landing, Waystation 1 save. Topside Camp with launch bays, PLAY, Journal and Badges. Full UI set. Telemetry. | **Soft launch.** Measure bounce and first-camp reach. |
+| **M2: Zone 2** (2 weeks) | Glowshroom Grotto, Lantern Eels QTE, forks, Field Notes, classes, Starter Pack, Turbo, Instant Unjam | First monetisation read |
+| M3: Zones 3–4 (15 and 20 mi) | Warmth, blockages and side tunnels, causeways, spores, rig upgrades, mid-zone saves | D1/D7 read |
 | M4: Zones 5–6 (22 and 23 mi) + Core finale | The full descent | Full launch |
 
-Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `src/shared`. The river spline is shared config.
+Engineering follows the OneWayToSpace setup: Rojo, `src/client`, `src/server`, `src/shared`. The route pieces and zone config are shared modules. The camp and the run are two places in one universe: a teleport inside the universe likely doesn't count as a bounce (creator anecdote, Run a Resort KB).
 
 ---
 
 ## 20. Decisions for the owner
 
-1. **"Not enclosed":** is it the open raft deck, the open caverns, or both (as designed)?
+**Decided:** the Drill Rig with two-tread crank steering; crews of 1–5, default 4; growing zones of 10/10/15/20/22/23 mi; a planned route with crew-broken blockages and side tunnels (not player-dug).
+
+**Still open:**
+1. **"Not enclosed":** is it the open rig deck, the open caverns, or both (as designed)?
 2. **Monster name:** "The Hollow". Alternatives: "The Long Man", "The Dimmer".
-3. **Crew size:** a 4 public cap (like the reference) or 6?
-4. **Session shape:** Waystation saves (proposed) or a single-session run like the reference?
-5. **Push Off:** OK to keep a free crew push and sell only the instant version?
-6. **First build target:** start M0 now, in this repo, with the OneWayToSpace Rojo layout?
+3. **Session shape:** Waystation saves (proposed) or a single-session run like the reference?
+4. **Unjam:** OK to keep a free crew unjam and sell only the instant version?
+5. **Currency names:** Embers (meta) and Ore (run)?
+6. **Route bar:** horizontal like the reference, or a vertical depth bar?
+7. **Free Revive:** group join only, or also the like step once the rules are checked?
+8. **First build target:** start M0 now, in this repo, with the OneWayToSpace Rojo layout?
