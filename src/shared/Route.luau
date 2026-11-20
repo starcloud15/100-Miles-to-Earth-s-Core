@@ -89,13 +89,41 @@ function Route.new(seed: number, miles: number)
 	local d0, d1 = run(1150, 540 * dropDir, -0.3, T.WIDTH, T.HEIGHT, "Drop")
 	self.drop = { s0 = d0, s1 = d1, dir = dropDir }
 
-	-- tunnels down to the end, with stops at fixed miles
+	-- zone structure (GDD 9.0): a short dig, then the zone's giant cavern for most
+	-- of the zone, then a short dig out to the Waystation
+	local hallStart = length() + Config.DIG_IN
+	local hallEnd = Config.HALL_UNTIL_MILE * SPM
 	local stopIndex = 1
 	local sinceCavern = 0
 	while length() < total do
 		local s = length()
 		local stop = Config.STOPS[stopIndex]
-		if stop and s >= stop.mile * SPM - 260 then
+		if s >= hallStart and s < hallEnd then
+			-- the cavern: the route runs on bridges and ledges through the open space
+			if not self.hall then
+				self.hall = { s0 = s }
+			end
+			if stop and stop.kind ~= "waystation" and s >= stop.mile * SPM - 140 then
+				-- a stop on an outcrop platform looking out over the cavern
+				stopIndex += 1
+				local a, b = run(220, rng:NextNumber(-10, 10), 0, 110, 0, "HallStop")
+				table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind, hall = true })
+				run(40, 0, -0.05, 54, 0, "Hall")
+			elseif rng:NextNumber() < 0.16 then
+				-- a ramp down to a lower level of the cavern
+				sign(s - 600, "Chute", "STEEP DROP!")
+				run(rng:NextInteger(180, 260), rng:NextNumber(-20, 20), -0.38, 54, 0, "HallRamp")
+			else
+				local turn = rng:NextNumber(25, 60) * (rng:NextNumber() < 0.5 and -1 or 1)
+				local a, b = run(rng:NextInteger(420, 680), turn, -rng:NextNumber(0.05, 0.12), 54, 0, "Hall")
+				if rng:NextNumber() < 0.4 then
+					boulder(a + rng:NextNumber(100, b - a - 60), rng:NextNumber(-0.3, 0.3) * 54)
+				end
+			end
+			if length() >= hallEnd then
+				self.hall.s1 = length()
+			end
+		elseif stop and s >= stop.mile * SPM - 260 then
 			-- a stop chamber: wide, high and flat; the rig stops dead in the middle
 			stopIndex += 1
 			run(60, 0, -0.04, 110, 46, "StopIn")

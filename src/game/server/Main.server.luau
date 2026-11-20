@@ -130,7 +130,8 @@ RunService.Heartbeat:Connect(function(dt)
 	-- the drill breaks the rock just ahead of its bit
 	local what = World.carve(rig.s + Config.Rig.DECK_L / 2 + 8)
 	rig:drilling(what)
-	rig:pebbles(dt, route:kindAt(rig.s) ~= "Gorge")
+	local here = route:kindAt(rig.s)
+	rig:pebbles(dt, here == "Tunnel" or here == "Chute")
 	if what == "breakthrough" then
 		Net.Notify:FireAllClients("Breakthrough")
 	end

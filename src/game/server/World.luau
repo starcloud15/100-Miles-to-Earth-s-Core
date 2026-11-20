@@ -36,6 +36,7 @@ World.beacons = {} -- stop name -> beacon part
 
 local FONT = Font.new("rbxasset://fonts/families/ComicNeueAngular.json", Enum.FontWeight.Bold)
 local AMBER = Color3.fromRGB(255, 178, 60)
+local ROCK_RED = { Color3.fromRGB(190, 104, 70), Color3.fromRGB(170, 92, 64), Color3.fromRGB(206, 128, 86) }
 
 local function part(props: { [string]: any }): BasePart
 	local p = Instance.new(props.ClassName or "Part")
@@ -242,13 +243,35 @@ local function buildStop(model: Model, stop)
 	local cf, w, _, h = route:sample(stop.s)
 	local rng = Random.new(route.seed + math.floor(stop.s))
 	beacon(model, cf, stop.name)
-	-- veins to mine around the walls (the reference's trees around the clearing)
-	for i = 1, 8 do
-		local zc = cf * CFrame.new(0, 0, -90 + i * 22)
-		local v = vein(model, zc, w, h, rng, true)
-		v:SetAttribute("HP", 12)
-		v:SetAttribute("Stop", stop.name)
-		table.insert(World.veins, v)
+	if stop.hall then
+		-- on a platform in the cavern: veins in rock outcrops around its edge
+		for i = 1, 8 do
+			local side = i % 2 == 0 and 1 or -1
+			local base = cf * CFrame.new(side * (w / 2 + rng:NextNumber(-2, 4)), 0, -96 + i * 22) * CFrame.Angles(0, rng:NextNumber(0, 6), 0)
+			part({ Name = "Outcrop", Size = Vector3.new(9, 5, 8), CFrame = base * CFrame.new(0, 1.5, 0), Color = ROCK_RED[i % 3 + 1], Material = Enum.Material.Sandstone, Parent = model })
+			local v = Instance.new("Model")
+			v.Name = "Vein"
+			for j = 1, 6 do
+				local c = part({ Name = "Crystal", Size = Vector3.new(1.8, 5.5, 1.8) * rng:NextNumber(0.8, 1.3), CFrame = base * CFrame.new(rng:NextNumber(-2.5, 2.5), 5, rng:NextNumber(-2.5, 2.5)) * CFrame.Angles(rng:NextNumber(-0.5, 0.5), rng:NextNumber(0, 3), rng:NextNumber(-0.5, 0.5)), Color = j % 2 == 0 and AMBER or Color3.fromRGB(255, 214, 110), Material = Enum.Material.Neon, Parent = v })
+				if j == 1 then
+					light(c, Color3.fromRGB(255, 170, 70), 22, 1.2)
+					v.PrimaryPart = c
+				end
+			end
+			v:SetAttribute("HP", 12)
+			v:SetAttribute("Stop", stop.name)
+			v.Parent = model
+			table.insert(World.veins, v)
+		end
+	else
+		-- veins to mine around the walls (the reference's trees around the clearing)
+		for i = 1, 8 do
+			local zc = cf * CFrame.new(0, 0, -90 + i * 22)
+			local v = vein(model, zc, w, h, rng, true)
+			v:SetAttribute("HP", 12)
+			v:SetAttribute("Stop", stop.name)
+			table.insert(World.veins, v)
+		end
 	end
 	-- the camp: tents, crates, lantern poles, a notice board
 	tent(model, cf * CFrame.new(28, 0, -14) * CFrame.Angles(0, 0.4, 0), Color3.fromRGB(190, 70, 50))
@@ -300,13 +323,247 @@ local function buildCavern(model: Model, cf: CFrame, w: number, h: number, rng: 
 	end
 end
 
-local function inCavern(s: number): boolean
-	for _, c in route.caverns do
-		if s >= c.s0 - 4 and s <= c.s1 + 4 then
-			return true
+-- the zone's cavern (GDD 9.0): a giant hall the route crosses on bridges and ledges ----
+local HALL = Config.HALL
+local function isHall(kind: string): boolean
+	return kind:sub(1, 4) == "Hall"
+end
+-- where the route sits across the cavern (+ = right of the cavern's centre)
+local function hallOffset(s: number): number
+	return math.sin(s / 640) * 95 + math.sin(s / 230 + 1.3) * 28
+end
+local function hallFloor(s: number): number
+	return HALL.FLOOR + math.noise(s / 400, 3.1) * 40
+end
+local function hallCeil(s: number): number
+	return HALL.CEILING + math.noise(s / 500, 7.7) * 35
+end
+
+
+-- a Blender prop from Starport (src/shared/Models/Props), or a part fallback until it's uploaded
+local PROP_PAINT = {
+	Rock = { Color3.fromRGB(190, 104, 70), Enum.Material.Sandstone },
+	RockDark = { Color3.fromRGB(140, 80, 58), Enum.Material.Slate },
+	Wood = { Color3.fromRGB(150, 98, 58), Enum.Material.WoodPlanks },
+	WoodDark = { Color3.fromRGB(104, 66, 40), Enum.Material.Wood },
+	Glow = { Color3.fromRGB(255, 186, 70), Enum.Material.Neon },
+	Steel = { Color3.fromRGB(110, 116, 126), Enum.Material.Metal },
+	Cloth = { Color3.fromRGB(190, 70, 50), Enum.Material.Fabric },
+	Moss = { Color3.fromRGB(90, 140, 70), Enum.Material.Grass },
+}
+local function prop(name: string, cf: CFrame, scale: number, model: Model, fallback: () -> ()): Model?
+	local models = Shared:FindFirstChild("Models")
+	local props = models and models:FindFirstChild("Props")
+	local src = props and props:FindFirstChild(name)
+	if not src then
+		fallback()
+		return nil
+	end
+	local c = src:Clone()
+	if scale ~= 1 then
+		c:ScaleTo(scale)
+	end
+	c:PivotTo(cf)
+	for _, p in c:GetDescendants() do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CollisionGroup = "World"
+			for prefix, look in PROP_PAINT do
+				if p.Name:sub(1, #prefix) == prefix and #prefix > #(p:GetAttribute("Paint") or "") then
+					p.Color = look[1]
+					p.Material = look[2]
+					p:SetAttribute("Paint", prefix)
+				end
+			end
 		end
 	end
-	return false
+	c.Parent = model
+	return c
+end
+
+local function stalagmite(model: Model, at: CFrame, height: number, rng: Random)
+	prop("Stalagmite", at, height / 30, model, function()
+		local col = ROCK_RED[rng:NextInteger(1, 3)]
+		local w = height * 0.35
+		for i = 0, 2 do
+			local f = 1 - i * 0.3
+			part({ Name = "Stalagmite", Size = Vector3.new(w * f, height * 0.4, w * f), CFrame = at * CFrame.new(0, height * (0.2 + i * 0.3), 0) * CFrame.Angles(0, i * 0.7, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		end
+	end)
+end
+
+local function arch(model: Model, centre: CFrame, radius: number)
+	-- a natural sandstone arch spanning the cavern, from floor to floor over the route
+	local n = 14
+	for i = 0, n - 1 do
+		local a0 = math.pi * i / n
+		local a1 = math.pi * (i + 1) / n
+		local p0 = Vector3.new(math.cos(a0) * radius, math.sin(a0) * radius, 0)
+		local p1 = Vector3.new(math.cos(a1) * radius, math.sin(a1) * radius, 0)
+		local mid = (p0 + p1) / 2
+		local thick = 22 + math.sin(a0 * 2) * 4
+		part({
+			Name = "Arch",
+			Size = Vector3.new((p1 - p0).Magnitude + 6, thick, 26),
+			CFrame = centre * CFrame.new(mid) * CFrame.Angles(0, 0, math.atan2(p1.Y - p0.Y, p1.X - p0.X)),
+			Color = ROCK_RED[i % 3 + 1],
+			Material = Enum.Material.Sandstone,
+			Parent = model,
+		})
+	end
+end
+
+local function lightShaft(model: Model, top: Vector3, bottom: Vector3)
+	-- sunlight through a crack in the roof
+	local mid = (top + bottom) / 2
+	local len = (top - bottom).Magnitude
+	part({ Name = "LightShaft", Shape = Enum.PartType.Cylinder, Size = Vector3.new(len, 34, 34), CFrame = CFrame.lookAt(mid, top) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(255, 226, 170), Material = Enum.Material.Neon, Transparency = 0.9, CanCollide = false, CanQuery = false, CastShadow = false, Parent = model })
+	local crack = part({ Name = "Skylight", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, 26, 26), CFrame = CFrame.new(top) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 244, 210), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	local spot = part({ Name = "SunSpot", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4, 40, 40), CFrame = CFrame.new(bottom + Vector3.new(0, 0.5, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 220, 150), Material = Enum.Material.Neon, Transparency = 0.55, CanCollide = false, Parent = model })
+	light(spot, Color3.fromRGB(255, 220, 160), 60, 2)
+	light(crack, Color3.fromRGB(255, 230, 180), 40, 1.5)
+end
+
+local function waterfall(model: Model, top: Vector3, bottom: Vector3, facing: CFrame)
+	local h = top.Y - bottom.Y
+	local at = CFrame.new((top + bottom) / 2) * facing.Rotation
+	part({ Name = "Waterfall", Size = Vector3.new(22, h, 3), CFrame = at, Color = Color3.fromRGB(170, 220, 255), Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = false, CastShadow = false, Parent = model })
+	part({ Name = "WaterfallCore", Size = Vector3.new(12, h, 4), CFrame = at, Color = Color3.fromRGB(230, 245, 255), Material = Enum.Material.Neon, Transparency = 0.6, CanCollide = false, CastShadow = false, Parent = model })
+	local pool = part({ Name = "Pool", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, 60, 60), CFrame = CFrame.new(bottom + Vector3.new(0, 1, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(70, 160, 200), Material = Enum.Material.Glass, Transparency = 0.2, CanCollide = false, Parent = model })
+	local mist = Instance.new("ParticleEmitter")
+	mist.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	mist.Color = ColorSequence.new(Color3.fromRGB(230, 240, 255))
+	mist.Size = NumberSequence.new(8, 20)
+	mist.Transparency = NumberSequence.new(0.6, 1)
+	mist.Lifetime = NumberRange.new(2, 3)
+	mist.Speed = NumberRange.new(4, 9)
+	mist.SpreadAngle = Vector2.new(60, 60)
+	mist.Rate = 6
+	mist.Parent = pool
+	light(pool, Color3.fromRGB(150, 210, 255), 50, 1.2)
+end
+
+local function trestle(model: Model, cf: CFrame, deckW: number, len: number, depth: number, k: number)
+	local wood = Color3.fromRGB(140, 92, 54)
+	part({ Name = "TrestleDeck", Size = Vector3.new(deckW, 2, len + 1), CFrame = cf * CFrame.new(0, -1, 0), Color = Color3.fromRGB(160, 108, 64), Material = Enum.Material.WoodPlanks, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "TrestleRail", Size = Vector3.new(1.2, 1.2, len + 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.6), 1.2, 0), Color = wood, Material = Enum.Material.Wood, Parent = model })
+	end
+	if k % 2 == 0 then
+		-- a bent: two legs splayed down to the floor, with a cross-brace
+		for _, side in { -1, 1 } do
+			local top = cf * Vector3.new(side * (deckW / 2 - 2), -2, 0)
+			local bot = cf * Vector3.new(side * (deckW / 2 + 10), -depth, 0)
+			local mid = (top + bot) / 2
+			part({ Name = "TrestleLeg", Size = Vector3.new(2, (top - bot).Magnitude, 2), CFrame = CFrame.lookAt(mid, top) * CFrame.Angles(math.rad(90), 0, 0), Color = wood, Material = Enum.Material.Wood, Parent = model })
+		end
+		for _, y in { 0.3, 0.65 } do
+			part({ Name = "TrestleBrace", Size = Vector3.new(deckW + 20 * y, 1.4, 1.4), CFrame = cf * CFrame.new(0, -depth * y, 0), Color = wood, Material = Enum.Material.Wood, Parent = model })
+		end
+	end
+end
+
+local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0)
+	local fl, ce = hallFloor(s0), hallCeil(s0)
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0) -- the cavern's centre line at route height
+	local L = len + 10
+	-- the shell: floor, ceiling and walls in red sandstone, with layered bands on the walls
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Sandstone)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Sandstone)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Sandstone)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.4, 0), Vector3.new(12, 12, L), Enum.Material.Limestone)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.35, 0), Vector3.new(12, 16, L), Enum.Material.Slate)
+	end
+	-- lumps on the walls, stalactite knots on the roof, mounds on the floor
+	if rng:NextNumber() < 0.6 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local r = rng:NextNumber(14, 30)
+		T:FillBall((ccf * CFrame.new(side * (W / 2 - r * 0.25), rng:NextNumber(-fl, ce), 0)).Position, r, rng:NextNumber() < 0.3 and Enum.Material.Rock or Enum.Material.Sandstone)
+	end
+	if rng:NextNumber() < 0.5 then
+		local r = rng:NextNumber(8, 18)
+		T:FillBall((ccf * CFrame.new(rng:NextNumber(-W / 2, W / 2), ce - r * 0.3, 0)).Position, r, Enum.Material.Sandstone)
+	end
+	if rng:NextNumber() < 0.5 then
+		local r = rng:NextNumber(12, 26)
+		T:FillBall((ccf * CFrame.new(rng:NextNumber(-W / 2 + 30, W / 2 - 30), -fl, 0)).Position, r, Enum.Material.Ground)
+	end
+	-- the underground river along the cavern floor, green moss banks either side
+	local river = math.sin(s0 / 900) * W * 0.18
+	T:FillBlock(ccf * CFrame.new(river, -fl - 3, 0), Vector3.new(W * 0.3, 6, L), Enum.Material.Water)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(river + side * (W * 0.15 + 14), -fl + 1, 0), Vector3.new(24, 4, L), Enum.Material.LeafyGrass)
+	end
+	if rng:NextNumber() < 0.45 then
+		-- moss and hanging roots on the ceiling
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		local top = ccf * CFrame.new(x, ce - 2, 0)
+		for i = 1, rng:NextInteger(3, 6) do
+			local h = rng:NextNumber(14, 40)
+			part({ Name = "Root", Size = Vector3.new(0.8, h, 0.8), CFrame = top * CFrame.new(rng:NextNumber(-8, 8), -h / 2, rng:NextNumber(-8, 8)) * CFrame.Angles(rng:NextNumber(-0.1, 0.1), 0, rng:NextNumber(-0.1, 0.1)), Color = Color3.fromRGB(70 + i * 6, 120, 58), Material = Enum.Material.Grass, CanCollide = false, CastShadow = false, Parent = model })
+		end
+	end
+
+	-- the route: a rock causeway (or an old mining trestle), a ledge where it hugs a wall
+	local deckW = w + 16
+	local nearWall = math.abs(off) > W / 2 - 75
+	local wallSide = off >= 0 and 1 or -1
+	local isTrestle = kind == "Hall" and math.floor(s0 / 1100) % 3 == 1 and not nearWall
+	if isTrestle then
+		trestle(model, cf, deckW, len, fl, k)
+	else
+		local col = ROCK_RED[(k % 3) + 1]
+		part({ Name = "Causeway", Size = Vector3.new(deckW, 6, len + 2), CFrame = cf * CFrame.new(0, -3, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		part({ Name = "Keel", Size = Vector3.new(deckW * 0.6, 10, len + 2), CFrame = cf * CFrame.new(0, -11, 0), Color = ROCK_RED[((k + 1) % 3) + 1], Material = Enum.Material.Sandstone, Parent = model })
+		part({ Name = "Keel", Size = Vector3.new(deckW * 0.28, 12, len + 2), CFrame = cf * CFrame.new(0, -22, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		if nearWall then
+			-- a shelf back to the wall: the route runs along a ledge here
+			local gap = W / 2 - math.abs(off)
+			part({ Name = "Ledge", Size = Vector3.new(gap + 12, 16, len + 2), CFrame = cf * CFrame.new(wallSide * (deckW / 2 + gap / 2), -8, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		elseif k % 7 == 0 then
+			-- a rock pillar down to the floor
+			local h = fl - 26
+			part({ Name = "Pillar", Size = Vector3.new(14, h, 14), CFrame = cf * CFrame.new(0, -28 - h / 2, 0) * CFrame.Angles(0, 0.4, 0), Color = ROCK_RED[(k % 3) + 1], Material = Enum.Material.Sandstone, Parent = model })
+			part({ Name = "PillarFoot", Size = Vector3.new(26, 14, 26), CFrame = cf * CFrame.new(0, -fl + 4, 0) * CFrame.Angles(0, 0.9, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		end
+	end
+
+	-- landmarks, placed by chunk so every run has them at the same rhythm
+	if k % 27 == 5 then
+		local x = rng:NextNumber(-W / 2 + 40, W / 2 - 40)
+		lightShaft(model, (ccf * CFrame.new(x, ce - 4, 0)).Position, (ccf * CFrame.new(x + rng:NextNumber(-30, 30), -fl, rng:NextNumber(-20, 20))).Position)
+	end
+	if k % 61 == 30 then
+		local side = -wallSide
+		waterfall(model, (ccf * CFrame.new(side * (W / 2 - 14), ce, 0)).Position, (ccf * CFrame.new(side * (W / 2 - 30), -fl, 0)).Position, ccf * CFrame.Angles(0, math.rad(90), 0))
+	end
+	if k % 37 == 12 then
+		arch(model, ccf * CFrame.new(0, -fl, 0), fl + 70)
+	end
+	for _ = 1, 2 do
+		if rng:NextNumber() < 0.6 then
+			local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+			if math.abs(x - off) > 30 then
+				stalagmite(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)), rng:NextNumber(20, 55), rng)
+			end
+		end
+	end
+	if rng:NextNumber() < 0.35 then
+		-- glowstone glinting in the walls: the cavern's own light
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- the rock plug at the end of the dig: the drill smashes through it into the cavern
+local function hallPlug(model: Model, s: number)
+	local cf = route:sample(s)
+	local off = hallOffset(s)
+	local fl, ce = hallFloor(s), hallCeil(s)
+	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), Enum.Material.Sandstone)
+	local _ = model
 end
 
 local function buildChunk(k: number)
@@ -329,6 +586,11 @@ local function buildChunk(k: number)
 	local rng = Random.new(route.seed * 7 + k)
 	if kind == "Gorge" then
 		buildSurface(model, cf, len, w, k)
+	elseif isHall(kind) then
+		buildHall(model, cf, len, w, s0, k, kind, rng)
+		if route.hall and route.hall.s0 >= s0 and route.hall.s0 < s0 + CHUNK_LEN then
+			hallPlug(model, route.hall.s0)
+		end
 	else
 		fillShell(cf, len, w, h, s0)
 		local region = World.regionAt(s0)
@@ -400,6 +662,22 @@ function World.carve(toS: number): string?
 		carvedTo += 3
 		local kind = route:kindAt(s)
 		if kind == "Gorge" then
+			continue
+		end
+		if isHall(kind) then
+			local hs = route.hall and route.hall.s0 or s
+			if s < hs + 16 then
+				-- still in the rock plug at the cavern's edge: bore through it
+				local pcf = route:sample(s)
+				T:FillBlock(pcf * CFrame.new(0, Config.Tunnel.HEIGHT * 0.35 + 0.5, 0), Vector3.new(Config.Tunnel.WIDTH, Config.Tunnel.HEIGHT * 0.7, 4), Enum.Material.Air)
+				what = what or "bore"
+			elseif not World.hallOpen then
+				-- breakthrough: blow the plug wide open and reveal the cavern
+				World.hallOpen = true
+				local pcf = route:sample(hs)
+				T:FillBall((pcf * CFrame.new(0, 14, 8)).Position, 34, Enum.Material.Air)
+				what = "breakthrough"
+			end
 			continue
 		end
 		local region = World.regionAt(s)
@@ -487,7 +765,12 @@ function World.init(r)
 	-- strata colours (terrain materials are tinted globally)
 	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(168, 118, 96))
 	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(150, 116, 102))
-	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(104, 116, 146))
+	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(112, 100, 108))
+	T:SetMaterialColor(Enum.Material.LeafyGrass, Color3.fromRGB(96, 150, 70))
+	T.WaterColor = Color3.fromRGB(46, 150, 150)
+	T.WaterTransparency = 0.6
+	T.WaterReflectance = 0.4
+	T.WaterWaveSize = 0.08
 	T:SetMaterialColor(Enum.Material.Limestone, Color3.fromRGB(196, 186, 168))
 	T:SetMaterialColor(Enum.Material.Basalt, Color3.fromRGB(70, 60, 70))
 	T:SetMaterialColor(Enum.Material.Ground, Color3.fromRGB(150, 110, 80))
@@ -545,6 +828,8 @@ local SECTIONS = {
 	Chute = { amb = Color3.fromRGB(130, 84, 70), fog = Color3.fromRGB(200, 96, 60), density = 0.38, haze = 1.8, tint = Color3.fromRGB(255, 222, 204) },
 	Cavern = { amb = Color3.fromRGB(90, 120, 130), fog = Color3.fromRGB(70, 170, 180), density = 0.34, haze = 2.2, tint = Color3.fromRGB(230, 250, 255) },
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
+	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
+	Hall = { amb = Color3.fromRGB(150, 118, 100), fog = Color3.fromRGB(232, 168, 120), density = 0.2, haze = 1.3, tint = Color3.fromRGB(255, 244, 232) },
 }
 
 -- glow: 1 = full glow, 0 = Lights Out (the reference's day -> dusk -> night grading)
@@ -555,6 +840,8 @@ function World.atmosphere(s: number, glow: number)
 	local kind = route:kindAt(s)
 	if kind:sub(1, 4) == "Stop" then
 		kind = "Stop"
+	elseif isHall(kind) then
+		kind = "Hall"
 	end
 	local sec = SECTIONS[kind] or SECTIONS.Tunnel
 	local dusk = Color3.fromRGB(255, 120, 110)

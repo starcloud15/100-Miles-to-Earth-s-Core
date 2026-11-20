@@ -33,7 +33,10 @@ local Config = {
 		{ mile = 7.9, name = "Rootcellar Camp", kind = "camp" },
 		{ mile = 10.0, name = "Waystation 1", kind = "waystation" },
 	},
-	SURFACE_MILES = 0.9, -- open gorge before The Drop; enclosed after
+	SURFACE_MILES = 0.9, -- open gorge before The Drop
+	DIG_IN = 700, -- studs of dig after The Drop before the zone's cavern (GDD 9.0)
+	HALL_UNTIL_MILE = 9.5, -- the cavern runs to here; then a short dig out to the Waystation
+	HALL = { WIDTH = 380, FLOOR = 150, CEILING = 120 }, -- the cavern's size around the route
 
 	PARTY_MAX = 5,
 	PARTY_DEFAULT = 4,
