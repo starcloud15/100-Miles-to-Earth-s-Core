@@ -33,6 +33,12 @@ PAINT = {
     "Maw": (90, 20, 24),
     "Glow": (255, 214, 130),
     "Eye": (255, 70, 50),
+    "Stone": (58, 50, 58),
+    "Shadow": (20, 16, 26),
+    "Void": (4, 4, 8),
+    "Iron": (46, 42, 46),
+    "Shard": (76, 70, 92),
+    "Ember": (255, 238, 214),
 }
 MATS = {}
 PARTS = []  # (group, paint, object)
@@ -46,7 +52,7 @@ def mat(paint):
         rgb = [(c / 255) ** 2.2 for c in PAINT[paint]]
         b.inputs["Base Color"].default_value = (*rgb, 1)
         b.inputs["Roughness"].default_value = 0.7
-        if paint in ("Glow", "Eye"):
+        if paint in ("Glow", "Eye", "Ember"):
             b.inputs["Emission Color"].default_value = (*rgb, 1)
             b.inputs["Emission Strength"].default_value = 5
         MATS[paint] = m
@@ -215,7 +221,104 @@ def burrowmaw(n=7):
         emit(ball(0.17, 6, 4), g, "Eye", at(x, 1.35, z))
 
 
-CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw}
+def robe(r_top, r_hem, z_top, z_hem, lean, sides=14, rows=6, seed=0, tatter=1.2):
+    """A long, stooped cloak: rings from the shoulders to a ragged hem."""
+    bm = bmesh.new()
+    rnd = random.Random(seed)
+    rings = []
+    for i in range(rows + 1):
+        t = i / rows  # 0 at the top
+        z = z_top + (z_hem - z_top) * t
+        r = r_top + (r_hem - r_top) * (t ** 0.8)
+        y = lean * (1 - t) ** 1.5
+        ring = []
+        for j in range(sides):
+            a = j / sides * math.tau
+            k = 1 + rnd.uniform(-0.06, 0.06)
+            zz = z
+            if i == rows:
+                zz += (tatter if j % 2 == 0 else -0.2) * rnd.uniform(0.4, 1.0)  # a ragged hem
+            ring.append(bm.verts.new((math.cos(a) * r * k, y + math.sin(a) * r * k * 0.8, zz)))
+        rings.append(ring)
+    for i in range(rows):
+        for j in range(sides):
+            bm.faces.new((rings[i][j], rings[i][(j + 1) % sides], rings[i + 1][(j + 1) % sides], rings[i + 1][j]))
+    bm.faces.new(list(reversed(rings[0])))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
+def hollow():
+    """The Hollow: a fallen Heart Keeper, about 32 studs tall. Gaunt and stooped
+    under a ragged shadow cloak, a hood with no face, only two ember-white
+    pinpoints; cracked stone arms long enough to reach the ground, rock-shard
+    fingers; an empty iron cage-lantern held up in its right hand (docs/story.md,
+    GDD 10.1). Groups: Body, Head (the hood tilts), Lantern (it swings)."""
+    g = "Body"
+    # legs under the cloak, and shard feet poking out
+    for side in (-1, 1):
+        emit(taper((side * 1.3, 0.5, 12), (side * 1.6, 0.0, 0.6), 0.8, 0.5, 6), g, "Stone")
+        emit(spike((side * 1.6, 0.2, 0.4), (side * 1.9, 2.4, 0.1), 0.55, 5), g, "Shard")
+    emit(robe(2.4, 4.6, 24.5, 0.3, 3.2, seed=5), g, "Shadow")
+    # a hunch between the shoulders, so the hood hangs forward and low
+    emit(ball(2.6, 10, 6, seed=6, rough=0.08), g, "Shadow", at(0, 1.2, 24.4, sx=1.15, sy=0.9, sz=0.8))
+    # a narrow cracked-stone chest under the cloak's opening, ribs of shard
+    emit(ball(2.0, 10, 6, seed=7, rough=0.12), g, "Stone", at(0, 2.8, 21.5, sx=1.05, sy=0.7, sz=1.5))
+    for k in range(3):
+        z = 20.2 + k * 1.1
+        for side in (-1, 1):
+            emit(spike((0, 3.9, z), (side * 1.6, 3.3, z - 0.5), 0.22, 4), g, "Shard")
+    # shoulders: stone plates under a torn mantle
+    for side in (-1, 1):
+        emit(cap(1.6, 0.2, 8, 6, seed=8 + side, rough=0.2), g, "Stone", at(side * 2.7, 2.2, 23.6, ry=side * 0.5))
+    emit(robe(2.0, 4.9, 26.0, 19.8, 0.8, sides=12, rows=3, seed=9, tatter=2.0), g, "Shadow", at(0, 2.4, 0))
+    # arms: long cracked stone, sleeves torn to the elbow
+    def arm(side, elbow, wrist, fingers_to):
+        sh = Vector((side * 3.0, 2.4, 23.4))
+        elbow, wrist = Vector(elbow), Vector(wrist)
+        emit(taper(sh, elbow, 0.9, 0.65, 6), g, "Stone")
+        emit(taper(elbow, wrist, 0.65, 0.5, 6), g, "Stone")
+        emit(ball(0.8, 8, 5, seed=12, rough=0.15), g, "Stone", at(*elbow))
+        emit(taper(sh + Vector((0, 0, 0.4)), sh.lerp(elbow, 0.8), 1.15, 0.95, 8), g, "Shadow")
+        emit(ball(0.75, 8, 5, seed=11, rough=0.15), g, "Stone", at(*wrist, sx=1.0, sy=1.2, sz=0.8))
+        for k, (dx, dz) in enumerate(fingers_to):
+            tip = wrist + Vector((dx * side, dz[0], dz[1]))
+            emit(spike(wrist + Vector((0, 0.3, -0.2)), tip, 0.26, 4), g, "Shard")
+    # left arm hangs to the ground, shard fingers dragging
+    arm(-1, (-4.6, 3.6, 13.5), (-4.4, 4.2, 4.2), ((-0.6, (0.4, -3.9)), (0.0, (1.0, -4.1)), (0.6, (1.3, -3.6)), (1.0, (0.9, -2.9))))
+    # right arm raised, holding the lantern out in front of it
+    arm(1, (4.6, 5.0, 17.0), (3.0, 9.0, 19.0), ((-0.5, (0.7, 1.0)), (0.1, (1.0, 1.1)), (0.6, (0.8, 0.8)), (0.9, (0.3, 0.4))))
+
+    # the hood: a tall cowl pulled forward, a void where a face should be, two pinpoint eyes
+    h = "Head"
+    # the cowl: a shell open at the front, with thickness, pulled down and forward
+    bm = ball(2.6, 14, 10, seed=13, rough=0.05)
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.y > 0.6 and v.co.z < 1.5 and abs(v.co.x) < 2.3], context="VERTS")
+    bm.normal_update()
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.3)
+    emit(bm, h, "Shadow", at(0, 4.4, 26.4, rx=-0.3, sy=1.15, sz=1.3))
+    # a peak trailing back off the hood
+    emit(spike((0, 3.0, 29.0), (0, 0.6, 31.4), 1.3, 6), h, "Shadow")
+    # no face: a void in the cowl, and two ember-white pinpoints
+    emit(ball(1.8, 10, 6), h, "Void", at(0, 4.6, 26.0, sx=0.95, sy=0.8, sz=1.2))
+    for side in (-1, 1):
+        emit(ball(0.2, 6, 4), h, "Ember", at(side * 0.55, 6.25, 26.6))
+
+    # the empty cage-lantern hanging from its fingers
+    L = "Lantern"
+    c = Vector((3.2, 10.2, 16.0))
+    emit(taper(c + Vector((0, 0, 3.6)), c + Vector((0, 0, 1.9)), 0.08, 0.08, 4), L, "Iron")
+    for z in (1.8, -1.8):
+        emit(taper(c + Vector((0, 0, z - 0.15)), c + Vector((0, 0, z + 0.15)), 1.15, 1.15, 8), L, "Iron")
+    for k in range(6):
+        a = k / 6 * math.tau
+        p = c + Vector((math.cos(a) * 1.0, math.sin(a) * 1.0, 0))
+        emit(taper(p + Vector((0, 0, -1.8)), p + Vector((0, 0, 1.8)), 0.09, 0.09, 4), L, "Iron")
+    emit(spike(c + Vector((0, 0, 1.9)), c + Vector((0, 0, 2.9)), 1.0, 8), L, "Iron")
+    emit(ball(0.6, 8, 5, seed=17, rough=0.2), L, "Void", at(*c))
+
+
+CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow}
 BUDGET = 2000  # one grabber at a time on screen
 
 
@@ -248,24 +351,17 @@ for name, build in CREATURES.items():
     n = sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, name + ".fbx"), use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)
-    print("exported %-12s %5d triangles, %d pieces%s" % (name, n, len(objs), "  OVER BUDGET" if n > BUDGET else ""))
+    budget = 3500 if name == "Hollow" else BUDGET
+    print("exported %-12s %5d triangles, %d pieces%s" % (name, n, len(objs), "  OVER BUDGET" if n > budget else ""))
 
-if PREVIEW:
-    fresh()
-    x = 0.0
-    for name, build in CREATURES.items():
-        build()
-        objs = join_groups()
-        for o in objs:
-            o.matrix_world = Matrix.Translation((x, 0, 2 if name == "Burrowmaw" else 0)) @ Matrix.Rotation(math.radians(200 if name == "Burrowmaw" else 160), 4, "Z") @ o.matrix_world
-        x += 16
+def render(path, cam_loc, cam_rot, ortho, bg, size=(1600, 800)):
     scene = bpy.context.scene
     cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam"))
     scene.collection.objects.link(cam)
     cam.data.type = "ORTHO"
-    cam.data.ortho_scale = 34
-    cam.location = (x / 2 - 8, -40, 22)
-    cam.rotation_euler = (math.radians(62), 0, 0)
+    cam.data.ortho_scale = ortho
+    cam.location = cam_loc
+    cam.rotation_euler = cam_rot
     scene.camera = cam
     sun = bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN"))
     sun.data.energy = 4
@@ -273,10 +369,29 @@ if PREVIEW:
     scene.collection.objects.link(sun)
     scene.world = bpy.data.worlds.new("W")
     scene.world.use_nodes = True
-    scene.world.node_tree.nodes["Background"].inputs[0].default_value = (0.3, 0.26, 0.28, 1)
+    scene.world.node_tree.nodes["Background"].inputs[0].default_value = (*bg, 1)
     scene.render.engine = "BLENDER_EEVEE"
-    scene.render.resolution_x = 1600
-    scene.render.resolution_y = 800
-    scene.render.filepath = PREVIEW
+    scene.render.resolution_x, scene.render.resolution_y = size
+    scene.render.filepath = path
     bpy.ops.render.render(write_still=True)
-    print("preview", PREVIEW)
+    print("preview", path)
+
+
+if PREVIEW:
+    # the line-up (the Hollow at 0.4 scale) and a hero shot of the Hollow
+    fresh()
+    x = 0.0
+    for name, build in CREATURES.items():
+        build()
+        objs = join_groups()
+        k = 0.4 if name == "Hollow" else 1
+        for o in objs:
+            o.matrix_world = Matrix.Translation((x, 0, 2 if name == "Burrowmaw" else 0)) @ Matrix.Rotation(math.radians(200 if name == "Burrowmaw" else 160), 4, "Z") @ Matrix.Scale(k, 4) @ o.matrix_world
+        x += 16
+    render(PREVIEW, (x / 2 - 8, -50, 26), (math.radians(68), 0, 0), 48, (0.3, 0.26, 0.28))
+    fresh()
+    hollow()
+    join_groups()
+    for o in bpy.context.scene.objects:
+        o.matrix_world = Matrix.Rotation(math.radians(200), 4, "Z") @ o.matrix_world
+    render(PREVIEW.replace(".png", "_hollow.png"), (0, -60, 20), (math.radians(80), 0, 0), 40, (0.16, 0.1, 0.09), (900, 1100))

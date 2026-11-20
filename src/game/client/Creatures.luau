@@ -34,6 +34,13 @@ local PAINT = {
 	Bone = { Color3.fromRGB(242, 232, 212), Enum.Material.SmoothPlastic },
 	Glow = { Color3.fromRGB(255, 214, 130), Enum.Material.Neon },
 	Eye = { Color3.fromRGB(255, 70, 50), Enum.Material.Neon },
+	-- the Hollow
+	Stone = { Color3.fromRGB(58, 50, 58), Enum.Material.Slate },
+	Shadow = { Color3.fromRGB(20, 16, 26), Enum.Material.Fabric },
+	Void = { Color3.fromRGB(0, 0, 0), Enum.Material.SmoothPlastic },
+	Iron = { Color3.fromRGB(46, 42, 46), Enum.Material.Metal },
+	Shard = { Color3.fromRGB(76, 70, 92), Enum.Material.Glass },
+	Ember = { Color3.fromRGB(255, 238, 214), Enum.Material.Neon },
 }
 
 local RED = Color3.fromRGB(226, 38, 38)
@@ -80,6 +87,19 @@ function STANDIN.Burrowmaw(m: Model)
 	for _, side in { -1, 1 } do
 		piece(m, "Head_Eye", Enum.PartType.Ball, Vector3.new(0.5, 0.5, 0.5), CFrame.new(side * 1.1, 1.2, -1.2))
 	end
+end
+
+function STANDIN.Hollow(m: Model)
+	-- a tall hooded shape in a ragged cloak, one long arm, an empty lantern
+	piece(m, "Body_Shadow", nil, Vector3.new(7, 22, 5), CFrame.new(0, 11, 0))
+	piece(m, "Body_Shadow", Enum.PartType.Ball, Vector3.new(6, 5, 5), CFrame.new(0, 23, -1))
+	piece(m, "Body_Stone", nil, Vector3.new(1.2, 20, 1.2), CFrame.new(-4.5, 13, -2) * CFrame.Angles(0.1, 0, -0.05))
+	piece(m, "Head_Shadow", Enum.PartType.Ball, Vector3.new(4.6, 5.6, 4.6), CFrame.new(0, 27, -2))
+	piece(m, "Head_Void", Enum.PartType.Ball, Vector3.new(3, 3.8, 1.5), CFrame.new(0, 26.6, -3.8))
+	for _, side in { -1, 1 } do
+		piece(m, "Head_Ember", Enum.PartType.Ball, Vector3.new(0.4, 0.4, 0.4), CFrame.new(side * 0.55, 27, -4.6))
+	end
+	piece(m, "Lantern_Iron", nil, Vector3.new(2, 3.6, 2), CFrame.new(3.2, 16, -8))
 end
 
 -- a creature's model, split into its moving groups ---------------------------------------
@@ -136,6 +156,12 @@ local function build(kind: string)
 		local base = CFrame.new(o.X, low, o.Z)
 		for i, p in groups.Body.parts do
 			groups.Body.offsets[i] = base:ToObjectSpace(p.CFrame)
+		end
+		-- other groups ride on the body (the Hollow's hood and lantern)
+		for name, g in groups do
+			if name ~= "Body" then
+				g.rel = base:ToObjectSpace(g.origin)
+			end
 		end
 	end
 	local segs = {}
@@ -405,6 +431,108 @@ local function step(dt: number)
 	end
 end
 
+-- the Hollow ---------------------------------------------------------------------------------
+local hollow -- { m, groups, cf, alpha, mode }
+local dim: ColorCorrectionEffect
+
+local function setAlpha(h, a: number)
+	h.alpha = a
+	for _, g in h.groups do
+		for _, p in g.parts do
+			p.Transparency = 1 - a
+		end
+	end
+	h.eyes.Brightness = 2 * a
+end
+
+local function flashAt(pos: Vector3)
+	-- gone in a flash of crystal light
+	local p = Instance.new("Part")
+	p.Shape = Enum.PartType.Ball
+	p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow = true, false, false, false, false
+	p.Material = Enum.Material.Neon
+	p.Color = Color3.fromRGB(190, 230, 255)
+	p.Size = Vector3.new(4, 4, 4)
+	p.Position = pos
+	p.Parent = workspace
+	local l = Instance.new("PointLight")
+	l.Color = p.Color
+	l.Range = 40
+	l.Brightness = 4
+	l.Parent = p
+	TweenService:Create(p, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(26, 26, 26), Transparency = 1 }):Play()
+	TweenService:Create(l, TweenInfo.new(0.6), { Brightness = 0 }):Play()
+	task.delay(0.7, function()
+		p:Destroy()
+	end)
+end
+
+local function hollowStep(dt: number, state: Instance)
+	local mode = state:GetAttribute("HollowMode") or "Hidden"
+	local target = state:GetAttribute("HollowCF")
+	if not hollow then
+		local m, groups = build("Hollow")
+		m.Parent = workspace
+		local head = groups.Head and groups.Head.parts[1] or m:FindFirstChildWhichIsA("BasePart")
+		local eyes = Instance.new("PointLight")
+		eyes.Color = Color3.fromRGB(255, 236, 210)
+		eyes.Range = 8
+		eyes.Parent = head
+		hollow = { m = m, groups = groups, cf = target or CFrame.new(0, -5000, 0), alpha = 0, eyes = eyes, mode = "Hidden", t = 0 }
+		setAlpha(hollow, 0)
+	end
+	local h = hollow
+	h.t += dt
+	if mode ~= h.mode then
+		if mode == "Hidden" and h.mode == "Glimpse" and h.alpha > 0.5 then
+			flashAt(h.cf.Position + Vector3.new(0, 16, 0))
+			setAlpha(h, 0)
+		end
+		if h.mode == "Hidden" and target then
+			h.cf = target -- appear where it stands, don't slide there
+		end
+		h.mode = mode
+	end
+	local want = mode == "Hidden" and 0 or 1
+	if want ~= h.alpha then
+		local speed = mode == "Glimpse" and 3 or 0.6
+		setAlpha(h, h.alpha + math.clamp(want - h.alpha, -dt * speed, dt * speed))
+	end
+	if h.alpha <= 0 then
+		h.m.Parent = nil
+		dim.Brightness = 0
+		return
+	end
+	h.m.Parent = workspace
+	if target then
+		-- it glides, slowly
+		h.cf = h.cf:Lerp(target, math.min(1, dt * 0.6))
+	end
+	-- breathing sway, the hood turning to look at you, the lantern swinging
+	local cam = workspace.CurrentCamera
+	local sway = CFrame.Angles(math.sin(h.t * 0.7) * 0.03, 0, math.sin(h.t * 0.5) * 0.04)
+	local body = h.cf * sway
+	if h.groups.Body then
+		place(h.groups.Body, body)
+	end
+	local head = h.groups.Head
+	if head and head.rel then
+		local at = body * head.rel
+		local look = at:PointToObjectSpace(cam.CFrame.Position)
+		local yaw = math.clamp(math.atan2(-look.X, -look.Z), -0.7, 0.7)
+		local pitch = math.clamp(math.atan2(look.Y, Vector2.new(look.X, look.Z).Magnitude), -0.4, 0.3)
+		head.turn = (head.turn or Vector2.zero):Lerp(Vector2.new(yaw, pitch), math.min(1, dt * 1.5))
+		place(head, at * CFrame.Angles(0, head.turn.X, 0) * CFrame.Angles(head.turn.Y, 0, math.sin(h.t * 0.9) * 0.08))
+	end
+	local lantern = h.groups.Lantern
+	if lantern and lantern.rel then
+		place(lantern, body * lantern.rel * CFrame.Angles(math.sin(h.t * 1.3) * 0.12, 0, math.sin(h.t * 1.1) * 0.1))
+	end
+	-- it eats light: the world dims a little while it is near
+	local d = (cam.CFrame.Position - h.cf.Position).Magnitude
+	dim.Brightness = -0.12 * h.alpha * math.clamp(1 - (d - 60) / 140, 0, 1)
+end
+
 function Creatures.init(opts: { deck: () -> BasePart?, shake: (number) -> (), toast: (string, Color3?, number?) -> () })
 	deckFn, shakeFn, toastFn = opts.deck, opts.shake, opts.toast
 	gui = Instance.new("ScreenGui")
@@ -436,7 +564,13 @@ function Creatures.init(opts: { deck: () -> BasePart?, shake: (number) -> (), to
 			shakeFn(0.5)
 		end
 	end)
-	RunService.RenderStepped:Connect(step)
+	dim = Instance.new("ColorCorrectionEffect")
+	dim.Name = "HollowDim"
+	dim.Parent = workspace.CurrentCamera
+	RunService.RenderStepped:Connect(function(dt)
+		step(dt)
+		hollowStep(dt, state)
+	end)
 end
 
 return Creatures
