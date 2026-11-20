@@ -157,11 +157,13 @@ The fonts and panel style match the in-run UI already rebuilt in `docs/ui/ui-moc
 
 ## 11. What we take for 100 Miles to Earth's Core (proposal, needs owner approval)
 
+We take the reference lobby's **structure**, not its content. Our own currency, classes and items are in [GDD section 14](../GameDesignDocument.md), which replaces 11.3 and 11.4 below where they differ.
+
 The lobby is the **surface camp at the mouth of the dig**. Players start on the grass in daylight, so the first thing they see is the hole they're about to go down (judgement).
 
 ### 11.1 Player count
 - **Crew of 1–5. The party creator picks the size, with 4 selected by default.** This is the same as the reference, and no party bigger than 4 was seen in either recording (recording). It replaces the GDD's "1–6".
-- **Solo is allowed.** Copy the "Lone Paddler" idea as a badge for reaching the Core alone.
+- **Solo is allowed.** A badge of our own for reaching the Core alone ("Lone Driller"), on the same idea as the reference's solo badge.
 - **Run servers:** one reserved server per party. Friends who start together through a reserved server count for the co-play signal (Run a Resort KB, official since Dec 2025).
 - **Lobby servers: about 24 players.** The reference showed 14+ in the list. That's enough strangers to fill public parties quickly (judgement).
 - With the two-tread rig, an odd crew still works: the spare player helps the weaker side, and the HUD shows which side needs help (judgement).
@@ -175,16 +177,16 @@ The lobby is the **surface camp at the mouth of the dig**. Players start on the 
 
 ### 11.3 Rewards paid at camp
 - The Journal and Badges are claimed at camp with a big "+N" pop-up, as in the reference.
-- **Currency:** we use one currency, called something like **Embers**. The GDD's "Deepstones" name is still to be decided.
+- **Currency:** one meta currency of our own, **Deepstones** (the reference's is Embers).
 - **Badge rewards** follow the same curve as the reference: 25 / 25 / 75 / 200 for distance, and 200 for challenges.
 
-### 11.4 Classes, as in the reference
+### 11.4 Classes: the reference's price ladder, our own roles
 
 | Class | Price | Perks |
 |---|---|---|
-| Miner | 150 / 49 R$ | Starts with a pickaxe, +1 ore per swing |
-| Cook | 750 / 149 R$ | Starts with a meal, food fills 15% more |
-| Medic | 1500 / 299 R$ | Starts with a bandage, revives 15% faster |
+| Prospector | 150 / 49 R$ | Starts with an Iron Pickaxe, +1 glowstone per vein |
+| Forager | 750 / 149 R$ | Starts with an Iron Trowel, wider green zone on every Pull, food fills 15% more |
+| Lamplighter | 1500 / 299 R$ | Starts with a Hand Lantern; the Beacon and lanterns burn glowstone 15% slower |
 
 - Perks stay small and help the crew.
 - Previews show the outfit on your own avatar.
@@ -200,7 +202,7 @@ The lobby is the **surface camp at the mouth of the dig**. Players start on the 
 - An Invite button in the HUD, and Friends tabs on every leaderboard with an "Invite Friends" button when they're empty.
 - Leaderboards:
   - Fastest Descent.
-  - Embers Earned.
+  - Deepstones Earned.
   - Deepest Total.
 - Stats panel:
   - Best Depth with a zone tag.

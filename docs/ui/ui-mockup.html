@@ -91,7 +91,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 
 /* left column */
 .starter{left:2.2cqw;top:16cqw;width:4.75cqw;height:4.75cqw;border-radius:50%;background:radial-gradient(circle at 50% 40%,#f3d7b0,#c98a52 70%);border:.35cqw solid #2a1a10}
-.starter .pup{inset:16%;border-radius:50%;background:radial-gradient(circle at 50% 60%,#fff 0 35%,transparent 36%),radial-gradient(circle at 30% 30%,#9a5a2a 0 22%,transparent 23%),radial-gradient(circle at 70% 30%,#9a5a2a 0 22%,transparent 23%)}
+.starter .pup{inset:16%;border-radius:50%;background:radial-gradient(circle at 50% 14%,#ffe066 0 15%,transparent 16%),radial-gradient(circle at 37% 50%,#111 0 7%,transparent 8%),radial-gradient(circle at 63% 50%,#111 0 7%,transparent 8%),radial-gradient(circle at 50% 66%,#f2a0a0 0 10%,transparent 11%),#8a7a6a}
 .price{display:flex;align-items:center;gap:.25cqw;background:var(--robux);border:.22cqw solid #1a0026;border-radius:2cqw;padding:.1cqw .5cqw;font-size:1.3cqw;color:#fff}
 .price svg{position:static;width:1.1cqw;height:1.1cqw}
 .starter .price{left:-1.6cqw;top:-.9cqw}
@@ -192,7 +192,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 .baylbl{display:grid;justify-items:center;gap:.2cqw}
 .baylbl > *{position:static}
 .board{background:#6b4426;border:.35cqw solid #2b1a0e;padding:.6cqw}
-.board .bt{position:static;display:block;text-align:center;font-size:1.3cqw}
+.board .bt{position:static;display:block;text-align:center;font-size:1.05cqw}
 .board .tabs{position:static;display:flex;gap:.3cqw;margin:.4cqw 0}
 .board .tabs span{position:static;flex:1;text-align:center;font-size:.8cqw;padding:.15cqw 0;background:#2a5a9a;color:#fff}
 .board .tabs span.on{background:#3fb83a}
@@ -229,7 +229,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 <body>
 <header>
   <h1>100 Miles to Earth's Core: 1:1 UI mockup</h1>
-  <p>Every screen copies the reference game's layout, sizes and colours, measured from the 2560×1440 recording (see <code>docs/research/reference-ui/</code>), and swaps in our game: a Drill Rig crew going down to the Earth's core, steered by cranking the tread on your side of the deck. The lobby screens follow the reference lobby recording (see <code>docs/research/reference-lobby/</code>). Sizes are in container units, so each 16:9 frame scales exactly. Backgrounds are placeholders; icons are flat stand-ins for the final 2D paintings.</p>
+  <p>Every screen copies the reference game's layout, sizes and colours, measured from the 2560×1440 recording (see <code>docs/research/reference-ui/</code>), and swaps in our game: a Drill Rig crew going down to the Earth's core, steered by cranking the tread on your side of the deck. Layout and gameplay structure follow the reference; resources, food, items, pets and names are our own (glowstone, foraging, the Glow Mole, Deepstones). The lobby screens follow the reference lobby recording (see <code>docs/research/reference-lobby/</code>). Sizes are in container units, so each 16:9 frame scales exactly. Backgrounds are placeholders; icons are flat stand-ins for the final 2D paintings.</p>
   <div class="toggle" role="group" aria-label="Wording">
     <button type="button" data-mode="ours" aria-pressed="true">Our wording</button>
     <button type="button" data-mode="ref" aria-pressed="false">Reference wording</button>
@@ -249,15 +249,9 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
     <symbol id="i-check" viewBox="0 0 40 40"><path d="M8 21l8 8 16-18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-crank" viewBox="0 0 40 40"><path d="M20 36V14" stroke="#111" stroke-width="6"/><path d="M20 36V14" stroke="#8a8f9a" stroke-width="3"/><path d="M6 12l28-6" stroke="#111" stroke-width="7" stroke-linecap="round"/><path d="M6 12l28-6" stroke="#c88a4a" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="10" r="3.5" fill="#ffd21f" stroke="#111" stroke-width="2"/><rect x="13" y="32" width="14" height="5" rx="1" fill="#5a5b62" stroke="#111" stroke-width="2"/></symbol>
     <symbol id="i-pick" viewBox="0 0 40 40"><path d="M10 36L28 10" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 10" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M14 8c8-4 18-2 22 6-6-3-13-4-20-2z" fill="#b8bec8" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/></symbol>
-    <symbol id="i-rod" viewBox="0 0 40 40"><path d="M6 36L34 4" stroke="#8a5528" stroke-width="3"/><path d="M34 4v20" stroke="#ddd" stroke-width="1"/></symbol>
     <symbol id="i-bag" viewBox="0 0 40 40"><path d="M10 16h20l3 20H7z" fill="#b07a4a" stroke="#111" stroke-width="2.5"/><path d="M15 16a5 5 0 0 1 10 0" fill="none" stroke="#111" stroke-width="2.5"/></symbol>
-    <symbol id="i-fish" viewBox="0 0 60 40"><path d="M8 20c10-12 28-12 38 0-10 12-28 12-38 0z" fill="#d8955a" stroke="#111" stroke-width="2.5"/><path d="M46 20l10-8v16z" fill="#d8955a" stroke="#111" stroke-width="2.5"/><path d="M20 12l2 16M28 11l2 18M36 13l1 14" stroke="#5a3010" stroke-width="2.5"/><path d="M2 30L16 22" stroke="#5a3010" stroke-width="4"/></symbol>
     <symbol id="i-stew" viewBox="0 0 60 40"><path d="M6 16h48a24 22 0 0 1-48 0z" fill="#8a5a3a" stroke="#111" stroke-width="2.5"/><ellipse cx="30" cy="16" rx="24" ry="6" fill="#e88a4a" stroke="#111" stroke-width="2"/><rect x="22" y="12" width="5" height="4" fill="#fff"/><rect x="33" y="13" width="5" height="3" fill="#fde9a6"/><path d="M38 2l-6 14" stroke="#ccc" stroke-width="3"/></symbol>
     <symbol id="i-brasscrank" viewBox="0 0 80 30"><path d="M40 28V10" stroke="#111" stroke-width="6"/><path d="M40 28V10" stroke="#c9a23a" stroke-width="3"/><path d="M8 10l64-6" stroke="#111" stroke-width="7" stroke-linecap="round"/><path d="M8 10l64-6" stroke="#e8c050" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="7" r="4" fill="#fff2b0" stroke="#111" stroke-width="2"/><path d="M14 6l4 4M62 3l4 4" stroke="#fff6c8" stroke-width="1.5"/></symbol>
-    <symbol id="i-wood" viewBox="0 0 40 40"><rect x="4" y="13" width="30" height="14" rx="7" fill="#a8743f" stroke="#111" stroke-width="2.5"/><ellipse cx="32" cy="20" rx="5" ry="7" fill="#e8c08a" stroke="#111" stroke-width="2.5"/><ellipse cx="32" cy="20" rx="2" ry="3" fill="none" stroke="#a8743f" stroke-width="1.5"/></symbol>
-    <symbol id="i-axe" viewBox="0 0 40 40"><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></symbol>
-    <symbol id="i-lumber" viewBox="0 0 40 40"><g transform="translate(40 0) scale(-1 1)"><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></g><path d="M10 36L28 8" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M10 36L28 8" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M24 6c6-2 12 2 12 10-4-2-8-2-12 2z" fill="#b8bec8" stroke="#111" stroke-width="2.5"/></symbol>
-    <symbol id="i-chef" viewBox="0 0 40 40"><path d="M10 22a7 7 0 0 1 2-13 8 8 0 0 1 16 0 7 7 0 0 1 2 13z" fill="#fff" stroke="#111" stroke-width="2.5"/><rect x="11" y="22" width="18" height="9" rx="2" fill="#f4ecd2" stroke="#111" stroke-width="2.5"/></symbol>
     <symbol id="i-medic" viewBox="0 0 40 40"><rect x="13" y="5" width="14" height="6" rx="2" fill="none" stroke="#8a5a34" stroke-width="2.5"/><rect x="5" y="10" width="30" height="25" rx="5" fill="#eef2f6" stroke="#111" stroke-width="2.5"/><path d="M20 15v15M12.5 22.5h15" stroke="#2fc43a" stroke-width="5"/></symbol>
     <symbol id="i-stats" viewBox="0 0 40 40"><rect x="6" y="20" width="7" height="14" fill="#ffd21f" stroke="#111" stroke-width="2"/><rect x="17" y="10" width="7" height="24" fill="#5be34a" stroke="#111" stroke-width="2"/><rect x="28" y="15" width="7" height="19" fill="#7fb6f2" stroke="#111" stroke-width="2"/></symbol>
     <symbol id="i-x" viewBox="0 0 40 40"><path d="M8 8l24 24M32 8L8 32" stroke="#111" stroke-width="10" stroke-linecap="round"/><path d="M8 8l24 24M32 8L8 32" stroke="#e8212e" stroke-width="6" stroke-linecap="round"/></symbol>
@@ -265,7 +259,12 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
     <symbol id="i-book" viewBox="0 0 60 60"><rect x="10" y="8" width="38" height="46" rx="4" fill="#b5462e" stroke="#111" stroke-width="3"/><rect x="14" y="8" width="34" height="40" rx="3" fill="#d9a066" stroke="#111" stroke-width="2"/><path d="M22 54v6l3-3 3 3v-6" fill="#c22" stroke="#111" stroke-width="1.5"/></symbol>
     <symbol id="i-invite" viewBox="0 0 60 60"><circle cx="24" cy="20" r="10" fill="#f2c94c" stroke="#111" stroke-width="3"/><path d="M8 50c0-12 8-18 16-18s16 6 16 18z" fill="#3a7bd5" stroke="#111" stroke-width="3"/><path d="M46 30v16M38 38h16" stroke="#111" stroke-width="7"/><path d="M46 30v16M38 38h16" stroke="#3fd14a" stroke-width="4"/></symbol>
     <symbol id="i-badge" viewBox="0 0 60 60"><path d="M30 4l6 6 8-2 2 8 8 3-3 8 5 7-7 5 1 8-8 1-3 8-8-3-6 6-6-6-8 3-3-8-8-1 1-8-7-5 5-7-3-8 8-3 2-8 8 2z" fill="#7fb6f2" stroke="#111" stroke-width="2.5"/><circle cx="30" cy="31" r="11" fill="#f2c94c" stroke="#111" stroke-width="2.5"/></symbol>
-    <symbol id="i-shard" viewBox="0 0 40 40"><path d="M20 2C26 12 34 16 32 26a12 12 0 0 1-24 0C7 16 15 12 20 2z" fill="#f5b81f" stroke="#111" stroke-width="2.5"/><path d="M16 24a5 5 0 0 0 8 0" stroke="#fff6c8" stroke-width="3" fill="none"/></symbol>
+    <symbol id="i-glow" viewBox="0 0 40 40"><circle cx="20" cy="21" r="17" fill="#ffd36a55"/><path d="M9 24l5-13 12-4 7 11-4 13-13 3z" fill="#ffb627" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 22l3-8 7-2" stroke="#fff3c0" stroke-width="2.5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 60 40"><path d="M10 22C10 8 50 8 50 22z" fill="#e2574c" stroke="#111" stroke-width="2.5"/><circle cx="22" cy="16" r="3" fill="#fff"/><circle cx="36" cy="13" r="2.5" fill="#fff"/><circle cx="42" cy="19" r="2" fill="#fff"/><path d="M24 22h12l-2 14h-8z" fill="#f4ecd2" stroke="#111" stroke-width="2.5"/></symbol>
+    <symbol id="i-trowel" viewBox="0 0 40 40"><path d="M8 34l10-10" stroke="#111" stroke-width="6" stroke-linecap="round"/><path d="M8 34l10-10" stroke="#a8743f" stroke-width="3" stroke-linecap="round"/><path d="M17 23l6-17 11 11-17 6z" fill="#b8bec8" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-gem" viewBox="0 0 40 40"><path d="M12 6h16l8 10-16 20L4 16z" fill="#9b5cff" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M4 16h32M12 6l8 30M28 6l-8 30" stroke="#5a2bb0" stroke-width="1.5" fill="none"/><path d="M13 9l-3 6" stroke="#e9dcff" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-lantern" viewBox="0 0 40 40"><path d="M14 8a6 6 0 0 1 12 0" fill="none" stroke="#111" stroke-width="2.5"/><rect x="11" y="9" width="18" height="5" rx="1" fill="#5a5b62" stroke="#111" stroke-width="2"/><rect x="12" y="14" width="16" height="17" rx="3" fill="#ffd36a" stroke="#111" stroke-width="2.5"/><path d="M17 18l3 9 3-9" fill="#ffb627"/><rect x="11" y="31" width="18" height="4" rx="1" fill="#5a5b62" stroke="#111" stroke-width="2"/></symbol>
+    <symbol id="i-beacon" viewBox="0 0 40 50"><circle cx="20" cy="14" r="13" fill="#ffd36a66"/><path d="M13 48l3-28h8l3 28z" fill="#6b4a2c" stroke="#111" stroke-width="2.5"/><path d="M11 20h18" stroke="#111" stroke-width="3"/><path d="M14 18l2-12 6-3 5 6-2 9z" fill="#ffb627" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M17 15l1-6 3-1" stroke="#fff3c0" stroke-width="2" fill="none"/></symbol>
   </defs>
 </svg>
 
@@ -301,7 +300,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 
   <div class="prompt" style="left:59.6cqw;top:30.6cqw"><div class="kc">F</div><div class="t">Push Off<br><span style="display:inline-flex;align-items:center;gap:.15cqw"><svg style="width:.8cqw;height:.8cqw"><use href="#i-robux"/></svg>19</span></div></div>
 
-  <div class="hotbar cx"><div class="slot sel"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
+  <div class="hotbar cx"><div class="slot sel"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-trowel"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
   <div class="hint"><span class="k">Click</span><span style="position:static" data-ours="Crank" data-ref="Paddle">Crank</span></div>
 </div>
 <figcaption>1 · Drill Rig HUD (cranking)<span>Reference f0112 (0:01:52). Distance and glow badge, objective line, route bar (a whole-run map: 6 zones of 10/10/15/20/22/23 mi as measured from the reference, passed zones lit, white rig marker at 26.1 mi in the Crystal Hollows, yellow Mile 100 tick, plus our Waystation pips), explorer % toast, Starter Pack button, Hunger/Health, speedometer + Turbo, tread-power bars (ours: the right side is cranking harder, so the rig turns left), the Push Off prompt on another player (19 R$: shoves them off the rig), hotbar, action hint. The rig is an open plank deck on two treads with the drill bit in front and a lantern on each corner.</span></figcaption>
@@ -321,7 +320,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   </div>
   <div class="crewrow" style="left:30.4cqw">
     <div class="av" style="--skin:#eee;--shirt:#111"></div><div class="av" style="--skin:#2b1b1b;--shirt:#111"></div><div class="av" style="--skin:#f2c94c;--shirt:#2a2a2a"></div><div class="av off"></div>
-    <span class="o thin crewmsg" data-ours="Add wood to end the Dark" data-ref="Add wood to go faster">Add wood to end the Dark</span>
+    <span class="o thin crewmsg" data-ours="Add glowstone to end the Dark" data-ref="Add wood to go faster">Add glowstone to end the Dark</span>
   </div>
   <div class="ribbon orange o thin cx" style="top:15.5cqw" data-ours="Safe in the light" data-ref="Safe by the fire">Safe in the light</div>
   <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
@@ -330,11 +329,11 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="o thin statlabel" style="top:28.1cqw">Health</div>
   <div class="bar" style="top:29.7cqw"><b style="width:100%;background:var(--hp)"></b></div>
   <div style="left:38cqw;top:30cqw;width:22cqw;height:14cqw;border:.4cqw solid var(--yellow);border-radius:50%;opacity:.9"></div>
-  <div style="left:46.5cqw;top:33cqw;width:5cqw;height:6cqw"><svg style="position:static;width:100%;height:100%"><use href="#i-fire"/></svg></div>
-  <div class="hotbar cx"><div class="slot"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-rod"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
-  <div class="hint"><span class="k">Click</span>Punch</div>
+  <div style="left:46.3cqw;top:29.5cqw;width:5.6cqw;height:9.5cqw"><svg style="position:static;width:100%;height:100%"><use href="#i-beacon"/></svg></div>
+  <div class="hotbar cx"><div class="slot"><small>1</small><svg><use href="#i-crank"/></svg></div><div class="slot"><small>2</small><svg><use href="#i-trowel"/></svg></div><div class="slot"><svg><use href="#i-bag"/></svg><em>Bag</em></div></div>
+  <div class="hint"><span class="k">Click</span><span style="position:static" data-ours="Mine" data-ref="Punch">Mine</span></div>
 </div>
-<figcaption>2 · Camp during Lights Out<span>Reference f0205 (0:03:25) and f0186. Distance shrinks and fades, the night bar (moon→sun, multiplier, +0.1x floaters per log), crew portraits lit when inside the ring, one-line message, "Safe in the light" ribbon. Other messages: "Get by the fire to speed up the Dark", "Fire's dying! Add wood", "Fire's out! He's coming!" Wood is the only fuel, as in the reference. At the first few camps the Hollow only watches from the edge; it gets faster at each camp further down.</span></figcaption>
+<figcaption>2 · Camp during Lights Out<span>Reference f0205 (0:03:25) and f0186: same layout. Distance shrinks and fades, the night bar (moon→sun, multiplier, +0.1x floaters per glowstone chunk), crew portraits lit when inside the Beacon's ring, one-line message, "Safe in the light" ribbon. Other messages: "Get by the Beacon to speed up the Dark", "Beacon's fading! Add glowstone", "The light's out! He's coming!" Ours: the Beacon is a glowstone lamp tower, and glowstone is the one resource (it also repairs and builds the rig). At the first few camps the Hollow only watches from the edge; it gets faster at each camp further down.</span></figcaption>
 </figure>
 
 <!-- 3. DEPARTURE -->
@@ -371,7 +370,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="starter"><div class="pup"></div><div class="price"><svg><use href="#i-robux"/></svg>49</div></div>
   <div class="o thin statlabel" style="top:23.6cqw">Hunger</div><div class="bar" style="top:25.3cqw"><b style="width:97%;background:var(--hunger)"></b></div>
   <div class="o thin statlabel" style="top:28.1cqw">Health</div><div class="bar" style="top:29.7cqw"><b style="width:100%;background:var(--hp)"></b></div>
-  <div class="hint"><span class="k">Click</span>Punch</div>
+  <div class="hint"><span class="k">Click</span><span style="position:static" data-ours="Mine" data-ref="Punch">Mine</span></div>
 </div>
 <figcaption>4 · Rig is leaving<span>Reference 1:35 and 13:25. Shows when the rig departs with a crewmate still off the deck: timer bar plus a rig marker with distance and seconds.</span></figcaption>
 </figure>
@@ -403,25 +402,25 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
 <figcaption>6 · Left behind<span>Reference 6:20 ("SWEPT AWAY"). Full-screen fade when a player falls about 220 m behind the rig; respawn on the deck. The same rock-dust style is the loading screen (the reference uses blue bubbles).</span></figcaption>
 </figure>
 
-<!-- 7. COOKFIRE -->
+<!-- 7. COOKPOT -->
 <figure>
-<div class="screen bg-camp" aria-label="Cookfire panel">
-  <div class="o ptitle" style="left:26.5cqw;top:11.2cqw">Cookfire</div>
+<div class="screen bg-camp" aria-label="Cookpot panel">
+  <div class="o ptitle" style="left:26.5cqw;top:11.2cqw" data-ours="Cookpot" data-ref="Cookfire">Cookpot</div>
   <svg class="xbtn" style="left:69.5cqw;top:11.5cqw"><use href="#i-x"/></svg>
   <div class="panel" style="left:26.25cqw;top:15.7cqw;width:47.5cqw;height:29.6cqw">
     <span class="nail" style="left:1cqw;top:2.6cqw"></span><span class="nail" style="left:1cqw;top:7.4cqw"></span><span class="nail" style="left:1cqw;top:12.6cqw"></span><span class="nail" style="left:1cqw;top:17.8cqw"></span><span class="nail" style="right:1cqw;top:2.6cqw"></span><span class="nail" style="right:1cqw;top:17.8cqw"></span>
-    <div class="card sel" style="left:3.6cqw;top:1.9cqw;width:12cqw;height:11.8cqw"><svg style="position:static;width:8cqw;height:6cqw;margin-top:-2cqw"><use href="#i-fish"/></svg><div class="lbl">Cooked Fish</div><div class="chk"><svg><use href="#i-check"/></svg></div></div>
-    <div class="card" style="left:3.7cqw;top:15.4cqw;width:11.9cqw;height:11.6cqw"><svg style="position:static;width:7cqw;height:5cqw;margin-top:-2cqw"><use href="#i-stew"/></svg><div class="lbl">Fish Stew</div><div class="chk"><svg><use href="#i-check"/></svg></div></div>
+    <div class="card sel" style="left:3.6cqw;top:1.9cqw;width:12cqw;height:11.8cqw"><svg style="position:static;width:8cqw;height:6cqw;margin-top:-2cqw"><use href="#i-cap"/></svg><div class="lbl">Roasted Cap</div><div class="chk"><svg><use href="#i-check"/></svg></div></div>
+    <div class="card" style="left:3.7cqw;top:15.4cqw;width:11.9cqw;height:11.6cqw"><svg style="position:static;width:7cqw;height:5cqw;margin-top:-2cqw"><use href="#i-stew"/></svg><div class="lbl">Cave Stew</div><div class="chk"><svg><use href="#i-check"/></svg></div></div>
     <div class="inset" style="left:19.4cqw;top:1.3cqw;width:26.2cqw;height:14.9cqw">
-      <svg style="left:1cqw;top:3cqw;width:9cqw;height:7cqw"><use href="#i-fish"/></svg>
-      <div class="o thin g" style="left:11.6cqw;top:2cqw;font-size:2.3cqw;-webkit-text-stroke:.2cqw #0a2a05">Cooked Fish</div>
-      <div class="plain" style="left:11.6cqw;top:6.3cqw;font-size:1.45cqw;white-space:normal;width:13.5cqw">Hot off the fire. Fills you up way more than raw fish!</div>
+      <svg style="left:1cqw;top:3cqw;width:9cqw;height:7cqw"><use href="#i-cap"/></svg>
+      <div class="o thin g" style="left:11.6cqw;top:2cqw;font-size:2.3cqw;-webkit-text-stroke:.2cqw #0a2a05">Roasted Cap</div>
+      <div class="plain" style="left:11.6cqw;top:6.3cqw;font-size:1.45cqw;white-space:normal;width:13.5cqw">Warm from the Cookpot. Fills you up way more than raw forage!</div>
     </div>
-    <div class="inset" style="left:28.3cqw;top:17cqw;width:8.4cqw;height:4.4cqw;display:flex;align-items:center;justify-content:center;gap:.4cqw"><svg style="position:static;width:2.4cqw;height:1.8cqw"><use href="#i-fish"/></svg><span class="plain" style="position:static;font-size:2.2cqw">3 / 1</span></div>
+    <div class="inset" style="left:28.3cqw;top:17cqw;width:8.4cqw;height:4.4cqw;display:flex;align-items:center;justify-content:center;gap:.4cqw"><svg style="position:static;width:2.4cqw;height:1.8cqw"><use href="#i-cap"/></svg><span class="plain" style="position:static;font-size:2.2cqw">3 / 1</span></div>
     <div class="btn-green" style="left:19.6cqw;top:22.3cqw;width:25.9cqw;height:5.8cqw"><span class="fill"></span><span class="o" style="position:relative;font-size:2.6cqw;top:-.5cqw">COOK</span><span class="plain" style="bottom:.35cqw;left:0;right:0;text-align:center;font-size:1.1cqw;color:#1b3a12">(hold down)</span></div>
   </div>
 </div>
-<figcaption>7 · Cookfire<span>Reference f1145 (19:05). Recipe list (selected card cream, green tick = owned), detail inset, ingredient count, hold-to-fill COOK. Food comes only from fishing, as in the reference: Cooked Fish, Fish Stew, and one dish per zone made from that zone's fish (for example a Glow Minnow Skewer in zone 2).</span></figcaption>
+<figcaption>7 · Cookpot<span>Reference f1145 (19:05): the same panel layout (recipe list with the selected card cream and a green tick when owned, detail inset, ingredient count, hold-to-fill COOK). Our content: food comes from foraging, so the recipes are Roasted Cap, Cave Stew and one dish per zone (Lantern Fig Tart, Frost Truffle Soup, Spore Melon Slices, Ash Potato Mash, Corelight Feast).</span></figcaption>
 </figure>
 
 <!-- 8. STARTER PACK -->
@@ -432,19 +431,19 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="panel" style="left:24.25cqw;top:16.6cqw;width:51.5cqw;height:26.5cqw">
     <span class="nail" style="left:1cqw;top:2.6cqw"></span><span class="nail" style="left:1cqw;top:8.4cqw"></span><span class="nail" style="left:1cqw;top:14.4cqw"></span><span class="nail" style="left:1cqw;top:20.4cqw"></span><span class="nail" style="right:1cqw;top:2.6cqw"></span><span class="nail" style="right:1cqw;top:20.4cqw"></span>
     <div style="left:2.7cqw;top:1.1cqw;width:20cqw;height:20cqw;border-radius:50%;background:radial-gradient(circle,#d8a674,#b27a46)"></div>
-    <div style="left:7.7cqw;top:3.6cqw;width:10cqw;height:13cqw;border-radius:45% 45% 30% 30%;background:radial-gradient(circle at 50% 30%,#fff 0 30%,transparent 31%),radial-gradient(circle at 30% 18%,#a7652f 0 20%,transparent 21%),radial-gradient(circle at 70% 18%,#a7652f 0 20%,transparent 21%),#f1e7dc;border:.2cqw solid #5a3a1a"></div>
+    <div style="left:7.7cqw;top:3.6cqw;width:10cqw;height:13cqw;border-radius:45% 45% 30% 30%;background:radial-gradient(circle at 50% 10%,#ffe066 0 11%,transparent 12%),radial-gradient(circle at 50% 10%,#ffe06655 0 22%,transparent 23%),radial-gradient(circle at 38% 36%,#111 0 4%,transparent 5%),radial-gradient(circle at 62% 36%,#111 0 4%,transparent 5%),radial-gradient(circle at 50% 46%,#f2a0a0 0 7%,transparent 8%),radial-gradient(circle at 50% 72%,#b8a898 0 22%,transparent 23%),#8a7a6a;border:.2cqw solid #5a3a1a"></div>
     <div style="left:9.5cqw;top:13.4cqw;width:6.4cqw;height:2.4cqw;background:#d6283a;clip-path:polygon(0 0,100% 0,50% 100%)"></div>
-    <div class="plain cx" style="left:12.7cqw;top:20.6cqw;font-size:2cqw;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill">Puppy pet</div>
+    <div class="plain cx" style="left:12.7cqw;top:20.6cqw;font-size:2cqw;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill">Glow Mole pet</div>
     <div style="left:2cqw;top:23.6cqw;display:flex;gap:.3cqw;align-items:center">
       <span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e8dcc8"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e0a040"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#5a3a2a"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#3a6ad0"></span><span class="swatch" style="width:1.5cqw;height:1.5cqw;background:#e870b0"></span>
       <span class="plain" style="position:static;font-size:1.2cqw;color:var(--yellow);-webkit-text-stroke:.12cqw #000;paint-order:stroke fill;margin-left:.4cqw">Name it, pick its colours</span>
     </div>
     <div class="inset" style="left:25.4cqw;top:1.9cqw;width:24cqw;height:7.8cqw"><svg style="left:1cqw;top:1.4cqw;width:12cqw;height:4.6cqw"><use href="#i-brasscrank"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill" data-ours="Brass crank" data-ref="Stormwood oar">Brass crank</div></div>
-    <div class="inset" style="left:25.4cqw;top:10.7cqw;width:24cqw;height:7.8cqw"><svg style="left:.8cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-axe"/></svg><svg style="left:5cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-wood"/></svg><svg style="left:9.2cqw;top:2cqw;width:4.4cqw;height:3cqw"><use href="#i-fish"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill">Head-start kit</div></div>
+    <div class="inset" style="left:25.4cqw;top:10.7cqw;width:24cqw;height:7.8cqw"><svg style="left:.8cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-pick"/></svg><svg style="left:5cqw;top:1.6cqw;width:4cqw;height:4cqw"><use href="#i-glow"/></svg><svg style="left:9.2cqw;top:2cqw;width:4.4cqw;height:3cqw"><use href="#i-cap"/></svg><div class="plain" style="left:14.2cqw;top:1.6cqw;font-size:1.75cqw;white-space:normal;width:9cqw;-webkit-text-stroke:.12cqw #000;paint-order:stroke fill">Head-start kit</div></div>
     <div class="btn-buy" style="left:29.6cqw;top:19.2cqw;width:15.6cqw;height:6cqw"><span class="o" style="position:relative;top:-.9cqw;font-size:2.4cqw;font-style:normal">Buy</span><span class="price" style="bottom:.3cqw;background:none;border:none;font-size:1.9cqw;-webkit-text-stroke:.15cqw #000;paint-order:stroke fill"><svg style="width:1.6cqw;height:1.6cqw"><use href="#i-robux"/></svg>49</span></div>
   </div>
 </div>
-<figcaption>8 · Starter Pack (49 R$)<span>Reference f0897 (14:57). Same wooden panel family as the Cookfire. Ours: pet pup, Brass Crank cosmetic, head-start kit (axe, a bundle of wood, cooked fish ×3). Popup shows once at the first Waystation; the HUD button is always there.</span></figcaption>
+<figcaption>8 · Starter Pack (49 R$)<span>Reference f0897 (14:57): the same panel and offer shape. Our contents: a Glow Mole pet (lights a small radius around you and fetches dropped items), a Brass Crank cosmetic, and a head-start kit (Iron Pickaxe, 20 glowstone, 3 Cave Stews). The popup shows once at the first Waystation; the HUD button is always there.</span></figcaption>
 </figure>
 
 <!-- 9. FIELD NOTE -->
@@ -461,25 +460,25 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   </div>
   <div class="newpill o" style="left:30.9cqw;top:6.2cqw;width:16cqw;height:8.6cqw">NEW!</div>
 </div>
-<figcaption>9 · Field Note<span>Reference f0545 (9:05). Taped paper card, tilted NEW! pill, charcoal sketch, one or two lines, faction signature. 6 notes and 2 pages per zone (49 in all) from five earlier expeditions, collected into the Journal and claimed for Embers at camp.</span></figcaption>
+<figcaption>9 · Field Note<span>Reference f0545 (9:05). Taped paper card, tilted NEW! pill, charcoal sketch, one or two lines, faction signature. 6 notes and 2 pages per zone (49 in all) from five earlier expeditions, collected into the Journal and claimed for Deepstones at camp.</span></figcaption>
 </figure>
 
 <!-- 10. PET CUSTOMISER -->
 <figure>
-<div class="screen bg-overlay" aria-label="Meet your puppy customiser">
-  <div class="o thin" style="left:4.5cqw;top:3.2cqw;font-size:2.4cqw;font-style:normal">Meet your puppy</div>
-  <div style="left:4.5cqw;top:6.6cqw;width:18cqw;height:3.2cqw;background:#fff;border-radius:.3cqw;display:flex;align-items:center;justify-content:center;font-size:1.8cqw;color:#222">Muffin ✎</div>
+<div class="screen bg-overlay" aria-label="Meet your Glow Mole customiser">
+  <div class="o thin" style="left:4.5cqw;top:3.2cqw;font-size:2.4cqw;font-style:normal" data-ours="Meet your Glow Mole" data-ref="Meet your puppy">Meet your Glow Mole</div>
+  <div style="left:4.5cqw;top:6.6cqw;width:18cqw;height:3.2cqw;background:#fff;border-radius:.3cqw;display:flex;align-items:center;justify-content:center;font-size:1.8cqw;color:#222">Pebble ✎</div>
   <div style="left:3cqw;top:12cqw;width:39cqw;height:39cqw;border-radius:50%;background:#2a2f2a"></div>
-  <div style="left:12cqw;top:15cqw;width:21cqw;height:30cqw;border-radius:45% 45% 30% 30%;background:radial-gradient(circle at 50% 30%,#fff 0 30%,transparent 31%),radial-gradient(circle at 30% 18%,#a7652f 0 20%,transparent 21%),radial-gradient(circle at 70% 18%,#a7652f 0 20%,transparent 21%),#f1e7dc"></div>
+  <div style="left:12cqw;top:15cqw;width:21cqw;height:30cqw;border-radius:45% 45% 30% 30%;background:radial-gradient(circle at 50% 10%,#ffe066 0 11%,transparent 12%),radial-gradient(circle at 50% 10%,#ffe06655 0 22%,transparent 23%),radial-gradient(circle at 38% 36%,#111 0 4%,transparent 5%),radial-gradient(circle at 62% 36%,#111 0 4%,transparent 5%),radial-gradient(circle at 50% 46%,#f2a0a0 0 7%,transparent 8%),radial-gradient(circle at 50% 72%,#b8a898 0 22%,transparent 23%),#8a7a6a"></div>
   <div style="left:16cqw;top:38cqw;width:13cqw;height:5cqw;background:#3a6ad0;clip-path:polygon(0 0,100% 0,50% 100%)"></div>
-  <div style="left:51cqw;top:14.4cqw;width:44cqw;display:flex;gap:.3cqw" class="flow-row"><span class="tab">Fur</span><span class="tab">Patches</span><span class="tab on">Bandana</span></div>
+  <div style="left:51cqw;top:14.4cqw;width:44cqw;display:flex;gap:.3cqw" class="flow-row"><span class="tab">Fur</span><span class="tab">Lamp</span><span class="tab on">Bandana</span></div>
   <div style="left:53cqw;top:19.6cqw;width:38cqw;display:grid;grid-template-columns:repeat(4,3cqw);gap:2.2cqw">
     <span class="swatch" style="background:#d0303a"></span><span class="swatch on" style="background:#3a6ad0"></span><span class="swatch" style="background:#3aa04a"></span><span class="swatch" style="background:#e0b020"></span>
     <span class="swatch" style="background:#e07a2a"></span><span class="swatch" style="background:#e870b0"></span><span class="swatch" style="background:#2a2a2a"></span><span class="swatch" style="background:#f2f2f2"></span>
   </div>
   <div class="btn-green" style="left:55cqw;top:35cqw;width:30cqw;height:4.6cqw;border-width:.2cqw"><span class="plain" style="position:relative;font-size:2cqw">Done</span></div>
 </div>
-<figcaption>10 · Meet your puppy<span>Reference 25:30–25:40, shown right after buying the Starter Pack. Name field, Fur / Patches / Bandana tabs, swatches, Done.</span></figcaption>
+<figcaption>10 · Meet your Glow Mole<span>Reference 25:30–25:40: the same customiser layout, shown right after buying the Starter Pack. Name field, Fur / Lamp / Bandana tabs (Lamp sets the colour of the light on its head), swatches, Done.</span></figcaption>
 </figure>
 
 <!-- 11. QTE -->
@@ -526,8 +525,8 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="rbx"><i></i><i></i><i></i><i></i></div><div class="rbxr"></div>
   <div style="right:4cqw;top:.9cqw;height:2.6cqw;padding:0 1cqw;border-radius:1.3cqw;background:#1c1d20e6;display:grid;place-items:center;font:400 1cqw system-ui,sans-serif;color:#fff">STATS</div>
   <div class="plist" style="width:7.4cqw"><div>explorer_one · 87.2</div><div>deepdigger · 81.9</div><div>Starcloud · 55.9</div><div>cavecrew7 · 20.1</div><div>glowfan · 0</div></div>
-  <div class="board" style="left:23.5cqw;top:12.5cqw;width:11.5cqw"><span class="o thin bt">FASTEST RUN</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>51:06</span></div><div class="row"><span>#2 deepdigger</span><span>51:06</span></div><div class="row"><span>#3 cavecrew7</span><span>52:38</span></div><div class="row"><span>#4 glowfan</span><span>55:45</span></div><div class="row"><span>#5 rockhopper</span><span>55:45</span></div><div class="row you"><span>#1 You</span><span>None</span></div></div>
-  <div class="board" style="left:41.5cqw;top:13.5cqw;width:11.5cqw"><span class="o thin bt">EMBERS EARNED</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>12,875</span></div><div class="row"><span>#2 deepdigger</span><span>8,985</span></div><div class="row"><span>#3 cavecrew7</span><span>8,440</span></div><div class="row"><span>#4 glowfan</span><span>8,363</span></div><div class="row"><span>#5 rockhopper</span><span>7,952</span></div><div class="row you"><span>#1 You</span><span>685</span></div></div>
+  <div class="board" style="left:23.5cqw;top:12.5cqw;width:11.5cqw"><span class="o thin bt">FASTEST DESCENT</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>51:06</span></div><div class="row"><span>#2 deepdigger</span><span>51:06</span></div><div class="row"><span>#3 cavecrew7</span><span>52:38</span></div><div class="row"><span>#4 glowfan</span><span>55:45</span></div><div class="row"><span>#5 rockhopper</span><span>55:45</span></div><div class="row you"><span>#1 You</span><span>None</span></div></div>
+  <div class="board" style="left:41.5cqw;top:13.5cqw;width:11.5cqw"><span class="o thin bt">DEEPSTONES EARNED</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>12,875</span></div><div class="row"><span>#2 deepdigger</span><span>8,985</span></div><div class="row"><span>#3 cavecrew7</span><span>8,440</span></div><div class="row"><span>#4 glowfan</span><span>8,363</span></div><div class="row"><span>#5 rockhopper</span><span>7,952</span></div><div class="row you"><span>#1 You</span><span>685</span></div></div>
   <div class="board" style="left:57.5cqw;top:13cqw;width:11.5cqw"><span class="o thin bt">DEEPEST TOTAL</span><div class="tabs"><span class="on">Global</span><span>Friends</span></div><div class="row"><span>#1 explorer_one</span><span>1062 mi</span></div><div class="row"><span>#2 deepdigger</span><span>722 mi</span></div><div class="row"><span>#3 cavecrew7</span><span>619 mi</span></div><div class="row"><span>#4 glowfan</span><span>599 mi</span></div><div class="row"><span>#5 rockhopper</span><span>574 mi</span></div><div class="row you"><span>#1 You</span><span>55.9 mi</span></div></div>
   <div class="board" style="left:78cqw;top:15cqw;width:10.5cqw;text-align:center"><svg style="position:static;width:3cqw;height:3cqw"><use href="#i-medic"/></svg><span class="o thin bt">FREE REVIVE</span><div class="row" style="justify-content:center">Join the group</div></div>
   <div style="left:2cqw;top:22cqw;width:11cqw;height:8cqw;background:#7a2a2a;clip-path:polygon(0 40%,50% 0,100% 40%,100% 100%,0 100%)"></div>
@@ -537,7 +536,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
     <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-invite"/></svg></div><span class="o" style="position:static;font-size:2.3cqw">Invite</span></div>
     <div class="lobbyicon" style="position:relative"><div class="ic"><svg style="width:100%;height:100%"><use href="#i-badge"/></svg><span class="n">5</span></div><span class="o" style="position:static;font-size:2.3cqw">Badges</span></div>
   </div>
-  <div class="cx" style="top:9.2cqw;display:flex;align-items:center;gap:.4cqw"><svg style="position:static;width:4cqw;height:4.4cqw"><use href="#i-shard"/></svg><span class="o" style="position:static;font-size:3.6cqw">685</span></div>
+  <div class="cx" style="top:9.2cqw;display:flex;align-items:center;gap:.4cqw"><svg style="position:static;width:4cqw;height:4.4cqw"><use href="#i-gem"/></svg><span class="o" style="position:static;font-size:3.6cqw">685</span></div>
   <div class="bay" style="left:3cqw;top:41cqw;width:20cqw;height:9cqw"></div>
   <div class="baylbl" style="left:5cqw;top:33.5cqw"><span class="o" style="font-size:3.4cqw;font-style:normal">PLAY</span><span class="o thin" style="font-size:1.7cqw;font-style:normal">Step in to make a party</span></div>
   <div class="bay on" style="left:66cqw;top:36.5cqw;width:16cqw;height:7cqw"></div>
@@ -546,7 +545,7 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <div class="bigbtn o" style="left:39.75cqw;top:46.4cqw;width:20.5cqw;height:6.6cqw;background:linear-gradient(#5fd04a,#2f9a25);font-style:normal">PLAY</div>
   <div class="bigbtn o" style="left:61.6cqw;top:47.6cqw;width:20cqw;height:4.2cqw;font-size:1.9cqw;background:linear-gradient(#ffcf3a,#f39a12);font-style:normal">CONTINUE · MILE 35</div>
 </div>
-<figcaption>13 · Topside Camp (lobby)<span>Reference lobby recording 0:24 and 1:12. Journal (1 to claim), Invite and Badges (5 to claim) with red counts, Embers (meta currency) under them, STATS button top right, player list with lifetime miles, leaderboards with Global / Friends tabs and a pinned "You" row (Fastest Run, Embers Earned; ours renames Total Miles to Deepest Total), Free Revive board, Classes hut, launch bays (white = empty, green = a party counting down from 20 s), big PLAY. Ours adds CONTINUE from the last Waystation save, and the sinkhole on the horizon. Leaderboard names are placeholders.</span></figcaption>
+<figcaption>13 · Topside Camp (lobby)<span>Reference lobby recording 0:24 and 1:12: the same layout. Journal (1 to claim), Invite and Badges (5 to claim) with red counts, the meta currency under them, STATS button top right, player list with lifetime miles, leaderboards with Global / Friends tabs and a pinned "You" row, Free Revive board, Classes tent, launch bays (white = empty, green = a party counting down from 20 s), big PLAY. Our content: Deepstones (purple gem), Fastest Descent / Deepstones Earned / Deepest Total boards, CONTINUE from the last Waystation save, and the sinkhole on the horizon. Leaderboard names are placeholders.</span></figcaption>
 </figure>
 
 <!-- 14. CREATE PARTY -->
@@ -575,12 +574,12 @@ figcaption span{display:block;color:var(--muted);font-weight:400;font-family:sys
   <svg class="xbtn" style="left:73cqw;top:10cqw"><use href="#i-x"/></svg>
   <div class="panel" style="left:22.5cqw;top:13.7cqw;width:55cqw;height:32.6cqw">
     <span class="nail" style="left:1cqw;top:2.6cqw"></span><span class="nail" style="left:1cqw;top:10cqw"></span><span class="nail" style="left:1cqw;top:17.4cqw"></span><span class="nail" style="left:1cqw;top:24.8cqw"></span><span class="nail" style="right:1cqw;top:2.6cqw"></span><span class="nail" style="right:1cqw;top:10cqw"></span><span class="nail" style="right:1cqw;top:17.4cqw"></span><span class="nail" style="right:1cqw;top:24.8cqw"></span>
-    <div class="crow" style="left:2.8cqw;top:1.8cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-lumber"/></svg><span class="o thin nm" style="font-style:normal">Lumberjack</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>150</span></div>
-    <div class="crow" style="left:2.8cqw;top:9.2cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-chef"/></svg><span class="o thin nm" style="font-style:normal">Cook</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>750</span></div>
-    <div class="crow" style="left:2.8cqw;top:16.6cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-medic"/></svg><span class="o thin nm" style="font-style:normal">Medic</span><span class="o thin cost"><svg><use href="#i-shard"/></svg>1500</span></div>
+    <div class="crow" style="left:2.8cqw;top:1.8cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-pick"/></svg><span class="o thin nm" style="font-style:normal">Prospector</span><span class="o thin cost"><svg><use href="#i-gem"/></svg>150</span></div>
+    <div class="crow" style="left:2.8cqw;top:9.2cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-trowel"/></svg><span class="o thin nm" style="font-style:normal">Forager</span><span class="o thin cost"><svg><use href="#i-gem"/></svg>750</span></div>
+    <div class="crow" style="left:2.8cqw;top:16.6cqw;width:49.5cqw;height:6.6cqw"><svg><use href="#i-lantern"/></svg><span class="o thin nm" style="font-style:normal">Lamplighter</span><span class="o thin cost"><svg><use href="#i-gem"/></svg>1500</span></div>
   </div>
 </div>
-<figcaption>15 · Classes<span>Reference lobby recording 0:30. The same three classes and prices as the reference, all about wood, food or helping the crew: Lumberjack (starts with an axe, +1 wood per chop; 150 Embers or 49 R$), Cook (starts with a cooked fish, food fills 15% more; 750 or 149 R$), Medic (starts with a bandage, revives 15% faster; 1500 or 299 R$). Picking one opens a try-on room with the outfit on your avatar, a green Embers button ("Need N" in grey when short) and a pink Robux button.</span></figcaption>
+<figcaption>15 · Classes<span>Reference lobby recording 0:30: the same panel and the same 150 / 750 / 1500 price ladder. Our classes, built on our own systems: Prospector (starts with an Iron Pickaxe, +1 glowstone per vein; 150 Deepstones or 49 R$), Forager (starts with an Iron Trowel, wider green zone on every Pull, food fills 15% more; 750 or 149 R$), Lamplighter (starts with a Hand Lantern, the Beacon and rig lanterns burn glowstone 15% slower; 1500 or 299 R$). Picking one opens a try-on spot with the outfit on your avatar, a green Deepstones button ("Need N" in grey when short) and a pink Robux button.</span></figcaption>
 </figure>
 
 </main>
