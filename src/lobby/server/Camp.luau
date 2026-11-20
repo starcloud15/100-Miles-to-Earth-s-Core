@@ -26,15 +26,15 @@ local WOOD = Color3.fromRGB(124, 84, 52)
 local WOOD_DARK = Color3.fromRGB(86, 56, 34)
 
 -- the palette: sun-baked red rock, saturated greens, yellow steel, amber glow
-local DUST = Color3.fromRGB(204, 128, 84)
+local DUST = Color3.fromRGB(214, 126, 72)
 local DUST_LIGHT = Color3.fromRGB(226, 166, 112)
 local GRASS = Color3.fromRGB(104, 170, 64)
 local ROCK = {
-	Color3.fromRGB(214, 118, 70), -- orange
-	Color3.fromRGB(190, 88, 58), -- red
-	Color3.fromRGB(232, 162, 104), -- tan
-	Color3.fromRGB(172, 74, 50), -- deep red
-	Color3.fromRGB(140, 60, 44), -- oxblood
+	Color3.fromRGB(222, 108, 52), -- orange
+	Color3.fromRGB(196, 74, 44), -- red
+	Color3.fromRGB(236, 150, 84), -- tan
+	Color3.fromRGB(170, 60, 38), -- deep red
+	Color3.fromRGB(136, 48, 34), -- oxblood
 }
 local SHAFT = {
 	Color3.fromRGB(150, 66, 46),
@@ -60,7 +60,7 @@ local CLOTH = {
 }
 local BULBS = { Color3.fromRGB(255, 210, 90), Color3.fromRGB(255, 120, 60), Color3.fromRGB(120, 220, 255), Color3.fromRGB(255, 240, 200), Color3.fromRGB(140, 255, 120) }
 
-local SAND = Enum.Material.Sandstone
+local STONE = Enum.Material.SmoothPlastic -- flat, saturated, low-poly rock
 local SMOOTH = Enum.Material.SmoothPlastic
 local NEON = Enum.Material.Neon
 local METAL = Enum.Material.Metal
@@ -171,9 +171,9 @@ end
 -- a faceted boulder: a tilted block, a wedge cap and a corner-wedge chip
 local function rock(pos: Vector3, s: number, color: Color3)
 	local base = CFrame.new(pos) * CFrame.Angles(0, rng:NextNumber(0, TAU), 0)
-	blk(Vector3.new(s * 1.6, s, s * 1.3), base * CFrame.new(0, s * 0.25, 0) * CFrame.Angles(rng:NextNumber(-0.3, 0.3), 0, rng:NextNumber(-0.3, 0.3)), color, SAND)
-	blk(Vector3.new(s * 1.3, s * 0.9, s * 1.1), base * CFrame.new(-s * 0.1, s * 0.85, -s * 0.1) * CFrame.Angles(rng:NextNumber(-0.25, 0.25), rng:NextNumber(-0.6, 0.6), rng:NextNumber(-0.25, 0.25)), shade(color, 0.12), SAND, "WedgePart")
-	blk(Vector3.new(s * 0.9, s * 0.8, s * 0.9), base * CFrame.new(s * 0.75, s * 0.3, s * 0.45) * CFrame.Angles(0, rng:NextNumber(0, TAU), 0), shade(color, -0.12), SAND, "CornerWedgePart")
+	blk(Vector3.new(s * 1.6, s, s * 1.3), base * CFrame.new(0, s * 0.25, 0) * CFrame.Angles(rng:NextNumber(-0.3, 0.3), 0, rng:NextNumber(-0.3, 0.3)), color, STONE)
+	blk(Vector3.new(s * 1.3, s * 0.9, s * 1.1), base * CFrame.new(-s * 0.1, s * 0.85, -s * 0.1) * CFrame.Angles(rng:NextNumber(-0.25, 0.25), rng:NextNumber(-0.6, 0.6), rng:NextNumber(-0.25, 0.25)), shade(color, 0.12), STONE, "WedgePart")
+	blk(Vector3.new(s * 0.9, s * 0.8, s * 0.9), base * CFrame.new(s * 0.75, s * 0.3, s * 0.45) * CFrame.Angles(0, rng:NextNumber(0, TAU), 0), shade(color, -0.12), STONE, "CornerWedgePart")
 end
 
 -- a cube pine: a trunk and three stacked, twisted cubes
@@ -214,17 +214,17 @@ end
 local function mesa(pos: Vector3, w: number, d: number, h: number, yaw: number)
 	local cf = CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
 	local base = pick(ROCK)
-	blk(Vector3.new(w, h, d), cf * CFrame.new(0, h / 2, 0), base, SAND)
-	blk(Vector3.new(w + 1.5, h * 0.12, d + 1.5), cf * CFrame.new(0, h * 0.58, 0), ROCK[1], SAND)
-	blk(Vector3.new(w + 1, h * 0.08, d + 1), cf * CFrame.new(0, h * 0.32, 0), ROCK[4], SAND)
-	blk(Vector3.new(w + 3, h * 0.1, d + 3), cf * CFrame.new(0, h * 0.95, 0), ROCK[3], SAND)
+	blk(Vector3.new(w, h, d), cf * CFrame.new(0, h / 2, 0), base, STONE)
+	blk(Vector3.new(w + 1.5, h * 0.12, d + 1.5), cf * CFrame.new(0, h * 0.58, 0), ROCK[1], STONE)
+	blk(Vector3.new(w + 1, h * 0.08, d + 1), cf * CFrame.new(0, h * 0.32, 0), ROCK[4], STONE)
+	blk(Vector3.new(w + 3, h * 0.1, d + 3), cf * CFrame.new(0, h * 0.95, 0), ROCK[3], STONE)
 	-- talus: wedges sloping away from each face
 	local th, td = h * 0.42, h * 0.38
 	for _, side in { { Vector3.xAxis, d }, { -Vector3.xAxis, d }, { Vector3.zAxis, w }, { -Vector3.zAxis, w } } do
 		local n: Vector3, len: number = side[1], side[2]
 		local half = (n.X ~= 0) and w / 2 or d / 2
 		local p = n * (half + td / 2 - 0.5) + Vector3.new(0, th / 2, 0)
-		blk(Vector3.new(len + 0.5, th, td), cf * CFrame.lookAt(p, p + n), shade(base, -0.06), SAND, "WedgePart")
+		blk(Vector3.new(len + 0.5, th, td), cf * CFrame.lookAt(p, p + n), shade(base, -0.06), STONE, "WedgePart")
 	end
 	-- corners: a corner wedge whose peak sits against the core's corner
 	local r0 = CFrame.fromMatrix(Vector3.zero, -Vector3.xAxis, Vector3.yAxis)
@@ -233,16 +233,16 @@ local function mesa(pos: Vector3, w: number, d: number, h: number, yaw: number)
 		local c = corners[k + 1]
 		local rot = CFrame.Angles(0, k * math.pi / 2, 0) * r0
 		local p = Vector3.new(c[1] * (w / 2 + td / 2 - 0.5), th / 2, c[2] * (d / 2 + td / 2 - 0.5))
-		blk(Vector3.new(td, th, td), cf * CFrame.new(p) * rot, shade(base, -0.06), SAND, "CornerWedgePart")
+		blk(Vector3.new(td, th, td), cf * CFrame.new(p) * rot, shade(base, -0.06), STONE, "CornerWedgePart")
 	end
 	-- a stepped top and chunks
 	if rng:NextNumber() < 0.5 then
 		local h2 = h * rng:NextNumber(0.15, 0.3)
-		blk(Vector3.new(w * 0.55, h2, d * 0.6), cf * CFrame.new(w * 0.15, h + h2 / 2, -d * 0.1) * CFrame.Angles(0, 0.3, 0), ROCK[1], SAND)
+		blk(Vector3.new(w * 0.55, h2, d * 0.6), cf * CFrame.new(w * 0.15, h + h2 / 2, -d * 0.1) * CFrame.Angles(0, 0.3, 0), ROCK[1], STONE)
 	end
 	for _ = 1, 2 do
 		local s = math.min(w, d) * rng:NextNumber(0.15, 0.25)
-		blk(Vector3.new(s * 1.5, s, s), cf * CFrame.new(rng:NextNumber(-w, w) * 0.3, h + s * 0.3, rng:NextNumber(-d, d) * 0.3) * CFrame.Angles(0, rng:NextNumber(0, TAU), rng:NextNumber(-0.3, 0.3)), ROCK[3], SAND, "WedgePart")
+		blk(Vector3.new(s * 1.5, s, s), cf * CFrame.new(rng:NextNumber(-w, w) * 0.3, h + s * 0.3, rng:NextNumber(-d, d) * 0.3) * CFrame.Angles(0, rng:NextNumber(0, TAU), rng:NextNumber(-0.3, 0.3)), ROCK[3], STONE, "WedgePart")
 	end
 	for _ = 1, rng:NextInteger(1, 3) do
 		pine((cf * CFrame.new(rng:NextNumber(-w, w) * 0.4, h, rng:NextNumber(-d, d) * 0.4)).Position, rng:NextNumber(1.4, 2.2))
@@ -464,7 +464,7 @@ local function setupLighting()
 			(Lighting :: any)[k] = v
 		end)
 	end
-	effect("Atmosphere", "Atmosphere", { Density = 0.33, Offset = 0.2, Color = Color3.fromRGB(255, 200, 152), Decay = Color3.fromRGB(222, 128, 84), Glare = 0.5, Haze = 1.6 })
+	effect("Atmosphere", "Atmosphere", { Density = 0.3, Offset = 0.15, Color = Color3.fromRGB(255, 212, 160), Decay = Color3.fromRGB(236, 146, 90), Glare = 0.4, Haze = 1.1 })
 	effect("ColorCorrectionEffect", "ColorCorrection", { Brightness = 0.02, Contrast = 0.12, Saturation = 0.25, TintColor = Color3.fromRGB(255, 240, 222) })
 	effect("BloomEffect", "Bloom", { Intensity = 0.35, Size = 24, Threshold = 1.6 })
 	effect("SunRaysEffect", "SunRays", { Intensity = 0.1, Spread = 0.6 })
@@ -550,12 +550,13 @@ local function buildPit(H: Vector3)
 	end
 	for li, L in layers do
 		local off = (li % 2) * 0.5
-		for k = 0, N - 1 do
-			local a = (k + off) / N * TAU
+		local n = L.r == SHAFT_R and 20 or N -- the shaft is seldom seen: fewer facets
+		for k = 0, n - 1 do
+			local a = (k + off) / n * TAU
 			local r = L.r + rng:NextNumber(-1.2, 1.2)
-			local w = 2 * (r + L.t) * math.tan(math.pi / N) * 1.04
+			local w = 2 * (r + L.t) * math.tan(math.pi / n) * 1.04
 			local c = H + Vector3.new(math.cos(a) * (r + L.t / 2), L.y - L.h / 2, math.sin(a) * (r + L.t / 2))
-			blk(Vector3.new(w, L.h, L.t), CFrame.lookAt(c, Vector3.new(H.X, c.Y, H.Z)), shade(L.color, rng:NextNumber(-0.05, 0.05)), SAND)
+			blk(Vector3.new(w, L.h, L.t), CFrame.lookAt(c, Vector3.new(H.X, c.Y, H.Z)), shade(L.color, rng:NextNumber(-0.05, 0.05)), STONE)
 		end
 	end
 	-- across the hole the ground climbs in benches to a high wall, like an
@@ -571,12 +572,12 @@ local function buildPit(H: Vector3)
 			local yBot = RIM_Y - 2
 			local w = 2 * (r + t) * math.tan(math.pi / N) * 1.04
 			local c = H + Vector3.new(math.cos(a) * (r + t / 2), (yTop + yBot) / 2, math.sin(a) * (r + t / 2))
-			blk(Vector3.new(w, yTop - yBot, t), CFrame.lookAt(c, Vector3.new(H.X, c.Y, H.Z)), shade(ROCK[(m + 1) % #ROCK + 1], rng:NextNumber(-0.05, 0.05)), SAND)
+			blk(Vector3.new(w, yTop - yBot, t), CFrame.lookAt(c, Vector3.new(H.X, c.Y, H.Z)), shade(ROCK[(m + 1) % #ROCK + 1], rng:NextNumber(-0.05, 0.05)), STONE)
 			-- glowstone in the face, a pine or two on the ledge
 			local face = H + Vector3.new(math.cos(a), 0, math.sin(a)) * (r - 0.3)
-			if rng:NextNumber() < 0.45 then
-				local p = face + Vector3.new(0, yTop - rng:NextNumber(3, BENCH_H - 2), 0)
-				glow(Vector3.new(rng:NextNumber(0.8, 2), rng:NextNumber(4, 8), 1.2), CFrame.lookAt(p, Vector3.new(H.X, p.Y, H.Z)) * CFrame.Angles(0, 0, rng:NextNumber(-1.2, 1.2)), rng:NextNumber() < 0.5 and GLOW or GLOW_HOT, "WedgePart")
+			if rng:NextNumber() < 0.8 then
+				local p = face + Vector3.new(0, yTop - rng:NextNumber(3.5, BENCH_H - 3), 0)
+				glow(Vector3.new(rng:NextNumber(1.4, 3), rng:NextNumber(5, 9), 1.4), CFrame.lookAt(p, Vector3.new(H.X, p.Y, H.Z)) * CFrame.Angles(0, 0, rng:NextNumber(-1.2, 1.2)), rng:NextNumber() < 0.5 and GLOW or GLOW_HOT, "WedgePart")
 			end
 			if m == levels and m >= 3 then
 				for _ = 1, 2 do
@@ -599,7 +600,7 @@ local function buildPit(H: Vector3)
 		end
 	end
 	-- glowstone veins in the walls, more of them deeper down
-	for _ = 1, 70 do
+	for _ = 1, 45 do
 		local li = rng:NextInteger(2, #layers)
 		local L = layers[li]
 		local a = rng:NextNumber(0, TAU)
@@ -609,7 +610,7 @@ local function buildPit(H: Vector3)
 		glow(Vector3.new(rng:NextNumber(0.8, 2), rng:NextNumber(4, 10), 1.2), CFrame.lookAt(p, Vector3.new(H.X, p.Y, H.Z)) * CFrame.Angles(0, 0, rng:NextNumber(-1.2, 1.2)), rng:NextNumber() < 0.5 and GLOW or GLOW_HOT, "WedgePart")
 	end
 	-- glowstone clusters on the bench ledges
-	for _ = 1, 26 do
+	for _ = 1, 18 do
 		local i = rng:NextInteger(1, BENCHES - 1)
 		local a = rng:NextNumber(0, TAU)
 		local r = R_RIM - BENCH_STEP * i + rng:NextNumber(1.5, 6)
@@ -629,12 +630,32 @@ local function buildPit(H: Vector3)
 		d.CanQuery = false
 		d.CanTouch = false
 	end
-	-- a faint column of glow rising out of the hole
-	local col = glow(Vector3.new(110, SHAFT_R * 2 - 6, SHAFT_R * 2 - 6), CFrame.new(H + Vector3.new(0, SHAFT_TOP + 55, 0)) * CFrame.Angles(0, 0, math.pi / 2), GLOW)
-	col.Shape = Enum.PartType.Cylinder
-	col.Transparency = 0.88
-	col.CanQuery = false
-	col.CanTouch = false
+	-- soft shafts of glow rising out of the hole, fading upward: camera-facing
+	-- beams, so they read as light from any angle, even from camp
+	local anchor = blk(Vector3.new(1, 1, 1), CFrame.new(H + Vector3.new(0, SHAFT_TOP, 0)), GLOW)
+	anchor.Transparency = 1
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	for _, b in { { 120, 0.8, 110 }, { 96, 0.76, 130 }, { 72, 0.72, 150 }, { 50, 0.68, 165 }, { 28, 0.64, 180 } } do
+		local a0 = Instance.new("Attachment")
+		a0.Parent = anchor
+		local a1 = Instance.new("Attachment")
+		a1.Position = Vector3.new(0, b[3], 0)
+		a1.Parent = anchor
+		local beamGlow = Instance.new("Beam")
+		beamGlow.Attachment0 = a0
+		beamGlow.Attachment1 = a1
+		beamGlow.FaceCamera = true
+		beamGlow.Width0 = b[1]
+		beamGlow.Width1 = b[1] * 0.8
+		beamGlow.Segments = 1
+		beamGlow.LightEmission = 1
+		beamGlow.LightInfluence = 0
+		beamGlow.Brightness = 2
+		beamGlow.Color = ColorSequence.new(Color3.fromRGB(255, 190, 80), Color3.fromRGB(255, 140, 40))
+		beamGlow.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, b[2]), NumberSequenceKeypoint.new(0.45, (1 + b[2]) / 2 + 0.06), NumberSequenceKeypoint.new(1, 1) })
+		beamGlow.Parent = anchor
+	end
 	for _, y in { RIM_Y - 12, SHAFT_TOP - 4, SHAFT_TOP - 50, PIT_FLOOR + 30 } do
 		local l = blk(Vector3.new(1, 1, 1), CFrame.new(H + Vector3.new(0, y, 0)), GLOW)
 		l.Transparency = 1
@@ -662,7 +683,7 @@ local function buildPit(H: Vector3)
 	pe.LightEmission = 1
 	pe.Brightness = 3
 	pe.Color = ColorSequence.new(Color3.fromRGB(255, 200, 90), Color3.fromRGB(255, 110, 30))
-	pe.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(0.6, 0.8), NumberSequenceKeypoint.new(1, 0) })
+	pe.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(0.6, 0.6), NumberSequenceKeypoint.new(1, 0) })
 	pe.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.8, 0.4), NumberSequenceKeypoint.new(1, 1) })
 	pe.Parent = src
 	-- anyone who falls in is sent back up to camp
@@ -830,13 +851,13 @@ local function buildBridge(H: Vector3)
 	local hh = (top - yb) / 3
 	for i = 0, 2 do
 		local s = 17 - i * 1.5
-		blk(Vector3.new(s, hh + 0.5, s), CFrame.new(pc + Vector3.new(0, yb + hh * (i + 0.5), 0)) * CFrame.Angles(0, i * 0.45 + 0.2, 0), ROCK[(i % 3) + 1], SAND)
+		blk(Vector3.new(s, hh + 0.5, s), CFrame.new(pc + Vector3.new(0, yb + hh * (i + 0.5), 0)) * CFrame.Angles(0, i * 0.45 + 0.2, 0), ROCK[(i % 3) + 1], STONE)
 	end
 	for k = 0, 3 do
 		local a = k * math.pi / 2 + 0.3
 		local n = Vector3.new(math.cos(a), 0, math.sin(a))
 		local p = pc + n * 10 + Vector3.new(0, yb + 6, 0)
-		blk(Vector3.new(12, 12, 6), CFrame.lookAt(p, p + n), ROCK[2], SAND, "WedgePart")
+		blk(Vector3.new(12, 12, 6), CFrame.lookAt(p, p + n), ROCK[2], STONE, "WedgePart")
 	end
 	blk(Vector3.new(15, 1, 15), CFrame.new(pc + Vector3.new(0, top + 0.5, 0)) * CFrame.Angles(0, 0.2, 0), WOOD, PLANKS)
 	flagPole(pc + Vector3.new(-3, top + 1, -3), 14, CLOTH[1], 0.4)
@@ -948,6 +969,53 @@ local function buildRimFence(H: Vector3)
 	end
 end
 
+-- a timber lookout: splayed legs, braces, a railed deck, a roof and a flag
+local function lookout(pos: Vector3, yaw: number)
+	local cf = CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
+	local h = 30
+	local corners = { { -1, -1 }, { 1, -1 }, { 1, 1 }, { -1, 1 } }
+	local function at(k: number, y: number): Vector3
+		local s = 6 - 2.5 * (y / h)
+		return (cf * CFrame.new(corners[k][1] * s, y, corners[k][2] * s)).Position
+	end
+	for k = 1, 4 do
+		local k2 = k % 4 + 1
+		beam(at(k, 0), at(k, h + 5), 1.2, WOOD_DARK, Enum.Material.Wood)
+		beam(at(k, 2), at(k2, h * 0.5), 0.6, WOOD, Enum.Material.Wood)
+		beam(at(k, h * 0.5), at(k2, h), 0.6, WOOD, Enum.Material.Wood)
+	end
+	blk(Vector3.new(10, 0.8, 10), cf * CFrame.new(0, h, 0), WOOD, PLANKS)
+	for i = 0, 3 do
+		blk(Vector3.new(10, 1.6, 0.4), cf * CFrame.Angles(0, i * math.pi / 2, 0) * CFrame.new(0, h + 1.8, 4.8), WOOD_DARK, PLANKS)
+	end
+	for _, side in { -1, 1 } do
+		blk(Vector3.new(12, 2.4, 6.2), cf * CFrame.new(0, h + 6.2, side * 3) * CFrame.Angles(0, side > 0 and math.pi or 0, 0), Color3.fromRGB(176, 36, 36), Enum.Material.Wood, "WedgePart")
+	end
+	flagPole((cf * CFrame.new(0, h + 7.4, 0)).Position, 6, CLOTH[3], yaw)
+	local lamp = glow(Vector3.new(1.2, 1.6, 1.2), cf * CFrame.new(0, h + 3.4, 0), Color3.fromRGB(255, 200, 100))
+	light(lamp, Color3.fromRGB(255, 190, 110), 20, 1.5)
+end
+
+-- a water tank on stilts
+local function waterTank(pos: Vector3)
+	for _, c in { { -4, -4 }, { 4, -4 }, { 4, 4 }, { -4, 4 } } do
+		beam(pos + Vector3.new(c[1], 0, c[2]), pos + Vector3.new(c[1] * 0.8, 20, c[2] * 0.8), 1, WOOD_DARK, Enum.Material.Wood)
+	end
+	beam(pos + Vector3.new(-4, 3, -4), pos + Vector3.new(3.2, 18, 3.2), 0.5, WOOD, Enum.Material.Wood)
+	beam(pos + Vector3.new(4, 3, -4), pos + Vector3.new(-3.2, 18, 3.2), 0.5, WOOD, Enum.Material.Wood)
+	blk(Vector3.new(9, 0.8, 9), CFrame.new(pos + Vector3.new(0, 20, 0)), WOOD, PLANKS)
+	local tank = blk(Vector3.new(10, 9, 9), CFrame.new(pos + Vector3.new(0, 25.4, 0)) * CFrame.Angles(0, 0, math.pi / 2), Color3.fromRGB(70, 140, 200), METAL)
+	tank.Shape = Enum.PartType.Cylinder
+	for _, y in { 22.5, 28.3 } do
+		local band = blk(Vector3.new(0.6, 9.3, 9.3), CFrame.new(pos + Vector3.new(0, y, 0)) * CFrame.Angles(0, 0, math.pi / 2), STEEL_DARK, METAL)
+		band.Shape = Enum.PartType.Cylinder
+	end
+	-- a pyramid roof: four corner wedges, peaks meeting in the middle
+	for _, q in { { -1, 1, 0 }, { 1, 1, math.pi / 2 }, { 1, -1, math.pi }, { -1, -1, -math.pi / 2 } } do
+		blk(Vector3.new(5, 3, 5), CFrame.new(pos + Vector3.new(q[1] * 2.5, 31.6, q[2] * 2.5)) * CFrame.Angles(0, q[3], 0), RIG_RED, METAL, "CornerWedgePart")
+	end
+end
+
 local function buildCamp(O: Vector3)
 	-- tents round the clearing, cab doors facing in
 	local tents = {
@@ -967,7 +1035,7 @@ local function buildCamp(O: Vector3)
 		local p = O + Vector3.new(t[1], 0, t[2])
 		local look = O + Vector3.new(0, 0, 8)
 		local yaw = math.atan2(-(look.Z - p.Z), look.X - p.X)
-		tent(p, yaw, CLOTH[(i - 1) % #CLOTH + 1], t[3], t[4], t[5])
+		tent(p, yaw, CLOTH[(i - 1) % #CLOTH + 1], t[3] * 1.3, t[4] * 1.3, t[5] * 1.3)
 	end
 	canopy(O + Vector3.new(-82, 0, -52), 0.35, Color3.fromRGB(230, 60, 50), Color3.fromRGB(250, 240, 220))
 	canopy(O + Vector3.new(118, 0, 62), -0.5, Color3.fromRGB(40, 130, 220), Color3.fromRGB(250, 240, 220))
@@ -975,7 +1043,7 @@ local function buildCamp(O: Vector3)
 	local fire = O + Vector3.new(80, 0, -54)
 	for k = 0, 7 do
 		local a = k / 8 * TAU
-		blk(Vector3.new(1.6, 1, 1.4), CFrame.new(fire + Vector3.new(math.cos(a) * 3, 0.4, math.sin(a) * 3)) * CFrame.Angles(0.2, a, 0.1), Color3.fromRGB(130, 120, 116), SAND)
+		blk(Vector3.new(1.6, 1, 1.4), CFrame.new(fire + Vector3.new(math.cos(a) * 3, 0.4, math.sin(a) * 3)) * CFrame.Angles(0.2, a, 0.1), Color3.fromRGB(130, 120, 116), STONE)
 	end
 	for k = 0, 2 do
 		local l = blk(Vector3.new(4, 0.8, 0.8), CFrame.new(fire + Vector3.new(0, 0.6, 0)) * CFrame.Angles(0, k * math.pi / 3, 0.25), TRUNK, Enum.Material.Wood)
@@ -1038,6 +1106,9 @@ local function buildCamp(O: Vector3)
 	body.Anchored = true
 	blk(Vector3.new(6, 8.6, 14), pr * CFrame.new(0, -0.2, 14.5) * CFrame.Angles(0, math.pi, 0), WOOD, PLANKS, "WedgePart")
 	glowCrate(pr * CFrame.new(5, 4.3, 3), 0.7)
+	-- tall silhouettes framing the camp: a lookout tower and a water tank
+	lookout(O + Vector3.new(-150, 0, 18), 0.4)
+	waterTank(O + Vector3.new(150, 0, 12))
 end
 
 local function buildWoods(O: Vector3, H: Vector3)
@@ -1061,14 +1132,14 @@ local function buildWoods(O: Vector3, H: Vector3)
 	local placed = 0
 	-- woods: clusters on both flanks, behind the boards and past the hole
 	local clusters = {
-		{ -200, -10, 70, 26 },
-		{ 200, -20, 70, 26 },
-		{ -170, 150, 60, 18 },
-		{ 170, 150, 60, 18 },
-		{ 0, 180, 70, 18 },
+		{ -200, -10, 70, 22 },
+		{ 200, -20, 70, 22 },
+		{ -170, 150, 60, 15 },
+		{ 170, 150, 60, 15 },
+		{ 0, 180, 70, 15 },
 		{ -170, -260, 70, 18 },
 		{ 170, -260, 70, 18 },
-		{ 0, -470, 90, 20 },
+		{ 0, -470, 90, 14 },
 		{ -260, -120, 50, 12 },
 		{ 260, -120, 50, 12 },
 	}
@@ -1083,7 +1154,7 @@ local function buildWoods(O: Vector3, H: Vector3)
 		end
 	end
 	-- a few strays and bushes everywhere else
-	for _ = 1, 50 do
+	for _ = 1, 40 do
 		local a, r = rng:NextNumber(0, TAU), rng:NextNumber(90, 330)
 		local p = O + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
 		if clear(p) then
@@ -1115,7 +1186,7 @@ local function buildRocks(O: Vector3, H: Vector3)
 	end
 end
 
-local function buildMesas(O: Vector3, H: Vector3)
+local function buildMesas(O: Vector3)
 	-- a ring of mesas on the horizon, the biggest behind the hole
 	local n = 20
 	for i = 0, n - 1 do
@@ -1300,7 +1371,7 @@ function Camp.build()
 		buildRocks(O, H)
 	end)
 	chunk("Mesas", function()
-		buildMesas(O, H)
+		buildMesas(O)
 	end)
 
 	-- anyone who falls into the hole comes back up at spawn
