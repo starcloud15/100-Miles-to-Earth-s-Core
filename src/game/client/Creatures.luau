@@ -251,6 +251,19 @@ function STANDIN.TempleGuardian(m: Model)
 		piece(m, "Head_Statue", nil, Vector3.new(0.7, 0.7, 2), CFrame.new(k * 0.9, -0.8, -2))
 	end
 end
+function STANDIN.HollowArm(m: Model)
+	-- the Hollow's long arm of cracked stone and shadow, rock-shard fingers closing
+	for i = 1, 6 do
+		local r = 1.6 - i * 0.1
+		piece(m, ("Seg%d_Shadow"):format(i), Enum.PartType.Ball, Vector3.new(r, r, r * 1.4), CFrame.new())
+		piece(m, ("Seg%d_Stone"):format(i), nil, Vector3.new(r * 0.6, r * 0.6, r * 1.6), CFrame.new())
+	end
+	piece(m, "Head_Stone", Enum.PartType.Ball, Vector3.new(1.8, 1.2, 2), CFrame.new())
+	for k = -1.5, 1.5 do
+		piece(m, "Head_Shard", nil, Vector3.new(0.3, 0.3, 2.6), CFrame.new(k * 0.4, -0.2, -1.8) * CFrame.Angles(0.5, 0, 0))
+	end
+	piece(m, "Head_Ember", Enum.PartType.Ball, Vector3.new(0.25, 0.25, 0.25), CFrame.new(0, 0.6, 0))
+end
 function STANDIN.Hollow(m: Model)
 	-- a tall hooded shape in a ragged cloak, one long arm, an empty lantern
 	piece(m, "Body_Shadow", nil, Vector3.new(7, 22, 5), CFrame.new(0, 11, 0))
@@ -478,6 +491,8 @@ local function add(f: Instance)
 			toastFn("BROKE FREE!", GREEN, 1.4)
 		elseif phase == "Dragged" and f:GetAttribute("Target") == player.UserId then
 			toastFn("DRAGGED OFF!", RED, 1.6)
+		elseif phase == "Taken" and f:GetAttribute("Target") == player.UserId then
+			toastFn("TAKEN!", RED, 2)
 		end
 		if mine then
 			shakeFn(0.5)
@@ -561,6 +576,13 @@ local function step(dt: number)
 			local side = f:GetAttribute("Side") or 1
 			local root = rootOf(f:GetAttribute("Target"))
 			local emerge = (top * CFrame.new(side * 16, -7, 2)).Position
+			if f:GetAttribute("Kind") == "HollowArm" then
+				-- the Hollow's arm reaches from the Hollow itself, high and down
+				local hc = ReplicatedStorage.RunState:GetAttribute("HollowCF")
+				if hc then
+					emerge = hc.Position + Vector3.new(0, 20, 0)
+				end
+			end
 			local grip = root and (root.Position + top.RightVector * side * 1.2) or (top * CFrame.new(side * 3, 2, 0)).Position
 			local reach = math.clamp(age / 0.45, 0, 1)
 			if phase ~= "On" then
@@ -670,7 +692,7 @@ local function hollowStep(dt: number, state: Instance)
 	h.m.Parent = workspace
 	if target then
 		-- it glides, slowly
-		h.cf = h.cf:Lerp(target, math.min(1, dt * 0.6))
+		h.cf = h.cf:Lerp(target, math.min(1, dt * (mode == "Hunt" and 6 or 0.6)))
 	end
 	-- breathing sway, the hood turning to look at you, the lantern swinging
 	local cam = workspace.CurrentCamera

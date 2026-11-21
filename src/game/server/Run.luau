@@ -132,6 +132,7 @@ local function arrive()
 		Net.Notify:FireAllClients("ZoneComplete", Config.ZONES[route.zone or 1].name)
 	elseif stop.kind == "camp" then
 		phase("Night")
+		set("CampsThisRun", (state:GetAttribute("CampsThisRun") or 0) + 1)
 		local b = World.beacons[stop.name]
 		if b then
 			set("BeaconPos", b.Position)

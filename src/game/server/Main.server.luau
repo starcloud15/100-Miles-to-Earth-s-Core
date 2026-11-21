@@ -80,7 +80,7 @@ World.spawnVeins(route:sample(40))
 Crew.init(rig, route, state, World)
 Run.init(rig, route, state, World, Crew)
 Creatures.init(rig, route, state, Crew)
-Hollow.init(rig, route, state)
+Hollow.init(rig, route, state, Creatures)
 Progress.init(rig, state, World)
 
 -- the Beacons' feed prompts and the rig's repair prompt

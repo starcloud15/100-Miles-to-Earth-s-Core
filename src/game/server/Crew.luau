@@ -460,6 +460,20 @@ function Crew.boardAll()
 	end
 end
 
+-- taken by the Hollow: back at the Beacon (or the rig) on half health (GDD 10.1)
+function Crew.taken(player: Player)
+	local root, hum = rootOf(player)
+	if not root or not hum then
+		return
+	end
+	local beacon = state:GetAttribute("BeaconPos")
+	local at = beacon and CFrame.new(beacon + Vector3.new(4, 4, 4)) or rig.deck.CFrame * CFrame.new(0, 4, 0)
+	root.CFrame = at
+	root.AssemblyLinearVelocity = Vector3.zero
+	hum.Health = math.min(hum.Health, hum.MaxHealth * 0.5)
+	notify(player, "Taken")
+end
+
 -- a creature dragged this player off the rig
 function Crew.throwOff(player: Player)
 	shove(player, nil, "Dragged")

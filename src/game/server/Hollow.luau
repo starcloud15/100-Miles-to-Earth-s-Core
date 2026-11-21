@@ -27,6 +27,14 @@ local nextGlimpse = math.huge
 local glimpseUntil = 0
 local watchSide, watchSwap = 1, 0
 
+-- GDD 10.1: zones 1-2 never grab; zone 3 hunts at camp, slowly; faster each zone after
+local HUNT_SPEED = { 0, 0, 9, 13, 17, 24 }
+local hunting = nil -- { player, cf } while it stalks someone outside the light
+local huntRest = 0
+local Creatures -- set by init (avoids a require loop)
+local Players = game:GetService("Players")
+local Config = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared").Config)
+
 local GLIMPSE_AT = 80 -- seconds into the run (GDD 7: "glimpsed from the rig at 1:20")
 local GLIMPSE_FOR = 3.5
 
@@ -58,12 +66,30 @@ local function stopHere()
 	return nil
 end
 
-function Hollow.init(theRig, theRoute, theState)
-	rig, route, state = theRig, theRoute, theState
+function Hollow.init(theRig, theRoute, theState, theCreatures)
+	rig, route, state, Creatures = theRig, theRoute, theState, theCreatures
 	set("Hidden")
 end
 
-function Hollow.step(_dt: number)
+-- someone outside the Beacon's light (anyone, once the Beacon is out)
+local function prey(beacon: Vector3, from: Vector3, out: boolean): (Player?, BasePart?)
+	local best, bestRoot, bestD = nil, nil, 140
+	for _, p in Players:GetPlayers() do
+		local c = p.Character
+		local root = c and c:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local hum = c and c:FindFirstChildOfClass("Humanoid")
+		if root and hum and hum.Health > 0 then
+			local outside = (root.Position - beacon).Magnitude > Config.Night.RING
+			local d = (root.Position - from).Magnitude
+			if (outside or out) and d < bestD then
+				best, bestRoot, bestD = p, root, d
+			end
+		end
+	end
+	return best, bestRoot
+end
+
+function Hollow.step(dt: number)
 	local now = os.clock()
 	local phase = state:GetAttribute("Phase")
 
@@ -73,6 +99,31 @@ function Hollow.step(_dt: number)
 			set("Hidden")
 			return
 		end
+		local zone = state:GetAttribute("Zone") or 1
+		local speed = HUNT_SPEED[math.clamp(zone, 1, #HUNT_SPEED)] * (1 + 0.08 * ((state:GetAttribute("CampsThisRun") or 0)))
+		local beacon = state:GetAttribute("BeaconPos")
+		local out = (state:GetAttribute("BeaconFuel") or 1) <= 0
+		if speed > 0 and beacon and now > huntRest then
+			local from = hunting and hunting.cf.Position or (state:GetAttribute("HollowCF") or CFrame.new(beacon)).Position
+			local p, root = prey(beacon, from, out and zone >= 4)
+			if p and root then
+				-- stalk them across the ground, then reach
+				local cur = hunting and hunting.cf or (state:GetAttribute("HollowCF") or CFrame.new(from))
+				local to = Vector3.new(root.Position.X, cur.Position.Y, root.Position.Z)
+				local step = to - cur.Position
+				local pos = cur.Position + (step.Magnitude > 0.01 and step.Unit * math.min(step.Magnitude, speed * dt) or Vector3.zero)
+				hunting = { player = p, cf = CFrame.lookAt(pos, to) }
+				set("Hunt", hunting.cf)
+				if step.Magnitude < 9 then
+					if Creatures and Creatures.hollowGrab(p) then
+						huntRest = now + 14
+						hunting = nil
+					end
+				end
+				return
+			end
+		end
+		hunting = nil
 		-- at the edge of the light: a tunnel mouth (or the causeway at a cavern
 		-- stop), changing ends now and then
 		if now > watchSwap then

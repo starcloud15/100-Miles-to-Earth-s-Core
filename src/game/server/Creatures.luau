@@ -68,7 +68,7 @@ local function spawn(kind: string, mode: string, attrs: { [string]: any })
 	for k, v in attrs do
 		f:SetAttribute(k, v)
 	end
-	live[f] = { kind = kind, mode = mode, t = 0, bite = C.BITE_EVERY * 0.8, target = attrs.Target }
+	live[f] = { kind = kind, mode = mode, t = 0, bite = C.BITE_EVERY * 0.8, target = attrs.Target, anywhere = attrs.Anywhere, onLose = attrs.OnLose }
 	f.Parent = folder
 	return f
 end
@@ -187,6 +187,20 @@ function Creatures.init(theRig, theRoute, theState, theCrew)
 	end)
 end
 
+-- the Hollow reaches into the light for one of the crew (Hollow.luau)
+function Creatures.hollowGrab(player: Player): Configuration?
+	for _, c in live do
+		if c.target == player.UserId then
+			return nil
+		end
+	end
+	local root = rootOf(player)
+	if not root then
+		return nil
+	end
+	return spawn("HollowArm", "Grab", { Target = player.UserId, Side = 1, Anywhere = true, OnLose = "Taken" })
+end
+
 function Creatures.step(dt: number)
 	local now = os.clock()
 	local kind = route:kindAt(rig.s)
@@ -238,7 +252,7 @@ function Creatures.step(dt: number)
 			end
 		else
 			local victim = Players:GetPlayerByUserId(c.target)
-			if not victim or not Crew.isAboard(victim) then
+			if not victim or not (c.anywhere or Crew.isAboard(victim)) then
 				finish(f, "Gone")
 				continue
 			end
@@ -246,8 +260,14 @@ function Creatures.step(dt: number)
 				Crew.hurt(victim, C.GRAB_DPS * dt, nil)
 			end
 			if c.t > C.GRAB_TIME then
-				finish(f, "Dragged")
-				Crew.throwOff(victim)
+				if c.onLose == "Taken" then
+					-- the Hollow's grab: taken into the dark, back at the Beacon on half health
+					finish(f, "Taken")
+					Crew.taken(victim)
+				else
+					finish(f, "Dragged")
+					Crew.throwOff(victim)
+				end
 			end
 		end
 	end
