@@ -2110,6 +2110,7 @@ local SECTIONS = {
 }
 
 -- glow: 1 = full glow, 0 = Lights Out (the reference's day -> dusk -> night grading)
+local lightingSnapped = false
 function World.atmosphere(s: number, glow: number)
 	if not atmosphere then
 		ensureLighting()
@@ -2157,6 +2158,13 @@ function World.atmosphere(s: number, glow: number)
 	grade.Saturation = grade.Saturation + ((sec.sat or 0.12) - grade.Saturation) * 0.08
 	grade.Contrast = 0.14
 	Lighting.ClockTime = kind == "Gorge" and 14.5 or 14.5
+	if not lightingSnapped then
+		-- the very first call: straight to the look, no two-second fade from black
+		lightingSnapped = true
+		for _ = 1, 60 do
+			World.atmosphere(s, glow)
+		end
+	end
 end
 
 -- glowstone outcrops on the ground by the spawn ("Mine glowstone 0/12")

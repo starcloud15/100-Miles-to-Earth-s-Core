@@ -406,6 +406,8 @@ for name, build in (("Glowstone", make_glowstone), ("Bag", make_bag)):
     fresh()
     build()
     apply_all()
+    if name == "Glowstone":
+        export("GlowstoneChunk")  # (the glowstone you hold, or drop)
     light_and_render(name, view=(28, 0, 25))
 for name, (file, paint) in TOOLS.items():
     if not want(name):

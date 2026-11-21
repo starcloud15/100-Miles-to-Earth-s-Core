@@ -39,6 +39,21 @@ local LIST = {
 	{ id = "CorelightPeach", name = "Corelight Peach", zone = 6, hunger = 40, rare = true, color = Color3.fromRGB(255, 170, 120), shape = "fruit", desc = "It tastes like sunrise. The last thing anyone ate before the Core." },
 }
 
+-- rarity tiers, coloured like the reference's tags (its Cooked Fish is a green
+-- UNCOMMON): the name on the pickup card takes the tier's colour too
+Finds.RARITY = {
+	COMMON = Color3.fromRGB(225, 225, 225),
+	UNCOMMON = Color3.fromRGB(110, 225, 100),
+	RARE = Color3.fromRGB(80, 165, 255),
+	LEGENDARY = Color3.fromRGB(255, 196, 40),
+}
+for _, f in LIST do
+	f.rarity = f.id == "CorelightPeach" and "LEGENDARY" or (f.rare and "RARE" or (f.hunger >= 13 and "UNCOMMON" or "COMMON"))
+end
+
+-- glowstone, the one resource, is an item too: in the Bag, held, dropped
+Finds.GLOWSTONE = { id = "Glowstone", name = "Glowstone", rarity = "COMMON", desc = "Repairs the rig and feeds the Beacon. Mine it from the glowing veins at stops." }
+
 Finds.LIST = LIST
 Finds.BY_ID = {}
 for _, f in LIST do

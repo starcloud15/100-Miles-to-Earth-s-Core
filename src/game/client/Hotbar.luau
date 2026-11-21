@@ -43,7 +43,7 @@ local function tools(): { Tool }
 	for _, where in { player:FindFirstChild("Backpack"), player.Character } do
 		if where then
 			for _, t in where:GetChildren() do
-				if t:IsA("Tool") then
+				if t:IsA("Tool") and not (t:GetAttribute("BagOnly") and t.Parent ~= player.Character) then
 					table.insert(list, t)
 				end
 			end
@@ -112,11 +112,15 @@ function Hotbar.tip(t: Tool?, over: GuiObject?)
 	local id = t:GetAttribute("Find")
 	local f = id and Finds.BY_ID[id]
 	tipName.Text = t.Name
+	if id == "Glowstone" then
+		f = Finds.GLOWSTONE
+	end
 	tipRare.Visible = f ~= nil
-	tipRare.Text = f and (f.rare and "RARE" or "COMMON") or ""
-	tipRare.BackgroundColor3 = f and f.rare and Color3.fromRGB(255, 196, 40) or Color3.fromRGB(110, 220, 110)
-	tipDesc.Text = f and (f.desc .. "  (+" .. f.hunger .. "% Hunger)") or t.ToolTip
-	tipFrame.Position = UDim2.new(0, over.AbsolutePosition.X - row.AbsolutePosition.X + over.AbsoluteSize.X / 2, 0, -10)
+	tipRare.Text = f and f.rarity or ""
+	tipRare.BackgroundColor3 = f and Finds.RARITY[f.rarity] or Color3.new(1, 1, 1)
+	tipName.TextColor3 = f and Finds.RARITY[f.rarity] or Color3.new(1, 1, 1)
+	tipDesc.Text = f and (f.hunger and (f.desc .. "  (+" .. f.hunger .. "% Hunger)") or f.desc) or t.ToolTip
+	tipFrame.Position = UDim2.fromOffset(over.AbsolutePosition.X + over.AbsoluteSize.X / 2, over.AbsolutePosition.Y - 8)
 	tipFrame.Visible = true
 end
 
@@ -148,15 +152,54 @@ local function refresh()
 	end
 end
 
+-- the inventory: everything in your Bag as tiles (icon, xN, name); click one
+-- to hold it, click it again to put it away
 function Hotbar.fillBag()
-	local list = bagPanel:FindFirstChild("List") :: Frame
-	list:ClearAllChildren()
-	Ui.new("UIListLayout", { Padding = UDim.new(0, 6), Parent = list })
-	local g = player:GetAttribute("Glowstone") or 0
-	local rowF = Ui.new("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 40), Parent = list })
-	Ui.new("ImageLabel", { BackgroundTransparency = 1, Image = Art.icon("Glowstone") or "", Size = UDim2.fromOffset(40, 40), Parent = rowF })
-	Ui.text({ Parent = rowF, Text = "Glowstone  x" .. g, Position = UDim2.fromOffset(48, 4), Size = UDim2.new(1, -52, 0, 32), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2 })
-	Ui.text({ Parent = list, Text = "Repairs the rig and feeds the Beacon", Size = UDim2.new(1, 0, 0, 20), TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Color3.fromRGB(220, 220, 220), Stroke = 1.5 })
+	local grid = bagPanel:FindFirstChild("Grid") :: Frame
+	for _, c in grid:GetChildren() do
+		if c:IsA("GuiButton") then
+			c:Destroy()
+		end
+	end
+	local items = {}
+	for _, where in { player:FindFirstChild("Backpack"), player.Character } do
+		if where then
+			for _, t in where:GetChildren() do
+				if t:IsA("Tool") and t:GetAttribute("Find") then
+					table.insert(items, t)
+				end
+			end
+		end
+	end
+	table.sort(items, function(a, b)
+		-- glowstone first, then finds as they came
+		local ga, gb = a:GetAttribute("BagOnly") and 0 or 1, b:GetAttribute("BagOnly") and 0 or 1
+		if ga ~= gb then
+			return ga < gb
+		end
+		return (a:GetAttribute("Order") or 0) < (b:GetAttribute("Order") or 0)
+	end)
+	local char = player.Character
+	for i, t in items do
+		local tile = Ui.new("TextButton", { Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(38, 42, 40), LayoutOrder = i, Parent = grid }, { Ui.corner(UDim.new(0, 10)) })
+		Ui.new("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 3, Transparency = t.Parent == char and 0 or 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = tile })
+		Ui.new("ImageLabel", { BackgroundTransparency = 1, Image = iconFor(t) or "", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.04), Size = UDim2.fromScale(0.72, 0.72), ScaleType = Enum.ScaleType.Fit, Parent = tile })
+		local n = t:GetAttribute("Count") or 1
+		Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "x" .. n, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -5, 0, 4), Size = UDim2.fromOffset(40, 18), TextXAlignment = Enum.TextXAlignment.Right, Parent = tile }, { Ui.stroke(1.5, Color3.new(0, 0, 0)) })
+		Ui.new("TextLabel", { BackgroundTransparency = 1, Text = t.Name, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(230, 230, 230), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -4), Size = UDim2.new(1, -8, 0, 16), Parent = tile })
+		tile.Activated:Connect(function()
+			toggle(t)
+			task.defer(Hotbar.fillBag)
+		end)
+		tile.MouseEnter:Connect(function()
+			Hotbar.tip(t, tile)
+		end)
+		tile.MouseLeave:Connect(function()
+			Hotbar.tip(nil)
+		end)
+	end
+	local empty = bagPanel:FindFirstChild("Empty") :: TextLabel
+	empty.Visible = #items == 0
 end
 
 -- a resource arrived in the Bag: its icon and a green "+N" over the Bag slot,
@@ -174,8 +217,8 @@ function Hotbar.bagPop(kind: string, n: number)
 	popText.Text = "+" .. popTotal
 	popIcon.Visible, popText.Visible = true, true
 	popIcon.ImageTransparency, popText.TextTransparency = 0, 0
-	popText.Size = UDim2.fromOffset(70, 30)
-	TweenService:Create(popText, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(60, 26) }):Play()
+	popText.Size = UDim2.fromOffset(98, 46)
+	TweenService:Create(popText, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(84, 40) }):Play()
 	local mine = popUntil
 	task.delay(1.65, function()
 		if popUntil == mine then
@@ -220,18 +263,43 @@ function Hotbar.init()
 	Ui.new("ImageLabel", { BackgroundTransparency = 1, Image = Art.icon("Bag") or "", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.06), Size = UDim2.fromScale(0.62, 0.62), ScaleType = Enum.ScaleType.Fit, Parent = bagSlot })
 	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Bag", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -3), Size = UDim2.fromOffset(40, 17), Parent = bagSlot })
 	bagCount = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(255, 214, 80), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -4, 0, 2), Size = UDim2.fromOffset(34, 16), TextXAlignment = Enum.TextXAlignment.Right, Parent = bagSlot }, { Ui.stroke(1.5, Color3.new(0, 0, 0)) })
-	popIcon = Ui.new("ImageLabel", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -4), Size = UDim2.fromOffset(34, 34), Visible = false, ZIndex = 3, Parent = bagSlot })
-	popText = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "", FontFace = Ui.ITALIC, TextScaled = true, TextColor3 = Color3.fromRGB(110, 255, 60), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -38), Size = UDim2.fromOffset(60, 26), Visible = false, ZIndex = 3, Parent = bagSlot }, { Ui.stroke(2.5, Color3.new(0, 0, 0)) })
-	bagPanel = Ui.new("Frame", { Name = "BagPanel", BackgroundColor3 = Color3.fromRGB(24, 28, 26), BackgroundTransparency = 0.08, AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, 0, 0, -12), Size = UDim2.fromOffset(300, 96), Visible = false, Parent = bagSlot }, { Ui.corner(UDim.new(0, 10)) })
-	Ui.new("Frame", { Name = "List", BackgroundTransparency = 1, Position = UDim2.fromOffset(10, 10), Size = UDim2.new(1, -20, 1, -20), Parent = bagPanel })
+	popIcon = Ui.new("ImageLabel", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -4), Size = UDim2.fromOffset(50, 50), Visible = false, ZIndex = 3, Parent = bagSlot })
+	popText = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "", FontFace = Ui.ITALIC, TextScaled = true, TextColor3 = Color3.fromRGB(110, 255, 60), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -54), Size = UDim2.fromOffset(84, 40), Visible = false, ZIndex = 3, Parent = bagSlot }, { Ui.stroke(3, Color3.new(0, 0, 0)) })
+	-- the inventory panel, opened by the Bag: the hotbar's dark rounded style,
+	-- a grid of item tiles
+	bagPanel = Ui.new("Frame", { Name = "Inventory", BackgroundColor3 = Color3.fromRGB(22, 26, 24), BackgroundTransparency = 0.06, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -(SLOT + 30)), Size = UDim2.fromOffset(560, 330), Visible = false, Parent = gui }, { Ui.corner(UDim.new(0, 14)) })
+	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Bag", FontFace = Ui.ITALIC, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromOffset(18, 10), Size = UDim2.fromOffset(160, 34), TextXAlignment = Enum.TextXAlignment.Left, Parent = bagPanel }, { Ui.stroke(2.5, Color3.new(0, 0, 0)) })
+	local close = Ui.new("TextButton", { Text = "X", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), BackgroundColor3 = Color3.fromRGB(220, 50, 50), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 10), Size = UDim2.fromOffset(32, 32), Parent = bagPanel }, { Ui.corner(UDim.new(0.3, 0)) })
+	close.Activated:Connect(function()
+		bagPanel.Visible = false
+	end)
+	-- (a tile's hover card never outlives the panel)
+	bagPanel:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not bagPanel.Visible then
+			Hotbar.tip(nil)
+		end
+	end)
+	Ui.new("TextLabel", { Name = "Empty", BackgroundTransparency = 1, Text = "Your Bag is empty. Mine glowstone and delve for finds!", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(200, 200, 200), Position = UDim2.fromOffset(20, 140), Size = UDim2.new(1, -40, 0, 26), Visible = false, Parent = bagPanel })
+	local gridHolder = Ui.new("ScrollingFrame", { Name = "Grid", BackgroundTransparency = 1, BorderSizePixel = 0, Position = UDim2.fromOffset(16, 52), Size = UDim2.new(1, -32, 1, -66), CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 6, Parent = bagPanel })
+	Ui.new("UIGridLayout", { CellSize = UDim2.fromOffset(96, 104), CellPadding = UDim2.fromOffset(10, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = gridHolder })
 	bagSlot.Activated:Connect(function()
 		bagPanel.Visible = not bagPanel.Visible
 		if bagPanel.Visible then
 			Hotbar.fillBag()
 		end
 	end)
+	-- (B opens it too)
+	ContextActionService:BindAction("OpenBag", function(_, st)
+		if st == Enum.UserInputState.Begin then
+			bagPanel.Visible = not bagPanel.Visible
+			if bagPanel.Visible then
+				Hotbar.fillBag()
+			end
+		end
+		return Enum.ContextActionResult.Pass
+	end, false, Enum.KeyCode.B)
 	-- the hover card for an item
-	tipFrame = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(18, 18, 20), BackgroundTransparency = 0.1, AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.fromOffset(300, 74), Visible = false, ZIndex = 5, Parent = row }, { Ui.corner(UDim.new(0, 10)) })
+	tipFrame = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(18, 18, 20), BackgroundTransparency = 0.1, AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.fromOffset(300, 74), Visible = false, ZIndex = 5, Parent = gui }, { Ui.corner(UDim.new(0, 10)) })
 	tipName = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(140, 255, 120), Position = UDim2.fromOffset(12, 6), Size = UDim2.new(1, -110, 0, 26), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 6, Parent = tipFrame })
 	tipRare = Ui.new("TextLabel", { BackgroundColor3 = Color3.fromRGB(110, 220, 110), FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(0, 0, 0), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 9), Size = UDim2.fromOffset(84, 20), ZIndex = 6, Parent = tipFrame }, { Ui.corner(UDim.new(0.4, 0)) })
 	tipDesc = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextWrapped = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromOffset(12, 34), Size = UDim2.new(1, -24, 0, 34), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 6, Parent = tipFrame })

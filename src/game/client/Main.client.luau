@@ -114,6 +114,8 @@ local function activate(tool: Tool)
 				Net.Delve:FireServer("cast")
 			end)
 		end
+	elseif tool:GetAttribute("Find") == "Glowstone" then
+		Hud.toast("Feed it to the Beacon, or repair the rig with it. G drops it.", Ui.ORANGE, 1.6)
 	elseif tool:GetAttribute("Find") then
 		-- a find: eat one
 		playMove("Eat")
@@ -518,6 +520,13 @@ RunService.RenderStepped:Connect(function(dt)
 	local aboard = r ~= nil and onDeck(r.Position)
 	local d = deck()
 
+	-- aboard, the camera stays pulled back and up, over the rig's engine, so you
+	-- see the crew and the route ahead (the reference's high raft camera)
+	local wantZoom = aboard and 17 or 0.5
+	if player.CameraMinZoomDistance ~= wantZoom then
+		player.CameraMinZoomDistance = wantZoom
+	end
+
 	-- camera shake through the humanoid's camera offset
 	local speed = state:GetAttribute("Speed") or 0
 	local moving = state:GetAttribute("Moving") == true
@@ -562,8 +571,9 @@ RunService.RenderStepped:Connect(function(dt)
 	-- (the RIG marker itself moves every frame: below)
 	-- the action hint follows the tool in your hand
 	local verbs = { ["Crank Pump"] = "Crank", Pickaxe = "Mine", ["Delver's Hook"] = delving and "Reel" or "Cast" }
-	local holdingFind = heldTool ~= nil and heldTool.Parent ~= nil and heldTool:GetAttribute("Find") ~= nil
-	Hud.setHint(holdingFind and "Eat" or (held and verbs[held] or nil), holdingFind)
+	local holdingItem = heldTool ~= nil and heldTool.Parent ~= nil and heldTool:GetAttribute("Find") ~= nil
+	local isGlow = holdingItem and heldTool:GetAttribute("Find") == "Glowstone"
+	Hud.setHint(holdingItem and (isGlow and "Use" or "Eat") or (held and verbs[held] or nil), holdingItem)
 	updatePushPrompts()
 end)
 
@@ -597,39 +607,46 @@ ContextActionService:BindAction("DropFind", function(_, st)
 	return Enum.ContextActionResult.Pass
 end, false, Enum.KeyCode.G)
 
--- a dropped find's pickup card, at the top of the screen like the reference's:
--- [E] the name, COMMON / RARE, and what it is
+-- a dropped item: its model floats there, turning slowly in a soft green glow;
+-- walk up and its card appears beside it, like the reference's: [E], the name in
+-- its rarity colour, the rarity tag, and what it is
 do
 	local ProximityPromptService = game:GetService("ProximityPromptService")
-	local cardGui = Ui.new("ScreenGui", { Name = "PickupCard", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 6, Parent = player:WaitForChild("PlayerGui") })
-	local card = Ui.new("TextButton", { Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(14, 14, 16), BackgroundTransparency = 0.08, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 108), Size = UDim2.fromOffset(440, 74), Visible = false, Parent = cardGui }, { Ui.corner(UDim.new(0, 14)) })
-	local key = Ui.new("Frame", { BackgroundColor3 = Color3.new(0, 0, 0), Position = UDim2.fromOffset(-14, 14), Size = UDim2.fromOffset(46, 46), Parent = card }, { Ui.corner(UDim.new(0.5, 0)), Ui.stroke(3, Color3.new(1, 1, 1), true) })
-	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "E", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Size = UDim2.fromScale(0.6, 0.6), Position = UDim2.fromScale(0.2, 0.2), Parent = key })
-	local name = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(140, 255, 120), Position = UDim2.fromOffset(44, 8), Size = UDim2.new(1, -150, 0, 28), TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
-	local rare = Ui.new("TextLabel", { FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(0, 0, 0), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(92, 22), Parent = card }, { Ui.corner(UDim.new(0.4, 0)), Ui.stroke(2, Color3.new(0, 0, 0), true) })
-	local desc = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextWrapped = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromOffset(44, 38), Size = UDim2.new(1, -58, 0, 28), TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
-	Ui.fit(cardGui)
+	-- (a screen card that follows the item every frame: crisp at any distance)
+	local card = Ui.new("ScreenGui", { Name = "PickupCard", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 6, Enabled = false, Parent = player:WaitForChild("PlayerGui") })
+	local holder = Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0, 1), Size = UDim2.fromOffset(420, 70), Parent = card })
+	local back = Ui.new("TextButton", { Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(14, 14, 16), BackgroundTransparency = 0.08, Position = UDim2.fromOffset(22, 0), Size = UDim2.new(1, -22, 1, 0), Parent = holder }, { Ui.corner(UDim.new(0, 14)) })
+	local key = Ui.new("Frame", { BackgroundColor3 = Color3.new(0, 0, 0), Position = UDim2.fromOffset(0, 12), Size = UDim2.fromOffset(46, 46), Parent = holder }, { Ui.corner(UDim.new(0.5, 0)), Ui.stroke(3, Color3.new(1, 1, 1), true) })
+	local keyText = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "E", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Size = UDim2.fromScale(0.6, 0.6), Position = UDim2.fromScale(0.2, 0.2), Parent = key })
+	local name = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(140, 255, 120), Position = UDim2.fromOffset(34, 7), Size = UDim2.new(1, -150, 0, 26), TextXAlignment = Enum.TextXAlignment.Left, Parent = back })
+	local rare = Ui.new("TextLabel", { FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(0, 0, 0), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 9), Size = UDim2.fromOffset(100, 20), Parent = back }, { Ui.corner(UDim.new(0.3, 0)), Ui.stroke(2, Color3.new(0, 0, 0), true) })
+	local desc = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextWrapped = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromOffset(34, 36), Size = UDim2.new(1, -44, 0, 26), TextXAlignment = Enum.TextXAlignment.Left, Parent = back })
+	local UIS = game:GetService("UserInputService")
 	local current: ProximityPrompt? = nil
 	ProximityPromptService.PromptShown:Connect(function(prompt)
-		local f = Finds.BY_ID[prompt:GetAttribute("Find") or ""]
+		local id = prompt:GetAttribute("Find")
+		local f = id == "Glowstone" and Finds.GLOWSTONE or Finds.BY_ID[id or ""]
 		if not f then
 			return
 		end
 		current = prompt
+		local color = Finds.RARITY[f.rarity] or Color3.new(1, 1, 1)
 		name.Text = f.name
-		rare.Text = f.rare and "RARE" or "COMMON"
-		rare.BackgroundColor3 = f.rare and Color3.fromRGB(255, 196, 40) or Color3.fromRGB(110, 220, 110)
+		name.TextColor3 = color
+		rare.Text = f.rarity
+		rare.BackgroundColor3 = color
 		desc.Text = f.desc
-		card.Visible = true
+		keyText.Text = (UIS.TouchEnabled and not UIS.KeyboardEnabled) and "TAP" or "E"
+		card.Enabled = true
 	end)
 	ProximityPromptService.PromptHidden:Connect(function(prompt)
 		if prompt == current then
 			current = nil
-			card.Visible = false
+			card.Enabled = false
 		end
 	end)
 	-- (on a phone, tap the card)
-	card.Activated:Connect(function()
+	back.Activated:Connect(function()
 		if current then
 			current:InputHoldBegin()
 			task.wait()
@@ -638,15 +655,58 @@ do
 			end
 		end
 	end)
-	-- dropped finds bob gently
+	Ui.fit(card)
+	-- dropped items turn and bob in their glow (and ride along on the rig)
+	local spun = {}
 	RunService.RenderStepped:Connect(function()
+		-- the card sits up and to the right of the item, like the reference's
+		local at = current and current.Parent and (current.Parent :: BasePart).Position
+		if at then
+			local v, onScreen = camera:WorldToViewportPoint(at + Vector3.new(0, 1.2, 0))
+			holder.Visible = onScreen
+			holder.Position = UDim2.fromOffset(v.X + 30, v.Y - 10)
+		end
 		local t = os.clock()
-		for _, d in workspace:GetChildren() do
-			if d.Name == "DroppedFind" then
-				local g = d:FindFirstChild("Icon") :: BillboardGui?
-				if g then
-					g.StudsOffset = Vector3.new(0, 1.1 + math.sin(t * 2.4 + d.Position.X) * 0.25, 0)
+		local d = deck()
+		for _, m in workspace:GetChildren() do
+			if m.Name == "DroppedItem" and m:IsA("Model") and m.PrimaryPart then
+				local s = spun[m]
+				if not s then
+					-- remember each piece relative to the anchor, and add the glow
+					s = { base = m.PrimaryPart.CFrame, parts = {} }
+					for _, p in m:GetChildren() do
+						if p:IsA("BasePart") and p ~= m.PrimaryPart then
+							s.parts[p] = m.PrimaryPart.CFrame:ToObjectSpace(p.CFrame)
+						end
+					end
+					local glow = Ui.new("BillboardGui", { Name = "Glow", Size = UDim2.fromScale(4, 4), LightInfluence = 0, Parent = m.PrimaryPart })
+					for i, a in { 0.92, 0.86, 0.78, 0.7 } do
+						local k = 1 - (i - 1) * 0.22
+						Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(90, 255, 110), BackgroundTransparency = a, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(k, k), BorderSizePixel = 0, Parent = glow }, { Ui.corner(UDim.new(0.5, 0)) })
+					end
+					spun[m] = s
 				end
+				local base = s.base
+				if m:GetAttribute("OnRig") and d then
+					local off = m:GetAttribute("DeckOffset")
+					if typeof(off) == "Vector3" then
+						base = CFrame.new(d.CFrame:PointToWorldSpace(off))
+					end
+				end
+				local cf = base * CFrame.new(0, 0.6 + math.sin(t * 2.2) * 0.18, 0) * CFrame.Angles(0, t * 1.4, 0)
+				-- (the prompt's own part stays put unless the rig carries it: moving it
+				-- every frame made the pickup card flicker)
+				if m:GetAttribute("OnRig") and (m.PrimaryPart.Position - base.Position).Magnitude > 0.5 then
+					m.PrimaryPart.CFrame = base
+				end
+				for p, rel in s.parts do
+					p.CFrame = cf * rel
+				end
+			end
+		end
+		for m in spun do
+			if not m.Parent then
+				spun[m] = nil
 			end
 		end
 	end)

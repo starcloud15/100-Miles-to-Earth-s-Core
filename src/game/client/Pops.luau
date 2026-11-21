@@ -49,7 +49,7 @@ function Pops.burst(kind: string, from: Vector3, n: number, arrive: ((string) ->
 		p.Size = Vector3.new(0.2, 0.2, 0.2)
 		p.CFrame = CFrame.new(from)
 		local gui = Instance.new("BillboardGui")
-		gui.Size = UDim2.fromScale(1.5, 1.5)
+		gui.Size = UDim2.fromScale(1.1, 1.1)
 		gui.LightInfluence = 0
 		gui.AlwaysOnTop = false
 		gui.Parent = p

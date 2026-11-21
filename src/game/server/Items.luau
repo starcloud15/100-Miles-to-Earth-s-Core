@@ -1,20 +1,21 @@
 --[[
-	Finds as real items (owner; the reference's fish): each find you reel up goes
-	into your inventory and gets its own hotbar slot with a stack count. Hold it
-	and click to eat one, press G to drop one, and walk up to a dropped one to
-	pick it up again ("E" card at the top of the screen, like the reference).
+	Items (owner; the reference's fish and logs): every find you reel up, and your
+	glowstone, are items in your Bag. Finds also take hotbar slots with a stack
+	count; glowstone stays in the Bag until you take it out. Hold an item and
+	click to use it (finds: eat one), press G to drop one, and walk up to a
+	dropped one for its card ([E] name, rarity, what it is) to pick it up.
 
-	The inventory lives here (it survives respawns); each find is shown as a Tool
-	in the Backpack with attributes Find (its id) and Count. In your hand it's the
-	find's own model (tools/blender/items.py, via Starport to Models/Tools/<Id>),
-	painted by piece name, or a simple stand-in until that's uploaded.
+	The find inventory lives here (it survives respawns); each item shows as a
+	Tool in the Backpack with attributes Find (its id) and Count. Glowstone is the
+	player's "Glowstone" attribute, mirrored by a Bag-only Glowstone tool. In your
+	hand (and when dropped) it's the item's own model: tools/blender/items.py via
+	Starport to Models/Tools/<Id>, painted by piece name, or a stand-in until then.
 ]]
 
 local Players = game:GetService("Players")
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Finds = require(Shared.Finds)
-local Art = require(Shared.Art)
 
 local Items = {}
 
@@ -22,6 +23,7 @@ local inv: { [Player]: { order: { string }, count: { [string]: number } } } = {}
 local makeTool, registerModel, notify
 local rig
 local DROP_LIFE = 180
+local GLOW = Color3.fromRGB(255, 170, 30)
 
 -- the pieces of a find's model, painted by name
 local function paintFor(f)
@@ -39,7 +41,7 @@ local function paintFor(f)
 	}
 end
 
-local function toolFor(player: Player): { [string]: Tool }
+local function itemTools(player: Player): { [string]: Tool }
 	local found = {}
 	for _, where in { player:FindFirstChild("Backpack"), player.Character } do
 		if where then
@@ -53,38 +55,55 @@ local function toolFor(player: Player): { [string]: Tool }
 	return found
 end
 
-local function buildTool(f): Tool
+local function standIn(tool: Tool, color: Color3, glowy: boolean)
+	-- (until the item's model is uploaded: a simple shape in its colour)
+	local h = Instance.new("Part")
+	h.Name = "Handle"
+	h.Shape = Enum.PartType.Ball
+	h.Size = Vector3.new(1, 1, 1)
+	h.Color = color
+	h.Material = glowy and Enum.Material.Neon or Enum.Material.SmoothPlastic
+	h.CanCollide = false
+	h.Massless = true
+	h.Parent = tool
+	tool.RequiresHandle = true
+	tool.Grip = CFrame.new(0, 0, -0.2)
+end
+
+local function buildTool(id: string): Tool
+	if id == "Glowstone" then
+		local g = Finds.GLOWSTONE
+		local tool = makeTool(g.name, "Glowstone", g.desc)
+		tool:SetAttribute("Find", "Glowstone")
+		tool:SetAttribute("BagOnly", true) -- (in the Bag, not a hotbar slot, unless you hold it)
+		if not tool:FindFirstChild("Handle") then
+			standIn(tool, GLOW, true)
+		end
+		return tool
+	end
+	local f = Finds.BY_ID[id]
 	local tool = makeTool(f.name, f.id, f.desc)
 	tool:SetAttribute("Find", f.id)
-	tool:SetAttribute("Rare", f.rare == true)
 	if not tool:FindFirstChild("Handle") then
-		-- (until its model is uploaded: a simple stand-in in the find's colour)
-		local h = Instance.new("Part")
-		h.Name = "Handle"
-		h.Shape = Enum.PartType.Ball
-		h.Size = Vector3.new(1, 1, 1)
-		h.Color = f.color
-		h.Material = Enum.Material.SmoothPlastic
-		h.CanCollide = false
-		h.Massless = true
-		h.Parent = tool
-		tool.RequiresHandle = true
-		tool.Grip = CFrame.new(0, 0, -0.2)
+		standIn(tool, f.color, false)
 	end
 	return tool
 end
 
--- make the Backpack match the inventory (counts, new and used-up finds)
+-- make the Backpack match the inventory (counts, new and used-up items)
 local function sync(player: Player)
 	local data = inv[player]
 	local backpack = player:FindFirstChild("Backpack")
 	if not data or not backpack then
 		return
 	end
-	local tools = toolFor(player)
+	local tools = itemTools(player)
+	local glow = player:GetAttribute("Glowstone") or 0
 	for id, t in tools do
-		if (data.count[id] or 0) <= 0 then
+		local n = id == "Glowstone" and glow or (data.count[id] or 0)
+		if n <= 0 then
 			t:Destroy()
+			tools[id] = nil
 		end
 	end
 	for _, id in data.order do
@@ -92,11 +111,19 @@ local function sync(player: Player)
 		if n > 0 then
 			local t = tools[id]
 			if not t then
-				t = buildTool(Finds.BY_ID[id])
+				t = buildTool(id)
 				t.Parent = backpack
 			end
 			t:SetAttribute("Count", n)
 		end
+	end
+	if glow > 0 then
+		local t = tools.Glowstone
+		if not t then
+			t = buildTool("Glowstone")
+			t.Parent = backpack
+		end
+		t:SetAttribute("Count", glow)
 	end
 end
 
@@ -105,11 +132,16 @@ function Items.init(opts)
 	for _, f in Finds.LIST do
 		registerModel(f.name, { file = f.id, grip = CFrame.new(0, -0.45, -0.15), paint = paintFor(f) })
 	end
-	Players.PlayerAdded:Connect(function(p)
-		inv[p] = { order = {}, count = {} }
-	end)
-	for _, p in Players:GetPlayers() do
+	registerModel("Glowstone", { file = "GlowstoneChunk", grip = CFrame.new(0, -0.4, -0.15), paint = { Handle = { GLOW, Enum.Material.Neon }, Glow = { GLOW, Enum.Material.Neon }, Rock = { Color3.fromRGB(94, 70, 58), Enum.Material.Slate } } })
+	local function added(p: Player)
 		inv[p] = inv[p] or { order = {}, count = {} }
+		p:GetAttributeChangedSignal("Glowstone"):Connect(function()
+			sync(p)
+		end)
+	end
+	Players.PlayerAdded:Connect(added)
+	for _, p in Players:GetPlayers() do
+		added(p)
 	end
 	Players.PlayerRemoving:Connect(function(p)
 		inv[p] = nil
@@ -120,6 +152,10 @@ end
 Items.sync = sync
 
 function Items.give(player: Player, id: string, n: number?)
+	if id == "Glowstone" then
+		player:SetAttribute("Glowstone", (player:GetAttribute("Glowstone") or 0) + (n or 1))
+		return
+	end
 	local data = inv[player]
 	if not data or not Finds.BY_ID[id] then
 		return
@@ -137,6 +173,14 @@ function Items.give(player: Player, id: string, n: number?)
 end
 
 function Items.take(player: Player, id: string): boolean
+	if id == "Glowstone" then
+		local g = player:GetAttribute("Glowstone") or 0
+		if g <= 0 then
+			return false
+		end
+		player:SetAttribute("Glowstone", g - 1)
+		return true
+	end
 	local data = inv[player]
 	if not data or (data.count[id] or 0) <= 0 then
 		return false
@@ -146,10 +190,16 @@ function Items.take(player: Player, id: string): boolean
 	return true
 end
 
-function Items.held(player: Player): any
+local function heldTool(player: Player): Tool?
 	local char = player.Character
 	local tool = char and char:FindFirstChildOfClass("Tool")
-	local id = tool and tool:GetAttribute("Find")
+	return tool and tool:GetAttribute("Find") and tool or nil
+end
+
+-- the find in your hand (not glowstone: that isn't food)
+function Items.held(player: Player): any
+	local t = heldTool(player)
+	local id = t and t:GetAttribute("Find")
 	return id and Finds.BY_ID[id] or nil
 end
 
@@ -162,90 +212,75 @@ function Items.total(player: Player): number
 	return n
 end
 
--- drop one of the held find at your feet: it glows on the ground until someone
--- picks it up (the reference's dropped fish)
+-- drop one of what you're holding: the item itself floats there in a soft green
+-- glow until someone walks up and picks it up (the reference's dropped fish)
 function Items.drop(player: Player)
-	local f = Items.held(player)
+	local tool = heldTool(player)
+	local id = tool and tool:GetAttribute("Find")
 	local char = player.Character
 	local root = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if not f or not root or not Items.take(player, f.id) then
+	if not tool or not id or not root or not Items.take(player, id) then
 		return
 	end
-	local at = root.CFrame * CFrame.new(0, -2.4, -3)
-	local item = Instance.new("Part")
-	item.Name = "DroppedFind"
-	item.Size = Vector3.new(1.4, 1.4, 1.4)
-	item.Transparency = 1
-	item.CanCollide = false
-	item.CanQuery = false
-	item.CanTouch = false
-	item.CFrame = CFrame.new(at.Position)
-	item:SetAttribute("Find", f.id)
-	-- the find itself, floating and bobbing, over a soft green glow (client spins it)
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "Icon"
-	gui.Size = UDim2.fromScale(2.2, 2.2)
-	gui.StudsOffset = Vector3.new(0, 1.1, 0)
-	gui.LightInfluence = 0
-	gui.MaxDistance = 90
-	gui.Parent = item
-	local img = Instance.new("ImageLabel")
-	img.BackgroundTransparency = 1
-	img.Size = UDim2.fromScale(1, 1)
-	img.Image = Art.icon(f.id) or ""
-	img.Parent = gui
-	local glow = Instance.new("Part")
-	glow.Name = "Glow"
-	glow.Shape = Enum.PartType.Cylinder
-	glow.Size = Vector3.new(0.1, 3, 3)
-	glow.Material = Enum.Material.Neon
-	glow.Color = f.rare and Color3.fromRGB(255, 200, 60) or Color3.fromRGB(90, 255, 110)
-	glow.Transparency = 0.55
-	glow.CanCollide = false
-	glow.CanQuery = false
-	glow.CanTouch = false
-	glow.CastShadow = false
-	glow.CFrame = item.CFrame * CFrame.new(0, -0.6, 0) * CFrame.Angles(0, 0, math.rad(90))
-	glow.Parent = item
+	local at = (root.CFrame * CFrame.new(0, -1.2, -3.5)).Position
+	local item = Instance.new("Model")
+	item.Name = "DroppedItem"
+	item:SetAttribute("Find", id)
+	-- the item's own model, copied from the tool in your hand
+	local anchor = Instance.new("Part")
+	anchor.Name = "Anchor"
+	anchor.Size = Vector3.new(0.5, 0.5, 0.5)
+	anchor.Transparency = 1
+	anchor.Anchored = true
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	anchor.CanTouch = false
+	anchor.CFrame = CFrame.new(at)
+	anchor.Parent = item
+	item.PrimaryPart = anchor
+	local handle = tool:FindFirstChild("Handle") :: BasePart?
+	for _, p in tool:GetChildren() do
+		if p:IsA("BasePart") and handle then
+			local c = p:Clone()
+			c:ClearAllChildren()
+			c.Anchored = true
+			c.CanCollide = false
+			c.CanQuery = false
+			c.CanTouch = false
+			c.Massless = true
+			-- upright, the way the item was modelled
+			c.CFrame = CFrame.new(at) * handle.CFrame:ToObjectSpace(p.CFrame)
+			c.Parent = item
+		end
+	end
 	local light = Instance.new("PointLight")
-	light.Color = glow.Color
-	light.Range = 8
-	light.Brightness = 1.4
-	light.Parent = item
+	light.Color = Color3.fromRGB(90, 255, 110)
+	light.Range = 9
+	light.Brightness = 2
+	light.Parent = anchor
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "PickUp"
 	prompt.ActionText = "Pick up"
-	prompt.ObjectText = f.name
+	prompt.ObjectText = id
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = 9
 	prompt.RequiresLineOfSight = false
-	prompt.Style = Enum.ProximityPromptStyle.Custom -- (the client draws the reference's card)
-	prompt:SetAttribute("Find", f.id)
-	prompt.Parent = item
+	prompt.Style = Enum.ProximityPromptStyle.Custom -- (the client draws the reference's card beside it)
+	prompt:SetAttribute("Find", id)
+	prompt.Parent = anchor
 	-- on the moving rig it rides along; on the ground it stays put
-	if rig and rig:deckPosition(root.Position) then
-		item.Anchored = false
-		item.Massless = true
-		glow.Anchored = false
-		local w = Instance.new("WeldConstraint")
-		w.Part0 = rig.deck
-		w.Part1 = item
-		w.Parent = item
-		local w2 = Instance.new("WeldConstraint")
-		w2.Part0 = item
-		w2.Part1 = glow
-		w2.Parent = glow
-	else
-		item.Anchored = true
-		glow.Anchored = true
+	local onRig = rig and rig:deckPosition(root.Position) ~= nil
+	item:SetAttribute("OnRig", onRig)
+	if onRig then
+		item:SetAttribute("DeckOffset", rig.deck.CFrame:PointToObjectSpace(at))
 	end
 	item.Parent = workspace
 	prompt.Triggered:Connect(function(by)
 		if item.Parent then
 			item:Destroy()
-			Items.give(by, f.id)
-			notify(by, "PickedUp", f.id)
+			Items.give(by, id)
+			notify(by, "PickedUp", id)
 		end
 	end)
 	task.delay(DROP_LIFE, function()
