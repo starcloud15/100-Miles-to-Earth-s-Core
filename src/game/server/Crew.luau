@@ -18,6 +18,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Art = require(Shared.Art)
+local Pulses = require(script.Parent.Pulses)
 
 local Crew = {}
 
@@ -461,7 +462,21 @@ function Crew.step(dt: number)
 		-- Cold (zone 3) and Heat (zone 5): builds while riding, eases at stops and by the Beacon
 		local TC = Config.Temperature
 		local temp = TC[state:GetAttribute("Zone") or 1]
-		if temp then
+		if temp and temp.pulses then
+			-- zone 6, Pulses: the dark fills the meter unless you're in light
+			local P = Config.Pulses
+			local e = player:GetAttribute("Exposure") or 0
+			if Pulses.lit(root.Position, rig) then
+				e -= (state:GetAttribute("Pulse") == "Dark" and TC.BEACON_FALL or P.LIGHT_FALL) * stepDt
+			else
+				e += P.DARK_RISE * stepDt
+			end
+			e = math.clamp(e, 0, 100)
+			player:SetAttribute("Exposure", e)
+			if e >= 100 then
+				hum.Health = math.max(1, hum.Health - TC.HURT_PER_SEC * 3 * stepDt)
+			end
+		elseif temp then
 			local e = player:GetAttribute("Exposure") or 0
 			if riding then
 				e += temp.RISE * stepDt

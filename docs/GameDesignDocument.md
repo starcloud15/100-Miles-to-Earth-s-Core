@@ -318,7 +318,7 @@ The SPAM! creatures and the Hollow's behaviour by zone:
 | 5 | Cinder Imp | Magma Salamander | Hunts at 17 studs/s |
 | 6 | Ashwisp | Temple Guardian | Hunts at 24 studs/s |
 
-The hunt speed rises 8% at each camp. The zone rules in 9.1 (Cold, Heat, Pulses) are not built yet.
+The hunt speed rises 8% at each camp. The zone rules in 9.1 are built: **Cold** (zone 3) and **Heat** (zone 5) are a meter that builds while riding and eases at stops, by the Beacon and when eating. **Pulses** (zone 6) is a cycle of about 8 s of golden light, 2 s fading and 6 s of dark. In the dark the Dark meter fills unless you stand in the lit circle round the rig's furnace lamp or the Beacon's ring, and at camp the Hollow hunts only in the dark gaps.
 
 ### 9.1 The ladder
 

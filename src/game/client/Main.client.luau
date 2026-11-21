@@ -278,6 +278,14 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 		end
 	elseif kind == "Ate" then
 		Hud.toast("+" .. tostring(data) .. "% Hunger", Ui.GREEN, 1)
+	elseif kind == "Pulse" then
+		-- zone 6: the Core's light comes in beats
+		if data == "Fading" then
+			Hud.toast("The light is fading! Get to the rig's lamp or the Beacon!", Ui.ORANGE, 2)
+		elseif data == "Light" then
+			Hud.toast("PULSE!", Color3.fromRGB(255, 214, 40), 0.8)
+			shake(0.3)
+		end
 	elseif kind == "Breakthrough" then
 		shake(1)
 		Hud.toast("BREAKTHROUGH!", Color3.fromRGB(255, 214, 40), 1.2)
@@ -521,6 +529,44 @@ require(script.Parent:WaitForChild("Creatures")).init({ deck = deck, shake = sha
 
 -- every player's Delver's Hook, cast out on its line
 require(script.Parent:WaitForChild("Hook")).init(deck)
+
+-- zone 6's Pulses: while the light fades and in the dark, a lit circle round the
+-- middle of the rig shows where the furnace lamp keeps you safe
+do
+	local ring: BasePart? = nil
+	RunService.RenderStepped:Connect(function()
+		local pulse = state:GetAttribute("Pulse")
+		local d = deck()
+		local show = (pulse == "Fading" or pulse == "Dark") and d ~= nil
+		if show and not ring then
+			local r = Instance.new("Part")
+			r.Name = "PulseSafe"
+			r.Shape = Enum.PartType.Cylinder
+			r.Anchored = true
+			r.CanCollide = false
+			r.CanQuery = false
+			r.CanTouch = false
+			r.CastShadow = false
+			r.Material = Enum.Material.Neon
+			r.Color = Color3.fromRGB(255, 214, 90)
+			r.Size = Vector3.new(0.15, Config.Pulses.SAFE * 2, Config.Pulses.SAFE * 2)
+			local l = Instance.new("PointLight")
+			l.Color = Color3.fromRGB(255, 200, 110)
+			l.Range = Config.Pulses.SAFE * 2.5
+			l.Brightness = 2
+			l.Parent = r
+			r.Parent = workspace
+			ring = r
+		elseif not show and ring then
+			ring:Destroy()
+			ring = nil
+		end
+		if ring and d then
+			ring.CFrame = d.CFrame * CFrame.new(0, d.Size.Y / 2 + 0.1, 0) * CFrame.Angles(0, 0, math.rad(90))
+			ring.Transparency = pulse == "Dark" and 0.72 or (0.72 + math.sin(os.clock() * 12) * 0.15)
+		end
+	end)
+end
 
 -- notice boards: "[E] Read" opens the Journal note card
 local Journal = require(script.Parent:WaitForChild("Journal"))

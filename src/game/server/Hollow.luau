@@ -103,7 +103,9 @@ function Hollow.step(dt: number)
 		local speed = HUNT_SPEED[math.clamp(zone, 1, #HUNT_SPEED)] * (1 + 0.08 * ((state:GetAttribute("CampsThisRun") or 0)))
 		local beacon = state:GetAttribute("BeaconPos")
 		local out = (state:GetAttribute("BeaconFuel") or 1) <= 0
-		if speed > 0 and beacon and now > huntRest then
+		-- zone 6: it hunts in the dark gaps between the Core's pulses
+		local gap = zone ~= 6 or state:GetAttribute("Pulse") == "Dark"
+		if speed > 0 and beacon and now > huntRest and gap then
 			local from = hunting and hunting.cf.Position or (state:GetAttribute("HollowCF") or CFrame.new(beacon)).Position
 			local p, root = prey(beacon, from, out and zone >= 4)
 			if p and root then

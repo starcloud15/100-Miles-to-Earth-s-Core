@@ -22,6 +22,7 @@ local Run = require(script.Parent.Run)
 local Creatures = require(script.Parent.Creatures)
 local Hollow = require(script.Parent.Hollow)
 local Progress = require(script.Parent.Progress)
+local Pulses = require(script.Parent.Pulses)
 
 for _, g in { "World", "Rig", "Crew", "Barrier" } do
 	PhysicsService:RegisterCollisionGroup(g)
@@ -152,6 +153,8 @@ Crew.init(rig, route, state, World)
 Run.init(rig, route, state, World, Crew)
 Creatures.init(rig, route, state, Crew)
 Hollow.init(rig, route, state, Creatures)
+Pulses.init(state)
+World.state = state -- (the lighting follows zone 6's Pulses)
 Progress.init(rig, state, World)
 
 -- the Beacons' feed prompts and the rig's repair prompt
@@ -244,6 +247,7 @@ RunService.Heartbeat:Connect(function(dt)
 	Run.step(dt)
 	Creatures.step(dt)
 	Hollow.step(dt)
+	Pulses.step(dt)
 	if rig.moving and not wasMoving then
 		Crew.depart()
 	end

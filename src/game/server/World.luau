@@ -2128,10 +2128,26 @@ function World.atmosphere(s: number, glow: number)
 	local b = sec.amb
 	local lifted = Color3.new(math.min(1, b.R * 1.45 + 0.08), math.min(1, b.G * 1.45 + 0.08), math.min(1, b.B * 1.45 + 0.08))
 	local amb = lifted:Lerp(Color3.fromRGB(96, 110, 160), (1 - glow) * 0.45)
+	-- zone 6's Pulses: the light swells gold on the beat and drops away in the gaps
+	local pulse = World.state and World.state:GetAttribute("Pulse")
+	local exposure = 0.35
+	local fog = sec.fog
+	if pulse == "Light" then
+		tint = tint:Lerp(Color3.fromRGB(255, 236, 190), 0.5)
+		exposure = 0.6
+	elseif pulse == "Fading" then
+		exposure = 0.1
+	elseif pulse == "Dark" then
+		tint = tint:Lerp(Color3.fromRGB(150, 140, 230), 0.55)
+		amb = amb:Lerp(Color3.fromRGB(40, 36, 70), 0.6)
+		fog = fog:Lerp(Color3.fromRGB(40, 30, 70), 0.75)
+		exposure = -0.5
+	end
+	Lighting.ExposureCompensation += (exposure - Lighting.ExposureCompensation) * 0.12
 	Lighting.Ambient = Lighting.Ambient:Lerp(amb, 0.1)
 	Lighting.OutdoorAmbient = Lighting.OutdoorAmbient:Lerp(amb, 0.1)
-	atmosphere.Color = atmosphere.Color:Lerp(sec.fog, 0.08)
-	atmosphere.Decay = atmosphere.Decay:Lerp(sec.fog:Lerp(Color3.new(0, 0, 0), 0.15), 0.08)
+	atmosphere.Color = atmosphere.Color:Lerp(fog, pulse and 0.14 or 0.08)
+	atmosphere.Decay = atmosphere.Decay:Lerp(fog:Lerp(Color3.new(0, 0, 0), 0.15), pulse and 0.14 or 0.08)
 	atmosphere.Density = atmosphere.Density + (sec.density - atmosphere.Density) * 0.08
 	atmosphere.Haze = atmosphere.Haze + (sec.haze - atmosphere.Haze) * 0.08
 	grade.TintColor = grade.TintColor:Lerp(tint, 0.08)

@@ -149,10 +149,21 @@ local Config = {
 	Temperature = {
 		[3] = { name = "Cold", color = Color3.fromRGB(120, 196, 255), RISE = 0.9 },
 		[5] = { name = "Heat", color = Color3.fromRGB(255, 110, 40), RISE = 1.1 },
+		[6] = { name = "Dark", color = Color3.fromRGB(150, 110, 255), RISE = 0, pulses = true },
 		FALL = 2, -- % a second while the rig is stopped
 		BEACON_FALL = 5, -- % a second by the Beacon
 		EAT = 35, -- eating takes this much off
 		HURT_PER_SEC = 3, -- health a second while the meter is full
+	},
+
+	-- zone 6's Pulses (server/Pulses.luau): seconds of light, of fading, of dark
+	Pulses = {
+		LIGHT = 8,
+		FADE = 2,
+		DARK = 6,
+		DARK_RISE = 20, -- % a second in the dark, out of the light (full in 5 s)
+		LIGHT_FALL = 14, -- % a second while the light is up
+		SAFE = 6, -- studs from the middle of the rig that the furnace lamp keeps lit
 	},
 
 	Survival = {
