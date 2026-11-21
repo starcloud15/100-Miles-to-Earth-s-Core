@@ -37,6 +37,9 @@ local LIST = {
 	-- zone 6: Heartstone Ruins and the Core Approach
 	{ id = "SunGrain", name = "Sun Grain", zone = 6, hunger = 14, color = Color3.fromRGB(250, 210, 90), shape = "grain", desc = "The temple keepers grew it in the Core's light." },
 	{ id = "CorelightPeach", name = "Corelight Peach", zone = 6, hunger = 40, rare = true, color = Color3.fromRGB(255, 170, 120), shape = "fruit", desc = "It tastes like sunrise. The last thing anyone ate before the Core." },
+	-- cooked at a camp's Cookpot (GDD 12.3), never reeled up (zone 0)
+	{ id = "RoastedCap", name = "Roasted Find", zone = 0, hunger = 30, cooked = true, color = Color3.fromRGB(170, 104, 56), shape = "skewer", desc = "Any find, roasted over the Cookpot. Hot, smoky and filling." },
+	{ id = "CaveStew", name = "Cave Stew", zone = 0, hunger = 54, cooked = true, wellFed = 180, color = Color3.fromRGB(176, 110, 60), shape = "bowl", desc = "Three finds in one pot. Fills you right up, and you get hungry slower for 3 minutes." },
 }
 
 -- rarity tiers, coloured like the reference's tags (its Cooked Fish is a green
@@ -51,7 +54,7 @@ for _, f in LIST do
 	-- (no cooking yet, so a raw find fills half again as much: the reference's
 	-- cooked fish gives about 45%)
 	f.hunger = math.floor(f.hunger * 1.5 + 0.5)
-	f.rarity = f.id == "CorelightPeach" and "LEGENDARY" or (f.rare and "RARE" or (f.hunger >= 20 and "UNCOMMON" or "COMMON"))
+	f.rarity = f.id == "CorelightPeach" and "LEGENDARY" or ((f.rare or f.id == "CaveStew") and "RARE" or (f.hunger >= 20 and "UNCOMMON" or "COMMON"))
 end
 
 -- glowstone, the one resource, is an item too: in the Bag, held, dropped

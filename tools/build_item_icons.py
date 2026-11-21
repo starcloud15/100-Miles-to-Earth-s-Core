@@ -22,7 +22,7 @@ BLENDER = r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 
 FINDS = ["Puffball", "RootTuber", "GoldenTruffle", "Glowcap", "LanternFig", "MoonMorel", "FrostTruffle",
          "PrismBerry", "MinersCap", "IronMorel", "SeaGrape", "FossilFern", "SporeMelon", "OrchidFruit",
-         "AshPotato", "EmberPepper", "ObsidianFig", "SunGrain", "CorelightPeach"]
+         "AshPotato", "EmberPepper", "ObsidianFig", "SunGrain", "CorelightPeach", "RoastedCap", "CaveStew"]
 # every icon this script owns (tools/build_icons.py leaves these alone)
 ITEM_ICONS = FINDS + ["Glowstone", "Bag", "Pickaxe", "DelversHook", "Crank"]
 

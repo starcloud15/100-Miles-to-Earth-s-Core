@@ -35,6 +35,7 @@ local carvedTo = 0
 local lastVein = 0
 World.veins = {} -- harvestable vein models at stops: { model, hp }
 World.beacons = {} -- stop name -> beacon part
+World.cookPots = {} -- the camps' Cookpots (Crew hooks their prompts)
 World.notePrompts = {} -- the notice boards' "[E] Read" prompts
 
 local FONT = Font.new("rbxasset://fonts/families/ComicNeueAngular.json", Enum.FontWeight.Bold)
@@ -367,6 +368,41 @@ local function beacon(model: Model, cf: CFrame, name: string)
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = core
 	World.beacons[name] = core
+	-- the Cookpot beside the fire (GDD 12.3): an iron pot on a tripod over embers
+	local cp = pos + Vector3.new(7.5, 0, 3)
+	local iron = Color3.fromRGB(52, 50, 54)
+	for i = 1, 3 do
+		local a = i / 3 * math.pi * 2
+		local foot = cp + Vector3.new(math.cos(a) * 2.2, 0, math.sin(a) * 2.2)
+		local top = cp + Vector3.new(0, 5, 0)
+		part({ Name = "Tripod", Size = Vector3.new(0.35, 0.35, (top - foot).Magnitude), CFrame = CFrame.lookAt((foot + top) / 2, top), Color = Color3.fromRGB(96, 64, 40), Material = Enum.Material.Wood, Parent = model })
+	end
+	local pot = part({ Name = "Cookpot", Shape = Enum.PartType.Ball, Size = Vector3.new(3, 2.4, 3), CFrame = CFrame.new(cp + Vector3.new(0, 2.2, 0)), Color = iron, Material = Enum.Material.Metal, Parent = model })
+	part({ Name = "PotRim", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4, 2.8, 2.8), CFrame = CFrame.new(cp + Vector3.new(0, 3.25, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(70, 68, 74), Material = Enum.Material.Metal, CanCollide = false, Parent = model })
+	part({ Name = "PotStew", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2, 2.3, 2.3), CFrame = CFrame.new(cp + Vector3.new(0, 3.38, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(176, 84, 30), Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
+	part({ Name = "PotEmbers", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, 2.4, 2.4), CFrame = CFrame.new(cp + Vector3.new(0, 0.15, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 96, 30), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	local steam = Instance.new("ParticleEmitter")
+	steam.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	steam.Color = ColorSequence.new(Color3.fromRGB(240, 240, 240))
+	steam.Transparency = NumberSequence.new(0.6, 1)
+	steam.Size = NumberSequence.new(0.8, 2.4)
+	steam.Lifetime = NumberRange.new(1.5, 2.5)
+	steam.Rate = 4
+	steam.Speed = NumberRange.new(1.5, 2.5)
+	steam.EmissionDirection = Enum.NormalId.Top
+	steam.Parent = pot
+	for _, def in { { "Roast", "Roast a find", Enum.KeyCode.E, 1 }, { "Stew", "Make Cave Stew (3 finds)", Enum.KeyCode.R, 2 } } do
+		local pr = Instance.new("ProximityPrompt")
+		pr.Name = def[1]
+		pr.ActionText = def[2]
+		pr.ObjectText = "Cookpot"
+		pr.KeyboardKeyCode = def[3]
+		pr.HoldDuration = def[4]
+		pr.MaxActivationDistance = 10
+		pr.RequiresLineOfSight = false
+		pr.Parent = pot
+	end
+	table.insert(World.cookPots, pot)
 	return core
 end
 

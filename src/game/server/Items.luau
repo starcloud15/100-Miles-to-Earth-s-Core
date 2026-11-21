@@ -196,6 +196,36 @@ local function heldTool(player: Player): Tool?
 	return tool and tool:GetAttribute("Find") and tool or nil
 end
 
+-- take n raw finds (not cooked dishes), from the biggest stacks first
+function Items.takeRaw(player: Player, n: number): boolean
+	local data = inv[player]
+	if not data then
+		return false
+	end
+	local have = 0
+	for id, c in data.count do
+		local f = Finds.BY_ID[id]
+		if f and not f.cooked then
+			have += c
+		end
+	end
+	if have < n then
+		return false
+	end
+	for _ = 1, n do
+		local best, bestN = nil, 0
+		for id, c in data.count do
+			local f = Finds.BY_ID[id]
+			if f and not f.cooked and c > bestN then
+				best, bestN = id, c
+			end
+		end
+		data.count[best] -= 1
+	end
+	sync(player)
+	return true
+end
+
 -- the find in your hand (not glowstone: that isn't food)
 function Items.held(player: Player): any
 	local t = heldTool(player)

@@ -263,6 +263,38 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 	Net.Drop.OnServerEvent:Connect(function(player)
 		Items.drop(player)
 	end)
+	-- the camps' Cookpots: Roast the find in your hand, or stew any three
+	local hookedPots = {}
+	task.spawn(function()
+		while true do
+			for _, pot in World.cookPots do
+				if not hookedPots[pot] and pot.Parent then
+					hookedPots[pot] = true
+					pot:FindFirstChild("Roast").Triggered:Connect(function(player)
+						local f = Items.held(player)
+						if not f or f.cooked then
+							notify(player, "Toast", "Hold a find from your hotbar to roast it")
+							return
+						end
+						if Items.take(player, f.id) then
+							Items.give(player, "RoastedCap")
+							notify(player, "Cooked", "RoastedCap")
+						end
+					end)
+					pot:FindFirstChild("Stew").Triggered:Connect(function(player)
+						if Items.takeRaw(player, 3) then
+							Items.give(player, "CaveStew")
+							notify(player, "Cooked", "CaveStew")
+						else
+							notify(player, "Toast", "Cave Stew needs 3 finds: go delving!")
+						end
+					end)
+				end
+			end
+			task.wait(1)
+		end
+	end)
+
 	Net.UseFlare.OnServerEvent:Connect(function(player)
 		if not downed[player] then
 			return
@@ -447,6 +479,9 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 			-- Delver: food fills 15% more
 			local fill = math.floor(f.hunger * (player:GetAttribute("Class") == "Delver" and 1.15 or 1) + 0.5)
 			addHunger(player, fill)
+			if f.wellFed then
+				player:SetAttribute("WellFed", workspace:GetServerTimeNow() + f.wellFed)
+			end
 			player:SetAttribute("RunMeals", (player:GetAttribute("RunMeals") or 0) + 1)
 			player:SetAttribute("Exposure", math.max(0, (player:GetAttribute("Exposure") or 0) - Config.Temperature.EAT))
 			notify(player, "Ate", { hunger = fill, find = f.id })
@@ -539,7 +574,9 @@ function Crew.step(dt: number)
 			continue
 		end
 		-- Hunger drains steadily; Health comes back while fed, drains while starving
-		local hunger = math.max(0, (player:GetAttribute("Hunger") or 100) - S.HUNGER_PER_MIN / 60 * stepDt)
+		-- (Cave Stew: hunger drains at half the rate while you're well fed)
+		local fed = (player:GetAttribute("WellFed") or 0) > workspace:GetServerTimeNow()
+		local hunger = math.max(0, (player:GetAttribute("Hunger") or 100) - S.HUNGER_PER_MIN / 60 * stepDt * (fed and 0.5 or 1))
 		player:SetAttribute("Hunger", hunger)
 		if hunger > 0 then
 			hum.Health = math.min(hum.MaxHealth, hum.Health + S.REGEN_PER_SEC * stepDt)

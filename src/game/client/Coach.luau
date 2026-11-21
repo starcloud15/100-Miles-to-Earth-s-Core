@@ -89,6 +89,7 @@ function Coach.init(state: Instance)
 			end
 			if phase == "Night" then
 				Coach.tip("night", "Beacon", "Stay inside the Beacon's light! Press E at the fire to feed it glowstone and speed up the night.")
+				Coach.tip("cook", "CaveStew", "Cook at the Cookpot by the fire: roast a find, or stew three into Cave Stew. Cooked food fills you far more.")
 			end
 		end
 		if (player:GetAttribute("Hunger") or 100) < 65 then

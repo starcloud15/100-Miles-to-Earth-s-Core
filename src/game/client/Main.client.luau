@@ -326,6 +326,11 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	elseif kind == "Downed" then
 		shake(1)
 		Sfx.play("Downed", 0.8)
+	elseif kind == "Cooked" then
+		local f = Finds.BY_ID[data]
+		Sfx.play("Collect", 0.7)
+		Hotbar.bump(data)
+		Hud.toast("Cooked: " .. (f and f.name or "food") .. "!", Color3.fromRGB(255, 196, 90), 1.6)
 	elseif kind == "PickedUp" then
 		Sfx.play("Collect", 0.6)
 		local f = Finds.BY_ID[data]

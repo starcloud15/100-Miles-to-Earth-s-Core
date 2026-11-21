@@ -44,8 +44,6 @@ PACK_ICONS = {
     "Warning": (T + "Png (65).png", None, None),
     "Lantern": ("Rhos/Tools/Lantern/Lantern Outline 256.png", None, None),
     "Beacon": ("Rhos/Tools/Lantern 2/Lantern 2 Outline 256.png", "glow", (255, 190, 70)),
-    "RoastedCap": ("Rhos/Nature/Mushroom/Mushroom Red Outline 256.png", None, None),
-    "CaveStew": ("Rhos/Holiday/Cauldron/Cauldron Outline 256.png", "greento", 28),
     "Revive": ("Rhos/Items/Medpack/Medpack Outline 256.png", None, None),
 }
 OWN_ICONS = ["GlowMole"]

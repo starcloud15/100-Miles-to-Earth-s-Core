@@ -33,7 +33,11 @@ MATS = {}
 
 
 def hexrgb(h):
-    return tuple(int(h[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    """sRGB hex -> the linear colour Blender's Base Color expects (without this
+    every item rendered washed-out and pastel)"""
+    def lin(c):
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    return tuple(lin(int(h[i:i + 2], 16) / 255) for i in (1, 3, 5))
 
 
 def mat(name, rgb, emit=0.0, rough=0.55, metal=0.0, wave=None):
@@ -248,7 +252,32 @@ def make_grain(col):
     sphere("Body", 0.08, (0, 0, 1.55), m_body(col), scale=(0.8, 0.8, 1.6), segs=10, rings=6)
 
 
+def make_skewer():
+    # a find roasted on a stick: a browned mushroom cap and a chunk, char marks
+    tube("Twig", [(0, 0, -0.2, 0.05), (0, 0, 0.6, 0.045), (0, 0, 1.55, 0.04)], mat("Twig", hexrgb("#7a4c26")))
+    sphere("Handle", 0.36, (0, 0, 1.05), mat("Body", hexrgb("#8a4418"), rough=0.35), scale=(1, 1, 0.75), lumpy=0.08, seed=41)
+    sphere("Body", 0.3, (0, 0, 0.55), mat("Body2", hexrgb("#b0642a"), rough=0.35), lumpy=0.1, seed=42)
+    for i, z in enumerate((1.1, 0.95, 0.6)):
+        o = sphere("Dark", 0.07, (0.3 if i % 2 else -0.28, 0.12, z), mat("Dark", hexrgb("#2a160a")), scale=(1.6, 0.6, 0.45), segs=8, rings=4)
+        o.rotation_euler = (0, 0.4, 0)
+
+
+def make_bowl():
+    # Cave Stew: a carved wooden bowl, brimming, steam-curl chunks on top
+    wood = mat("Twig", hexrgb("#6a3e1e"), rough=0.7)
+    bowl = sphere("Handle", 0.62, (0, 0, 0.5), wood, scale=(1, 1, 0.62), segs=24, rings=12)
+    for v in bowl.data.vertices:
+        if v.co.z > 0.15:
+            v.co.z = 0.15
+    sphere("Body", 0.56, (0, 0, 0.72), mat("Body", hexrgb("#a04414"), rough=0.12), scale=(1, 1, 0.12), segs=24, rings=8)
+    for x, y, c in ((0.2, 0.1, "#f0b030"), (-0.22, 0.05, "#58a030"), (0.0, -0.22, "#e05428"), (-0.08, 0.26, "#f4dca0")):
+        sphere("Spot", 0.11, (x, y, 0.78), mat("Chunk" + c, hexrgb(c), rough=0.5), lumpy=0.15, seed=int(x * 100) + 50, segs=8, rings=5)
+    cone("Dark", 0.3, 0.38, 0.12, (0, 0, 0.08), mat("Dark", hexrgb("#4a2a12")), verts=20)
+
+
 FINDS = {
+    "RoastedCap": make_skewer,
+    "CaveStew": make_bowl,
     "Puffball": lambda: make_ball(hexrgb("#dccaa0"), spots=hexrgb("#a89068"), lumpy=0.04),
     "RootTuber": lambda: make_tuber(hexrgb("#a06434")),
     "GoldenTruffle": lambda: make_ball(hexrgb("#e8a820"), spots=hexrgb("#a8741a"), lumpy=0.12, emit=0.15),
@@ -272,10 +301,10 @@ FINDS = {
 
 
 def make_glowstone():
-    amber = hexrgb("#ffa818")
+    amber = hexrgb("#ff9a10")
     rnd = random.Random(21)
     for i, (x, y, h, r, tilt) in enumerate([(0, 0, 1.2, 0.3, 0), (-0.32, 0.1, 0.8, 0.22, -28), (0.3, -0.08, 0.9, 0.24, 26), (0.05, 0.3, 0.6, 0.18, 18), (-0.1, -0.3, 0.55, 0.17, -14)]):
-        c = cone("Handle" if i == 0 else "Glow", r, r * 0.15, h, (x, y, h / 2), mat("Glow", amber, emit=0.45, rough=0.2), verts=6)
+        c = cone("Handle" if i == 0 else "Glow", r, r * 0.15, h, (x, y, h / 2), mat("Glow", amber, emit=1.6, rough=0.15, metal=0.1), verts=6)
         c.rotation_euler = (math.radians(rnd.uniform(-8, 8)), math.radians(tilt), rnd.uniform(0, 1))
         for p in c.data.polygons:
             p.use_smooth = False
