@@ -19,6 +19,7 @@ import bpy
 from mathutils import Matrix, Vector, noise
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gameready  # noqa: E402
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = argv[0] if argv else "."
 PREVIEW = argv[1] if len(argv) > 1 else ""
@@ -282,6 +283,9 @@ def robe(r_top, r_hem, z_top, z_hem, lean, sides=14, rows=6, seed=0, tatter=1.2)
             bm.faces.new((rings[i][j], rings[i][(j + 1) % sides], rings[i + 1][(j + 1) % sides], rings[i + 1][j]))
     bm.faces.new(list(reversed(rings[0])))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # (a cloth with real thickness: a closed shell, so it unions cleanly)
+    bm.normal_update()
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.18)
     return bm
 
 
@@ -332,6 +336,7 @@ def hollow():
     bm = ball(2.6, 14, 10, seed=13, rough=0.05)
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.y > 0.6 and v.co.z < 1.5 and abs(v.co.x) < 2.3], context="VERTS")
     bm.normal_update()
+    bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
     bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.3)
     emit(bm, h, "Shadow", at(0, 4.4, 26.4, rx=-0.3, sy=1.15, sz=1.3))
     # a peak trailing back off the hood
@@ -418,6 +423,7 @@ def lantern_eel(n=7):
         fin = bmesh.new()
         vs = [fin.verts.new(v) for v in ((0, y + r * 0.9, r * 0.8), (0, y - r * 0.9, r * 0.8), (0, y - r * 0.6, r * 1.9))]
         fin.faces.new(vs)
+        fin.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
         bmesh.ops.solidify(fin, geom=fin.faces[:], thickness=0.12)
         emit(fin, g, "Fin")
     g = "Head"
@@ -610,6 +616,7 @@ def ashwisp():
         for j in range(sides):
             bm.faces.new((rings[i][j], rings[i][(j + 1) % sides], rings[i + 1][(j + 1) % sides], rings[i + 1][j]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
     bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.1)
     emit(bm, g, "Wisp")
     for side in (-1, 1):
@@ -672,7 +679,7 @@ for name, build in CREATURES.items():
     fresh()
     build()
     objs = join_groups()
-    n = sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
+    n = gameready.finalize(objs, budget=3500 if name == "Hollow" else BUDGET)  # (welded, closed, unioned: game-ready)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, name + ".fbx"), use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)
     budget = 3500 if name == "Hollow" else BUDGET

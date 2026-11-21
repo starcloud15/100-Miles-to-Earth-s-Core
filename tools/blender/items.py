@@ -19,6 +19,9 @@ import random
 import sys
 
 import bpy
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gameready  # noqa: E402
 from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:]
@@ -405,6 +408,7 @@ def light_and_render(name, view=(35, 0, 30)):
 
 
 def export(name):
+    gameready.finalize()  # (welded, closed, unioned: game-ready)
     bpy.ops.object.select_all(action="SELECT")
     for o in bpy.context.scene.objects:
         if o.type != "MESH":

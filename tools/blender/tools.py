@@ -15,6 +15,9 @@ import os
 import sys
 
 import bpy
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gameready  # noqa: E402
 from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -125,7 +128,7 @@ def tris() -> int:
 
 def export(name):
     smooth_all()
-    count = tris()
+    count = gameready.finalize()  # (welded, closed, unioned: game-ready)
     bpy.ops.object.select_all(action="SELECT")
     path = os.path.join(OUT, name + ".fbx")
     bpy.ops.export_scene.fbx(filepath=path, use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)

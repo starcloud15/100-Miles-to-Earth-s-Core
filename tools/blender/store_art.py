@@ -22,7 +22,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 
 # 1. the Drill Rig, built by its own script (real materials), exported to a temp file
 sys.argv = [sys.argv[0], "--", os.path.join(OUT, "_rig_tmp.fbx")]
-exec(compile(open(os.path.join(ROOT, "tools", "blender", "drill_rig.py")).read(), "drill_rig.py", "exec"), {"__name__": "rig"})
+RIG_PY = os.path.join(ROOT, "tools", "blender", "drill_rig.py")
+exec(compile(open(RIG_PY).read(), RIG_PY, "exec"), {"__name__": "rig", "__file__": RIG_PY})
 os.remove(os.path.join(OUT, "_rig_tmp.fbx"))
 scene = bpy.context.scene
 rig_objs = [o for o in scene.objects if o.type == "MESH"]

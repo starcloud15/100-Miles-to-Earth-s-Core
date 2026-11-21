@@ -86,6 +86,7 @@ local PROP_PAINT = {
 	Moss = { Color3.fromRGB(90, 140, 70), Enum.Material.Grass },
 	Paper = { Color3.fromRGB(236, 222, 186), Enum.Material.SmoothPlastic },
 	Rope = { Color3.fromRGB(196, 170, 120), Enum.Material.Fabric },
+	Gloom = { Color3.fromRGB(34, 22, 20), Enum.Material.SmoothPlastic },
 	-- zone 2's mushrooms (the Cap is recoloured per mushroom)
 	Stem = { Color3.fromRGB(222, 214, 200), Enum.Material.SmoothPlastic },
 	Cap = { Color3.fromRGB(60, 214, 200), Enum.Material.SmoothPlastic },

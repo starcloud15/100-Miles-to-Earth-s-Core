@@ -13,6 +13,10 @@ import math
 import sys
 
 import bpy
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gameready  # noqa: E402
 import bmesh
 from mathutils import Vector
 
@@ -141,8 +145,8 @@ join(trim, "DeckTrim")
 for side, sx in (("L", -1), ("R", 1)):
     x = sx * (W / 2 + 1.9)
     parts = [box("Housing", (3.4, L + 1.5, 3.2), (x, 0, -1.9), RUBBER, 0.9)]
-    for k in range(9):
-        y = -L / 2 - 0.3 + k * (L + 0.6) / 8
+    for k in range(13):
+        y = -L / 2 - 0.3 + k * (L + 0.6) / 12
         parts.append(box("Cleat", (3.6, 0.5, 0.35), (x, y, -0.15), STEEL_DARK, 0.08))
         parts.append(box("Cleat", (3.6, 0.5, 0.35), (x, y, -3.65), STEEL_DARK, 0.08))
     join(parts, "Tread" + side)
@@ -151,6 +155,13 @@ for side, sx in (("L", -1), ("R", 1)):
         y = -L / 2 + 2.5 + k * (L - 5) / 4
         wheels.append(cyl("Wheel", 1.15, 0.6, (x + sx * 1.85, y, -1.9), STEEL, rot=(0, math.pi / 2, 0), verts=12, bevel=0.12))
         wheels.append(cyl("Hub", 0.45, 0.8, (x + sx * 2.0, y, -1.9), BRASS, rot=(0, math.pi / 2, 0), verts=8, bevel=0))
+    # drive sprockets at both ends: a toothed brass gear on a dark hub
+    for yy in (-L / 2 - 0.2, L / 2 + 0.2):
+        wheels.append(cyl("Sprocket", 1.45, 0.5, (x + sx * 1.95, yy, -1.9), BRASS, rot=(0, math.pi / 2, 0), verts=16, bevel=0.06))
+        for t in range(10):
+            a = t / 10 * math.tau
+            wheels.append(box("Tooth", (0.5, 0.42, 0.42), (x + sx * 1.95, yy + math.cos(a) * 1.55, -1.9 + math.sin(a) * 1.55), BRASS, 0, rot=(a, 0, 0)))
+        wheels.append(cyl("SprocketHub", 0.55, 0.7, (x + sx * 2.1, yy, -1.9), STEEL_DARK, rot=(0, math.pi / 2, 0), verts=8, bevel=0))
     join(wheels, "Wheels" + side)
     # a fender over each tread (breaks off first)
     box("BreakFender" + side, (3.8, L * 0.55, 0.35), (x, L * 0.18, 0.05), RED, 0.12)
@@ -273,6 +284,7 @@ for o in col.objects:
         bpy.ops.object.shade_smooth_by_angle(angle=math.radians(40))
         tri_count += sum(len(p.vertices) - 2 for p in o.data.polygons)
 
+tri_count = gameready.finalize()  # (welded, closed, unioned: game-ready)
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.export_scene.fbx(filepath=OUT_FBX, use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)
 print("exported", OUT_FBX, len(col.objects), "objects,", tri_count, "triangles")

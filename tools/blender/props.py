@@ -19,6 +19,9 @@ import sys
 
 import bmesh
 import bpy
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gameready  # noqa: E402
 from mathutils import Matrix, Vector, noise
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -36,6 +39,7 @@ PAINT = {
     "Moss": (90, 140, 70),
     "Paper": (236, 222, 186),
     "Rope": (196, 170, 120),
+    "Gloom": (34, 22, 20),  # the dark inside a tent
     # zone 2
     "Stem": (222, 214, 200),
     "Cap": (60, 214, 200),
@@ -239,14 +243,25 @@ def tent():
             for j in range(2):
                 f = (rows[i][j], rows[i][j + 1], rows[i + 1][j + 1], rows[i + 1][j])
                 bm.faces.new(f if side > 0 else tuple(reversed(f)))
+        bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
         bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.12)
         emit(bm, "Cloth")
     # the back wall
     bm = bmesh.new()
     vs = [bm.verts.new(p) for p in ((-w / 2, d / 2, 0), (w / 2, d / 2, 0), (0, d / 2, h))]
     bm.faces.new(vs)
+    bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
     bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.12)
     emit(bm, "Cloth")
+    # the dark inside, seen through the open front (stylized: reads as a doorway)
+    bm = bmesh.new()
+    vs = [bm.verts.new(p) for p in ((-w * 0.34, -d / 2 + 0.6, 0.02), (w * 0.34, -d / 2 + 0.6, 0.02), (0, -d / 2 + 0.6, h * 0.8))]
+    bm.faces.new(vs)
+    bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.08)
+    emit(bm, "Gloom")
+    # a ground sheet poking out of the door
+    emit(box(w * 0.55, 1.2, 0.08), "Rope", at(0, -d / 2 - 0.2, 0.04))
     # poles and ridge, door flaps folded back
     beam((0, -d / 2 - 0.3, 0), (0, -d / 2 - 0.3, h + 0.6), 0.28, "WoodDark", sides=6)
     beam((0, d / 2 + 0.2, 0), (0, d / 2 + 0.2, h + 0.6), 0.28, "WoodDark", sides=6)
@@ -255,6 +270,7 @@ def tent():
         bm = bmesh.new()
         vs = [bm.verts.new(p) for p in ((0, -d / 2, h), (side * w / 2, -d / 2, 0), (side * w * 0.3, -d / 2 - 0.9, 0))]
         bm.faces.new(vs)
+        bm.normal_update()  # (solidify needs face normals: without them it's zero-thick, z-fighting)
         bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.1)
         emit(bm, "Cloth")
         for y in (-d / 2 - 0.3, d / 2 + 0.2):
@@ -273,6 +289,17 @@ def crate():
                 emit(box(sx, sy, 0.34), "WoodDark", at(x, y, z))
     for (x, y) in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
         emit(box(0.34, 0.34, s), "WoodDark", at(x * (s / 2 - 0.16), y * (s / 2 - 0.16), s / 2))
+    # stylized detail: plank seams standing just proud of each side (no z-fighting),
+    # and nail heads where the planks meet the straps
+    face = s * 0.94 / 2
+    for k in range(4):
+        rz = k * math.pi / 2
+        for z in (s * 0.4, s * 0.62):
+            emit(box(s * 0.62, 0.06, 0.07), "WoodDark", at(0, 0, 0, rz=rz) @ at(0, -(face + 0.02), z))
+        for xx in (-0.55, 0.55):
+            emit(cyl(0.08, 0.06, 4), "Steel", at(0, 0, 0, rz=rz) @ at(xx, -(s / 2 + 0.02), s - 0.18, rx=math.pi / 2))
+    for x in (-0.55, 0.0, 0.55):
+        emit(box(0.07, s * 0.62, 0.05), "WoodDark", at(x, 0, s * 0.94 + 0.03))
 
 
 def lantern_post():
@@ -499,7 +526,7 @@ def tris(objs) -> int:
     return sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
 
 
-BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 300, "GiantMushroom": 1000}
+BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 500, "GiantMushroom": 1000}
 
 os.makedirs(OUT, exist_ok=True)
 # ONLY=Name1,Name2 exports just those (re-exporting rewrites the FBX bytes, and
@@ -511,7 +538,7 @@ for name, build in PROPS.items():
     fresh()
     build()
     objs = join_by_paint()
-    n = tris(objs)
+    n = gameready.finalize(objs)  # (welded, closed, unioned: game-ready)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, name + ".fbx"), use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", object_types={"MESH"}, mesh_smooth_type="OFF", bake_space_transform=True)
     budget = BUDGET.get(name, 800)
