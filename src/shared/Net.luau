@@ -18,6 +18,7 @@ local EVENTS = {
 	"Delve", -- client -> server: "cast" or "reel" the Delver's Hook
 	"Eat", -- client -> server: eat one of the find in your hand
 	"Drop", -- client -> server: drop one of the find in your hand (G)
+	"UseFlare", -- client -> server: downed, use your Revive Flare
 	-- Topside Camp
 	"PartyPrompt", -- server -> client: you stepped into an empty bay (bay name)
 	"PartyCreate", -- client -> server: make the party (size, friendsOnly)

@@ -308,6 +308,12 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	elseif kind == "Ate" then
 		local n = type(data) == "table" and data.hunger or data
 		Hud.toast("+" .. tostring(n) .. "% Hunger", Ui.GREEN, 1)
+	elseif kind == "Revived" then
+		Hud.toast("Revived by " .. tostring(data) .. "!", Ui.GREEN, 2)
+	elseif kind == "WokeOnRig" then
+		Hud.toast("You came to on the rig. Half your glowstone was left behind", Ui.ORANGE, 2.5)
+	elseif kind == "Downed" then
+		shake(1)
 	elseif kind == "PickedUp" then
 		local f = Finds.BY_ID[data]
 		Hotbar.bump(data)
@@ -711,6 +717,36 @@ do
 		for m in spun do
 			if not m.Parent then
 				spun[m] = nil
+			end
+		end
+	end)
+end
+
+-- DOWNED: the screen greys, a countdown to waking on the rig, and your Revive
+-- Flare if you have one (crewmates hold E beside you to bring you back)
+do
+	local dgui = Ui.new("ScreenGui", { Name = "Downed", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 8, Enabled = false, Parent = player:WaitForChild("PlayerGui") })
+	Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(40, 0, 0), BackgroundTransparency = 0.45, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = dgui })
+	local title = Ui.text({ Parent = dgui, Text = "DOWNED!", TextColor3 = Ui.RED, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.32), Size = UDim2.fromScale(0.4, 0.11), Stroke = 5 })
+	title.FontFace = Ui.ITALIC
+	local sub = Ui.text({ Parent = dgui, Text = "", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.42), Size = UDim2.fromScale(0.5, 0.045), Stroke = 3 })
+	local help = Ui.text({ Parent = dgui, Text = "A crewmate can hold E beside you to revive you", TextColor3 = Color3.fromRGB(230, 230, 230), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.48), Size = UDim2.fromScale(0.5, 0.032), Stroke = 2 })
+	local flare = Ui.button({ Parent = dgui, Text = "Use Revive Flare", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.6), Size = UDim2.fromOffset(360, 84) })
+	flare.Activated:Connect(function()
+		Net.UseFlare:FireServer()
+	end)
+	local _ = help
+	RunService.RenderStepped:Connect(function()
+		local ends = player:GetAttribute("Downed")
+		dgui.Enabled = type(ends) == "number"
+		if dgui.Enabled then
+			local left = math.max(0, math.ceil(ends - workspace:GetServerTimeNow()))
+			sub.Text = "Back on the rig in " .. left .. "s"
+			local n = player:GetAttribute("Flares") or 0
+			flare.Visible = n > 0
+			local label = flare:FindFirstChild("Label") :: TextLabel?
+			if label then
+				label.Text = "Use Revive Flare (x" .. n .. ")"
 			end
 		end
 	end)

@@ -20,6 +20,7 @@ local Net = require(Shared.Net)
 local Art = require(Shared.Art)
 local Pulses = require(script.Parent.Pulses)
 local Items = require(script.Parent.Items)
+local Data = require(Shared.Data)
 local Finds = require(Shared.Finds)
 
 local Crew = {}
@@ -172,6 +173,10 @@ function Crew.classLook(player: Player, char: Model)
 	end
 end
 
+-- (downed players: defined with Crew.down below)
+local downed: { [Player]: { prompt: ProximityPrompt?, ends: number } } = {}
+local getUp: (Player, number, CFrame?) -> ()
+
 local function onCharacter(player: Player, char: Model)
 	local hum = char:WaitForChild("Humanoid") :: Humanoid
 	char:WaitForChild("HumanoidRootPart")
@@ -190,6 +195,9 @@ local function onCharacter(player: Player, char: Model)
 	hum.Health = 100
 	giveTools(player)
 	task.defer(Crew.classLook, player, char)
+	if downed[player] then
+		getUp(player, 1)
+	end
 	local i = info[player]
 	if i then
 		i.off = false
@@ -254,8 +262,24 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 	Net.Drop.OnServerEvent:Connect(function(player)
 		Items.drop(player)
 	end)
+	Net.UseFlare.OnServerEvent:Connect(function(player)
+		if not downed[player] then
+			return
+		end
+		local p = Data.get(player)
+		if not p or (p.reviveFlares or 0) <= 0 then
+			return
+		end
+		Data.update(player, function(q)
+			q.reviveFlares -= 1
+		end)
+		getUp(player, 1)
+		notify(player, "Revived", "your Revive Flare")
+	end)
+	Players.PlayerRemoving:Connect(function(p)
+		downed[p] = nil
+	end)
 	-- the class each player equipped at camp (their save), for its perks
-	local Data = require(Shared.Data)
 	Data.Changed:Connect(function(player, p)
 		if player:GetAttribute("Class") ~= (p.class or "") then
 			player:SetAttribute("Class", p.class or "")
@@ -501,6 +525,13 @@ function Crew.step(dt: number)
 		if not root or not hum or hum.Health <= 0 then
 			continue
 		end
+		-- (starving, the cold, the dark and bites all bottom out at 1 Health: that downs you)
+		if hum.Health <= 1.01 and not downed[player] then
+			Crew.down(player)
+		end
+		if downed[player] then
+			continue
+		end
 		-- Hunger drains steadily; Health comes back while fed, drains while starving
 		local hunger = math.max(0, (player:GetAttribute("Hunger") or 100) - S.HUNGER_PER_MIN / 60 * stepDt)
 		player:SetAttribute("Hunger", hunger)
@@ -612,15 +643,99 @@ function Crew.taken(player: Player)
 	notify(player, "Taken")
 end
 
+-- DOWNED (GDD 12: "come back on the spot when downed"): at the last point of
+-- Health you drop where you are. A crewmate holding E beside you, or your own
+-- Revive Flare, brings you back on the spot; otherwise after DOWN_TIME you wake on
+-- the rig, weak, having dropped half your glowstone.
+local DOWN_TIME = 12
+
+function getUp(player: Player, health: number, where: CFrame?)
+	local d = downed[player]
+	if not d then
+		return
+	end
+	downed[player] = nil
+	if d.prompt then
+		d.prompt:Destroy()
+	end
+	player:SetAttribute("Downed", nil)
+	local root, hum = rootOf(player)
+	if hum then
+		hum.WalkSpeed = 16
+		hum.JumpPower = 50
+		hum.PlatformStand = false
+		hum.Health = math.max(hum.Health, hum.MaxHealth * health)
+		hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
+	if root and where then
+		root.CFrame = where
+		root.AssemblyLinearVelocity = Vector3.zero
+	end
+end
+
+function Crew.down(player: Player)
+	if downed[player] then
+		return
+	end
+	local root, hum = rootOf(player)
+	if not root or not hum then
+		return
+	end
+	local ends = workspace:GetServerTimeNow() + DOWN_TIME
+	downed[player] = { ends = ends }
+	player:SetAttribute("Downed", ends)
+	hum.WalkSpeed = 0
+	hum.JumpPower = 0
+	hum.PlatformStand = true -- (collapsed on the ground)
+	local p = Data.get(player)
+	player:SetAttribute("Flares", p and p.reviveFlares or 0)
+	notify(player, "Downed")
+	-- a crewmate can bring you back: hold E beside you
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "ReviveCrew"
+	prompt.ActionText = "Revive"
+	prompt.ObjectText = player.DisplayName
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 2.5
+	prompt.MaxActivationDistance = 10
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = root
+	downed[player].prompt = prompt
+	prompt.Triggered:Connect(function(by)
+		if by == player or not downed[player] then
+			return
+		end
+		getUp(player, 0.5)
+		Data.update(by, function(q)
+			q.stats.revived += 1
+		end)
+		notify(player, "Revived", by.DisplayName)
+		Net.Notify:FireAllClients("Toast", by.DisplayName .. " revived " .. player.DisplayName .. "!")
+	end)
+	task.delay(DOWN_TIME, function()
+		if downed[player] and downed[player].ends == ends then
+			-- nobody came: wake on the rig, weak, half your glowstone left behind
+			local g = player:GetAttribute("Glowstone") or 0
+			player:SetAttribute("Glowstone", math.ceil(g / 2))
+			getUp(player, 0.35, rig.deck.CFrame * CFrame.new(0, 4, 0))
+			notify(player, "WokeOnRig")
+		end
+	end)
+end
+
+function Crew.isDowned(player: Player): boolean
+	return downed[player] ~= nil
+end
+
 -- a creature dragged this player off the rig
 function Crew.throwOff(player: Player)
 	shove(player, nil, "Dragged")
 end
 
--- creature damage: never kills on its own (like starving), leaves 1 HP
+-- creature damage: never kills outright; the last point of Health downs you
 function Crew.hurt(player: Player, amount: number, kind: string?)
 	local _, hum = rootOf(player)
-	if hum and hum.Health > 0 then
+	if hum and hum.Health > 0 and not downed[player] then
 		hum.Health = math.max(1, hum.Health - amount)
 		if kind then
 			notify(player, kind)
