@@ -36,6 +36,11 @@ PAINT = {
     "Moss": (90, 140, 70),
     "Paper": (236, 222, 186),
     "Rope": (196, 170, 120),
+    # zone 2
+    "Stem": (222, 214, 200),
+    "Cap": (60, 214, 200),
+    "Gills": (70, 46, 104),
+    "Spots": (230, 255, 250),
 }
 MATS = {}
 
@@ -359,6 +364,64 @@ def minecart():
         emit(rock(0.6, 120 + i, subdiv=1), "Glow" if i % 2 == 0 else "RockDark", at(rnd.uniform(-1.2, 1.2), rnd.uniform(-0.8, 0.8), 3.2))
 
 
+def mushroom_cap(radius, height, sides=16, rings=4, seed=0):
+    """A domed mushroom cap with a rolled-under rim, open underneath (the gills close it)."""
+    bm = bmesh.new()
+    rnd = random.Random(seed)
+    loops = []
+    for i in range(rings + 1):
+        t = i / rings  # 0 = crown, 1 = rim
+        a = t * math.pi * 0.55
+        r = radius * math.sin(a) / math.sin(math.pi * 0.55)
+        z = height * math.cos(a) / 1.0
+        ring = []
+        for j in range(sides):
+            b = j / sides * math.tau
+            k = 1 + (rnd.uniform(-0.04, 0.04) if i > 0 else 0)
+            ring.append(bm.verts.new((math.cos(b) * max(r, 0.01) * k, math.sin(b) * max(r, 0.01) * k, z)))
+        loops.append(ring)
+    # the rim curls under
+    curl = [bm.verts.new((v.co.x * 0.9, v.co.y * 0.9, v.co.z - height * 0.18)) for v in loops[-1]]
+    loops.append(curl)
+    for i in range(len(loops) - 1):
+        for j in range(sides):
+            bm.faces.new((loops[i][j], loops[i][(j + 1) % sides], loops[i + 1][(j + 1) % sides], loops[i + 1][j]))
+    bmesh.ops.remove_doubles(bm, verts=loops[0], dist=0.05)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
+def giant_mushroom():
+    # a giant glowing mushroom of the Glowshroom Grotto (60 tall; the game scales it and
+    # recolours the Cap per mushroom): a pale, slightly bent stem with a skirt, a broad
+    # domed cap, violet gills underneath, glowing spots on top
+    h = 60.0
+    stem = cone(3.6, 2.6, h - 6, 10, 6, 201, wobble=0.04, lean=(0.06, 0.03))
+    emit(stem, "Stem")
+    emit(cone(5.2, 3.4, 2.5, 10, 1, 202, wobble=0.08), "Stem", at(z=0))  # the foot
+    t = (h * 0.62) / (h - 6)
+    emit(cone(3.6, 5.6, 2.4, 12, 1, 203, wobble=0.1, cap_top=False), "Stem", at(0.06 * t * t * (h - 6), 0.03 * t * t * (h - 6), h * 0.62))  # the skirt
+    top = Vector((0.06 * (h - 6), 0.03 * (h - 6), h - 6))
+    emit(mushroom_cap(22, 15, seed=204), "Cap", Matrix.Translation(top + Vector((0, 0, 1))))
+    emit(cyl(19, 0.8, 16), "Gills", Matrix.Translation(top + Vector((0, 0, -0.2))))
+    rnd = random.Random(205)
+    for i in range(9):
+        a = i / 9 * math.tau + rnd.uniform(-0.2, 0.2)
+        r = rnd.uniform(4, 15)
+        z = 15 * math.cos(math.asin(min(0.95, r / 22)) * 0.95) + 0.6
+        emit(rock(rnd.uniform(2.0, 3.2), 210 + i, subdiv=1, squash=(1, 1, 0.45), amount=0.05, flat_bottom=False), "Spots", Matrix.Translation(top + Vector((math.cos(a) * r, math.sin(a) * r, z))))
+
+
+def mushroom_cluster():
+    # a clump of small luminous mushrooms for river banks and walkway edges (about 5 tall)
+    rnd = random.Random(301)
+    for i in range(5):
+        h = rnd.uniform(1.6, 4.8)
+        x, y = rnd.uniform(-2.5, 2.5), rnd.uniform(-2.5, 2.5)
+        emit(cone(0.35 * h / 3, 0.25 * h / 3, h, 6, 2, 302 + i, wobble=0.05, lean=(rnd.uniform(-0.1, 0.1), rnd.uniform(-0.1, 0.1))), "Stem", at(x, y, 0))
+        emit(mushroom_cap(h * 0.42, h * 0.2, sides=10, rings=2, seed=310 + i), "Spots" if i % 2 else "Cap", at(x, y, h))
+
+
 PROPS = {
     "Stalagmite": stalagmite,
     "Stalactite": stalactite,
@@ -372,6 +435,8 @@ PROPS = {
     "BeaconRing": beacon_ring,
     "Arch": arch,
     "Minecart": minecart,
+    "GiantMushroom": giant_mushroom,
+    "MushroomCluster": mushroom_cluster,
 }
 
 
@@ -401,10 +466,15 @@ def tris(objs) -> int:
     return sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
 
 
-BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 300}
+BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 300, "GiantMushroom": 1000}
 
 os.makedirs(OUT, exist_ok=True)
+# ONLY=Name1,Name2 exports just those (re-exporting rewrites the FBX bytes, and
+# Starport would upload unchanged props again)
+ONLY = [n for n in os.environ.get("ONLY", "").split(",") if n]
 for name, build in PROPS.items():
+    if ONLY and name not in ONLY:
+        continue
     fresh()
     build()
     objs = join_by_paint()
@@ -419,9 +489,11 @@ if PREVIEW:
     fresh()
     x = 0.0
     for name, build in PROPS.items():
+        if ONLY and name not in ONLY:
+            continue
         build()
         objs = join_by_paint()
-        s = 0.12 if name == "Arch" else (0.45 if name == "Stalagmite" else 1)
+        s = 0.12 if name == "Arch" else (0.45 if name == "Stalagmite" else (0.2 if name == "GiantMushroom" else 1))
         half = max(abs(v.co.x) for o in objs for v in o.data.vertices) * s
         x += half
         for o in objs:

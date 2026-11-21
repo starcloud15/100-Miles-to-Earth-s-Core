@@ -39,6 +39,14 @@ PAINT = {
     "Iron": (46, 42, 46),
     "Shard": (76, 70, 92),
     "Ember": (255, 238, 214),
+    # zone 2
+    "Stalk": (232, 224, 208),
+    "CapViolet": (150, 104, 242),
+    "Spot": (230, 255, 250),
+    "Lure": (120, 255, 230),
+    "EelSkin": (40, 52, 96),
+    "EelBelly": (110, 150, 190),
+    "Fin": (90, 200, 230),
 }
 MATS = {}
 PARTS = []  # (group, paint, object)
@@ -52,7 +60,7 @@ def mat(paint):
         rgb = [(c / 255) ** 2.2 for c in PAINT[paint]]
         b.inputs["Base Color"].default_value = (*rgb, 1)
         b.inputs["Roughness"].default_value = 0.7
-        if paint in ("Glow", "Eye", "Ember"):
+        if paint in ("Glow", "Eye", "Ember", "Spot", "Lure"):
             b.inputs["Emission Color"].default_value = (*rgb, 1)
             b.inputs["Emission Strength"].default_value = 5
         MATS[paint] = m
@@ -318,7 +326,87 @@ def hollow():
     emit(ball(0.6, 8, 5, seed=17, rough=0.2), L, "Void", at(*c))
 
 
-CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow}
+# --- zone 2: the Glowshroom Grotto (the Lamp Keepers) ----------------------------------------
+
+
+def mushroom_cap(radius, height, sides=14, rings=4, seed=0):
+    """A domed mushroom cap with a rolled-under rim (as in props.py)."""
+    bm = bmesh.new()
+    rnd = random.Random(seed)
+    loops = []
+    for i in range(rings + 1):
+        t = i / rings
+        a = t * math.pi * 0.55
+        r = radius * math.sin(a) / math.sin(math.pi * 0.55)
+        z = height * math.cos(a)
+        ring = []
+        for j in range(sides):
+            b = j / sides * math.tau
+            k = 1 + (rnd.uniform(-0.04, 0.04) if i > 0 else 0)
+            ring.append(bm.verts.new((math.cos(b) * max(r, 0.01) * k, math.sin(b) * max(r, 0.01) * k, z)))
+        loops.append(ring)
+    loops.append([bm.verts.new((v.co.x * 0.9, v.co.y * 0.9, v.co.z - height * 0.18)) for v in loops[-1]])
+    for i in range(len(loops) - 1):
+        for j in range(sides):
+            bm.faces.new((loops[i][j], loops[i][(j + 1) % sides], loops[i + 1][(j + 1) % sides], loops[i + 1][j]))
+    bmesh.ops.remove_doubles(bm, verts=loops[0], dist=0.02)
+    bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=0)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
+def puffcap():
+    """A waddling mushroom creature about 4.5 tall: a fat pale stalk body with
+    stubby feet and arms, a spotted violet cap pulled down like a helmet, two
+    glowing eyes peering out under the brim. It drops off the giant caps onto
+    the deck (the boarder role)."""
+    g = "Body"
+    emit(ball(1.35, 12, 8, seed=1, rough=0.03), g, "Stalk", at(0, 0, 1.6, sx=1.0, sy=0.95, sz=1.25))
+    for side in (-1, 1):
+        emit(ball(0.55, 8, 5), g, "Stalk", at(side * 0.7, 0.25, 0.3, sx=0.9, sy=1.3, sz=0.55))  # feet
+        emit(taper((side * 1.15, 0.1, 2.0), (side * 1.9, 0.5, 1.2), 0.32, 0.24, 6), g, "Stalk")  # arms
+        emit(ball(0.2, 6, 4), g, "Spot", at(side * 0.45, 1.2, 2.55))  # eyes
+    emit(mushroom_cap(2.5, 1.5, seed=3), g, "CapViolet", at(0, 0, 2.75))
+    rnd = random.Random(4)
+    for i in range(7):
+        a = i / 7 * math.tau + rnd.uniform(-0.2, 0.2)
+        r = rnd.uniform(0.5, 1.7)
+        emit(ball(rnd.uniform(0.22, 0.38), 6, 4), g, "Spot", at(math.cos(a) * r, math.sin(a) * r, 2.75 + 1.5 * math.cos(math.asin(min(0.95, r / 2.5)) * 0.95) + 0.05, sz=0.45))
+
+
+def lantern_eel(n=7):
+    """A Lantern Eel about 16 long: a dark blue body with a pale belly, a frill
+    of translucent fins down its back, a broad head with a jaw of needle teeth
+    and a glowing lure on a stalk over its brow. It lunges out of the glow pools
+    and seizes one of the crew (the grabber role, GDD 9.2). Segments shrink to
+    the tail; each is built round its own centre along -Y behind the head."""
+    for i in range(1, n + 1):
+        r = 1.35 - i * 0.12
+        y = -2.0 * i
+        g = "Seg%d" % i
+        emit(ball(r, 10, 6, seed=i, rough=0.02), g, "EelSkin", at(0, y, 0, sx=0.9, sy=1.1))
+        emit(ball(r * 0.82, 10, 4), g, "EelBelly", at(0, y, -r * 0.3, sx=0.85, sy=1.05, sz=0.6))
+        fin = bmesh.new()
+        vs = [fin.verts.new(v) for v in ((0, y + r * 0.9, r * 0.8), (0, y - r * 0.9, r * 0.8), (0, y - r * 0.6, r * 1.9))]
+        fin.faces.new(vs)
+        bmesh.ops.solidify(fin, geom=fin.faces[:], thickness=0.12)
+        emit(fin, g, "Fin")
+    g = "Head"
+    emit(ball(1.6, 12, 7, seed=9, rough=0.02), g, "EelSkin", at(0, 0.4, 0.1, sx=1.15, sy=1.35, sz=0.85))
+    emit(ball(1.35, 10, 5), g, "EelBelly", at(0, 0.7, -0.6, sx=1.1, sy=1.25, sz=0.45))
+    for k in range(7):
+        x = (k - 3) * 0.32
+        emit(spike((x, 2.05 - abs(x) * 0.25, -0.35), (x * 1.05, 2.15 - abs(x) * 0.25, -1.1), 0.12, 4), g, "Bone")
+        emit(spike((x, 2.0 - abs(x) * 0.25, 0.05), (x * 1.05, 2.1 - abs(x) * 0.25, 0.65), 0.1, 4), g, "Bone")
+    emit(taper((0, 0.6, 1.2), (0, 1.6, 2.8), 0.12, 0.08, 5), g, "EelSkin")
+    emit(taper((0, 1.6, 2.8), (0, 2.6, 2.6), 0.08, 0.06, 5), g, "EelSkin")
+    emit(ball(0.42, 8, 5), g, "Lure", at(0, 2.75, 2.45))
+    for side in (-1, 1):
+        emit(ball(0.24, 6, 4), g, "Lure", at(side * 1.05, 1.35, 0.55))
+        emit(spike((side * 1.4, -0.4, 0.2), (side * 2.6, -1.2, 0.6), 0.35, 4), g, "Fin")  # gill frills
+
+
+CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow, "Puffcap": puffcap, "LanternEel": lantern_eel}
 BUDGET = 2000  # one grabber at a time on screen
 
 
@@ -344,7 +432,12 @@ def join_groups():
 
 
 os.makedirs(OUT, exist_ok=True)
+# ONLY=Name1,Name2 exports just those (re-exporting rewrites the FBX bytes, and
+# Starport would upload unchanged models again)
+ONLY = [n for n in os.environ.get("ONLY", "").split(",") if n]
 for name, build in CREATURES.items():
+    if ONLY and name not in ONLY:
+        continue
     fresh()
     build()
     objs = join_groups()

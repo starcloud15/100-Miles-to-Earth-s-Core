@@ -84,6 +84,11 @@ local PROP_PAINT = {
 	Moss = { Color3.fromRGB(90, 140, 70), Enum.Material.Grass },
 	Paper = { Color3.fromRGB(236, 222, 186), Enum.Material.SmoothPlastic },
 	Rope = { Color3.fromRGB(196, 170, 120), Enum.Material.Fabric },
+	-- zone 2's mushrooms (the Cap is recoloured per mushroom)
+	Stem = { Color3.fromRGB(222, 214, 200), Enum.Material.SmoothPlastic },
+	Cap = { Color3.fromRGB(60, 214, 200), Enum.Material.SmoothPlastic },
+	Gills = { Color3.fromRGB(70, 46, 104), Enum.Material.SmoothPlastic },
+	Spots = { Color3.fromRGB(230, 255, 250), Enum.Material.Neon },
 }
 local HANGING = { Stalactite = true }
 local function prop(name: string, cf: CFrame, scale: number, model: Model, fallback: () -> ()): Model?
@@ -588,6 +593,20 @@ end
 
 local function fungi(model: Model, at: CFrame, rng: Random)
 	-- a clump of luminous teal mushrooms on the river bank
+	local clump = prop("MushroomCluster", at * CFrame.Angles(0, rng:NextNumber(0, 6), 0), rng:NextNumber(0.8, 1.4), model, function() end)
+	if clump then
+		for _, p in clump:GetChildren() do
+			if p.Name == "Cap" then
+				(p :: BasePart).Color = Color3.fromRGB(70, 240, 210)
+				p.Material = Enum.Material.Neon
+			end
+		end
+		local anchor = clump:FindFirstChildWhichIsA("BasePart")
+		if anchor then
+			light(anchor, Color3.fromRGB(80, 240, 220), 22, 1.4)
+		end
+		return
+	end
 	for i = 1, rng:NextInteger(3, 5) do
 		local h = rng:NextNumber(1.5, 4.5)
 		local base = at * CFrame.new(rng:NextNumber(-4, 4), 0, rng:NextNumber(-4, 4))
