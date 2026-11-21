@@ -228,7 +228,7 @@ local function build()
 	el.nightMult = italic({ Parent = night, Text = "", TextColor3 = YELLOW, AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0.64, 0.126), Size = UDim2.fromScale(0.05, 0.05), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 3 })
 	el.ringRow = frame({ Parent = night, Position = UDim2.fromScale(0.305, 0.168), Size = UDim2.fromScale(0.2, 0.064) })
 	Ui.new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0.02, 0), Parent = el.ringRow })
-	el.ringText = italic({ Parent = night, Text = "", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0.47, 0.2), Size = UDim2.fromScale(0.25, 0.03), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2 })
+	el.ringText = italic({ Parent = night, Text = "", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0.47, 0.2), Size = UDim2.fromScale(0.42, 0.03), TextXAlignment = Enum.TextXAlignment.Left, RichText = true, Stroke = 2 })
 	el.night = night
 end
 
@@ -441,7 +441,7 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 	local aboard, crewSize, need = state:GetAttribute("Aboard") or 0, state:GetAttribute("CrewSize") or 1, state:GetAttribute("Need") or 1
 	-- (at the spawn it waits until you've mined your glowstone or the countdown runs, like the reference)
 	local spawnReady = phase ~= "Spawn" or boarding ~= "Board" or (player:GetAttribute("Glowstone") or 0) >= 12
-	local showBoard = boarding ~= "" and spawnReady and (phase == "Spawn" or phase == "Stop" or phase == "Morning")
+	local showBoard = boarding ~= "" and spawnReady and (phase == "Spawn" or phase == "Stop" or phase == "Morning" or phase == "Night")
 	if showBoard then
 		el.objective.Visible = false
 	end
@@ -516,6 +516,9 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 		el.nightMult.Text = mult > 1.01 and string.format("%.1fx", mult) or ""
 		local inRing, n = state:GetAttribute("InRing") or 0, state:GetAttribute("CrewSize") or 1
 		el.ringText.Text = inRing < n and ((n - inRing) .. " more to speed up the night") or (mult > 1.01 and "Feed the Beacon to go faster" or "Feed the Beacon to speed up the night")
+		if (state:GetAttribute("RepairNeed") or 0) <= 0 and not state:GetAttribute("NightLeave") then
+			el.ringText.Text ..= '  ·  <font color="#FFD628">or leave now: [F] on the rig</font>'
+		end
 		local beaconPos = state:GetAttribute("BeaconPos")
 		crewRow(el.ringRow, function(p)
 			local r = p.Character and p.Character:FindFirstChild("HumanoidRootPart")

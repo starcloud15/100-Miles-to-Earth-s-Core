@@ -72,6 +72,7 @@ local function startLeg()
 end
 
 local function depart()
+	set("NightLeave", false)
 	phase("Moving")
 	rig:repairAll()
 	rig:showGhosts(false)
@@ -161,6 +162,15 @@ function Run.init(theRig, theRoute, theState, theWorld, theCrew)
 	objective("Mine glowstone", "0/12", "white", "Glowstone")
 	set("Glow", 1)
 	forceLeaveAt = os.clock() + 75
+end
+
+-- "Leave camp now" on the rig at night, once it's repaired
+function Run.leaveNight(player: Player)
+	if state:GetAttribute("Phase") ~= "Night" or (state:GetAttribute("RepairNeed") or 0) > 0 or state:GetAttribute("NightLeave") then
+		return
+	end
+	set("NightLeave", true)
+	Net.Notify:FireAllClients("Banner", player.DisplayName .. " wants to push on through the dark! Board the rig")
 end
 
 -- (Studio jumps: aim at whatever stop is next from here, and ride on)
@@ -283,6 +293,20 @@ function Run.step(dt: number)
 			objective("Get by the Beacon to speed up the night", (n - inRing) .. " more", "orange", "Beacon")
 		else
 			objective("Feed the Beacon to go faster", "", "white", "Beacon")
+		end
+		-- the crew can push on through the dark once the rig is repaired (owner):
+		-- someone presses "Leave camp now" on the rig, then it's the usual boarding
+		if state:GetAttribute("NightLeave") and (state:GetAttribute("RepairNeed") or 0) <= 0 then
+			boarding(dt, false)
+			if state:GetAttribute("Phase") == "Moving" then
+				leg += 1
+				set("Leg", leg)
+				return
+			end
+		elseif leaveAt or state:GetAttribute("Boarding") ~= "" then
+			leaveAt = nil
+			set("Boarding", "")
+			set("Countdown", 0)
 		end
 		if prog >= 100 then
 			phase("Morning")

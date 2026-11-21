@@ -6,8 +6,8 @@
 	    answer to the reference's swimming). The crew stops cranking to let you
 	    catch up.
 	  * Past about 60 m the "DON'T GET LEFT BEHIND!" bar fills with the distance
-	    ((d - 60 m) / 630 m in the reference). When it's full you're PULLED BACK
-	    onto the rig (owner).
+	    from 60 m to 125 m (owner). When it's full you're PULLED BACK onto the
+	    rig.
 ]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -294,12 +294,62 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		end
 		local now = os.clock()
 		if action == "cast" and not i.cast then
+			local root = rootOf(player)
+			if not root then
+				return
+			end
 			local bite = now + math.random(20, 60) / 10
-			i.cast = { bite = bite }
+			local c = { bite = bite }
+			i.cast = c
+			-- the hook really flies out: it lands on the ground about 16 studs in front
+			-- (short of any wall), and every client draws it there on its line with
+			-- "..." over it, then "!" at the tug (client/Hook.luau)
+			local fwd = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+			fwd = fwd.Magnitude > 0.01 and fwd.Unit or Vector3.new(0, 0, -1)
+			local aboard = Crew.isAboard(player)
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			local ignore = {}
+			for _, p in Players:GetPlayers() do
+				if p.Character then
+					table.insert(ignore, p.Character)
+				end
+			end
+			-- (from the deck it flies over the rig's rails; from the ground it stops at the rig)
+			params.FilterDescendantsInstances = aboard and { rig.model, table.unpack(ignore) } or ignore
+			params.CollisionGroup = "Default" -- (passes through the edge barriers)
+			local dist = 16
+			local wall = workspace:Raycast(root.Position, fwd * dist, params)
+			if wall then
+				dist = math.max(4, (wall.Position - root.Position).Magnitude - 1.5)
+			end
+			local over = root.Position + fwd * dist
+			table.insert(ignore, rig.model)
+			params.FilterDescendantsInstances = ignore
+			local down = workspace:Raycast(over + Vector3.new(0, 3, 0), Vector3.new(0, -40, 0), params)
+			local at = down and (down.Position + Vector3.new(0, 0.4, 0)) or (over - Vector3.new(0, 2.8, 0))
+			player:SetAttribute("HookRig", aboard)
+			player:SetAttribute("HookAt", aboard and rig.deck.CFrame:PointToObjectSpace(at) or at)
+			player:SetAttribute("HookTime", workspace:GetServerTimeNow())
+			player:SetAttribute("HookState", "Cast")
+			task.delay(bite - now, function()
+				if i.cast == c then
+					player:SetAttribute("HookState", "Bite")
+				end
+			end)
+			task.delay(bite - now + 1.25, function()
+				if i.cast == c then
+					-- never reeled: it slips away
+					i.cast = nil
+					player:SetAttribute("HookState", "")
+					notify(player, "DelveResult", "late")
+				end
+			end)
 			notify(player, "Cast", bite - now)
 		elseif action == "reel" and i.cast then
 			local c = i.cast
 			i.cast = nil
+			player:SetAttribute("HookState", "")
 			if now < c.bite then
 				notify(player, "DelveResult", "early")
 			elseif now > c.bite + 1.2 then

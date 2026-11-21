@@ -138,7 +138,7 @@ local Config = {
 
 	Crew = {
 		WARN_STUDS = 215, -- about 60 m: "DON'T GET LEFT BEHIND!"
-		PULL_STUDS = 2250, -- the bar fills over this much more (reference: 630 m)
+		PULL_STUDS = math.floor((125 - 60) * 3.57), -- full at 125 m: pulled back onto the rig
 		SLIDE_SPEED = 38, -- off the rig you slide down the slope faster than you run
 		TOW_RANGE = 160,
 		TOW_COOLDOWN = 3,

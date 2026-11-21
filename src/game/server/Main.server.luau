@@ -103,6 +103,20 @@ repair.Parent = rig.deck
 repair.Triggered:Connect(function(player)
 	Run.repair(player)
 end)
+-- at night, once the rig is repaired, the crew may leave camp early (owner)
+local leave = Instance.new("ProximityPrompt")
+leave.Name = "LeavePrompt"
+leave.ActionText = "Leave camp now"
+leave.ObjectText = "Rig"
+leave.KeyboardKeyCode = Enum.KeyCode.F
+leave.HoldDuration = 1
+leave.MaxActivationDistance = 14
+leave.RequiresLineOfSight = false
+leave.Enabled = false
+leave.Parent = rig.deck
+leave.Triggered:Connect(function(player)
+	Run.leaveNight(player)
+end)
 local feedHooked = {}
 local function hookBeacons()
 	for _, b in World.beacons do
@@ -126,6 +140,7 @@ local function publish()
 	state:SetAttribute("Lateral", rig.x)
 	local need = state:GetAttribute("RepairNeed") or 0
 	repair.Enabled = not rig.moving and need > 0
+	leave.Enabled = state:GetAttribute("Phase") == "Night" and need <= 0 and not state:GetAttribute("NightLeave")
 	repair.ObjectText = string.format("%d / %d", state:GetAttribute("RepairHave") or 0, need)
 end
 

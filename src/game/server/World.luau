@@ -296,15 +296,28 @@ local function beacon(model: Model, cf: CFrame, name: string)
 	end)
 	local core = part({ Name = "Beacon", Size = Vector3.new(3, 4.5, 3), CFrame = CFrame.new(pos + Vector3.new(0, 2.6, 0)) * CFrame.Angles(0.3, 0.6, 0.2), Color = AMBER, Material = Enum.Material.Neon, Parent = model })
 	core:SetAttribute("Stop", name)
-	light(core, Color3.fromRGB(255, 170, 80), 60, 3)
+	light(core, Color3.fromRGB(255, 170, 80), 60, 2.2)
 	local fire = Instance.new("Fire")
-	fire.Size = 7
-	fire.Heat = 12
+	fire.Size = 12
+	fire.Heat = 16
 	fire.Color = Color3.fromRGB(255, 160, 60)
 	fire.SecondaryColor = Color3.fromRGB(255, 230, 140)
 	fire.Parent = core
-	-- the safe ring on the floor
-	part({ Name = "Ring", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2, Config.Night.RING * 2, Config.Night.RING * 2), CFrame = CFrame.new(pos + Vector3.new(0, 0.12, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 210, 90), Material = Enum.Material.Neon, Transparency = 0.82, CanCollide = false, CastShadow = false, Parent = model })
+	-- the safe ring on the floor: a faint glow, edged with a bold yellow line like
+	-- the reference's camp circle, so you can see where the light ends
+	part({ Name = "Ring", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2, Config.Night.RING * 2, Config.Night.RING * 2), CFrame = CFrame.new(pos + Vector3.new(0, 0.12, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 210, 90), Material = Enum.Material.Neon, Transparency = 0.86, CanCollide = false, CastShadow = false, Parent = model })
+	local R, SEG = Config.Night.RING, 48
+	for i = 1, SEG do
+		local a = i / SEG * math.pi * 2
+		local p = pos + Vector3.new(math.cos(a) * R, 0.3, math.sin(a) * R)
+		part({ Name = "RingLine", Size = Vector3.new(0.9, 0.35, R * math.pi * 2 / SEG + 0.3), CFrame = CFrame.lookAt(p, p + Vector3.new(-math.sin(a), 0, math.cos(a))), Color = Color3.fromRGB(255, 214, 60), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+	end
+	-- log benches round the fire
+	for i = 1, 4 do
+		local a = (i + 0.5) / 4 * math.pi * 2
+		local p = pos + Vector3.new(math.cos(a) * 9, 0.7, math.sin(a) * 9)
+		part({ Name = "Bench", Shape = Enum.PartType.Cylinder, Size = Vector3.new(6, 1.5, 1.5), CFrame = CFrame.lookAt(p, pos + Vector3.new(0, 0.7, 0)) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(122, 82, 52), Material = Enum.Material.Wood, Parent = model })
+	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "FeedPrompt"
 	prompt.ActionText = "Feed the Beacon"
@@ -333,10 +346,58 @@ local function tent(model: Model, at: CFrame, color: Color3)
 	end
 end
 
+-- the arch the rig drives under into a stop: "CAMP" / "LANDING" / "WAYSTATION"
+-- and the stop's name, lit by lanterns (owner: "I didn't even know we're at a camp")
+local function stopArch(model: Model, stop)
+	local acf = route:sample(stop.s - 92)
+	local wood, dark = Color3.fromRGB(128, 86, 52), Color3.fromRGB(84, 56, 36)
+	local SPAN, TOP = 26, 20
+	for _, side in { -1, 1 } do
+		part({ Name = "ArchPost", Size = Vector3.new(2.2, TOP + 2, 2.2), CFrame = acf * CFrame.new(side * SPAN, TOP / 2 + 1, 0), Color = dark, Material = Enum.Material.WoodPlanks, Parent = model })
+		part({ Name = "ArchFoot", Size = Vector3.new(4, 2.4, 4), CFrame = acf * CFrame.new(side * SPAN, 1.2, 0), Color = Color3.fromRGB(110, 100, 92), Material = Enum.Material.Slate, Parent = model })
+		local lamp = part({ Name = "ArchLantern", Size = Vector3.new(1.6, 2, 1.6), CFrame = acf * CFrame.new(side * (SPAN - 3), TOP - 3, 0), Color = Color3.fromRGB(255, 200, 110), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+		light(lamp, Color3.fromRGB(255, 190, 110), 36, 2)
+		-- a pennant on each post
+		part({ Name = "Pennant", ClassName = "WedgePart", Size = Vector3.new(0.2, 3, 4), CFrame = acf * CFrame.new(side * SPAN, TOP + 1.5, -2.2) * CFrame.Angles(0, 0, 0), Color = stop.kind == "camp" and Color3.fromRGB(220, 70, 50) or Color3.fromRGB(70, 130, 200), Material = Enum.Material.Fabric, CanCollide = false, Parent = model })
+	end
+	part({ Name = "ArchBeam", Size = Vector3.new(SPAN * 2 + 4, 2, 2.4), CFrame = acf * CFrame.new(0, TOP + 1, 0), Color = dark, Material = Enum.Material.WoodPlanks, Parent = model })
+	local board = part({ Name = "ArchSign", Size = Vector3.new(26, 7, 0.8), CFrame = acf * CFrame.new(0, TOP - 3.6, 0), Color = wood, Material = Enum.Material.WoodPlanks, CanCollide = false, Parent = model })
+	local word = ({ camp = "CAMP", landing = "LANDING", waystation = "WAYSTATION" })[stop.kind] or "STOP"
+	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 40
+		g.LightInfluence = 0.2
+		g.Parent = board
+		local function label(text: string, y: number, hgt: number, color: Color3)
+			local l = Instance.new("TextLabel")
+			l.BackgroundTransparency = 1
+			l.Size = UDim2.fromScale(0.94, hgt)
+			l.Position = UDim2.fromScale(0.03, y)
+			l.Font = Enum.Font.LuckiestGuy
+			l.TextScaled = true
+			l.Text = text
+			l.TextColor3 = color
+			l.TextStrokeTransparency = 0
+			l.Parent = g
+		end
+		label(word, 0.06, 0.52, stop.kind == "camp" and Color3.fromRGB(255, 214, 60) or Color3.new(1, 1, 1))
+		label(stop.name, 0.6, 0.32, Color3.new(1, 1, 1))
+	end
+	-- the sign hangs from two chains
+	for _, x in { -9, 9 } do
+		part({ Name = "Chain", Size = Vector3.new(0.3, 1.4, 0.3), CFrame = acf * CFrame.new(x, TOP - 0.2 + 0.1, 0), Color = Color3.fromRGB(60, 60, 64), Material = Enum.Material.Metal, CanCollide = false, Parent = model })
+	end
+end
+
 local function buildStop(model: Model, stop)
 	local cf, w, _, h = route:sample(stop.s)
 	local rng = Random.new(route.seed + math.floor(stop.s))
 	beacon(model, cf, stop.name)
+	if not stop.start then
+		stopArch(model, stop)
+	end
 	if stop.start then
 		-- (the Waystation the crew left from: its spawn veins are mined instead)
 	elseif stop.hall then
@@ -2017,6 +2078,7 @@ local function ensureLighting()
 	bloom.Parent = Lighting
 	Lighting.ClockTime = 14.5
 	Lighting.Brightness = 2.4
+	Lighting.ExposureCompensation = 0.35
 end
 
 local SECTIONS = {
@@ -2057,14 +2119,19 @@ function World.atmosphere(s: number, glow: number)
 		kind = SECTIONS[theme] and theme or "Hall"
 	end
 	local sec = SECTIONS[kind] or SECTIONS.Tunnel
-	local dusk = Color3.fromRGB(255, 120, 110)
-	local night = Color3.fromRGB(110, 140, 230)
+	-- (owner: "way too dark". The reference stays bright and readable even at
+	-- night: a soft blue, never black. So the grade only tints, and the ambient
+	-- is lifted well above each section's base.)
+	local dusk = Color3.fromRGB(255, 206, 190)
+	local night = Color3.fromRGB(196, 210, 255)
 	local tint = glow > 0.35 and sec.tint:Lerp(dusk, (1 - glow) * 0.6) or dusk:Lerp(night, (0.35 - glow) / 0.35)
-	local amb = sec.amb:Lerp(Color3.fromRGB(30, 34, 60), (1 - glow) * 0.7)
+	local b = sec.amb
+	local lifted = Color3.new(math.min(1, b.R * 1.45 + 0.08), math.min(1, b.G * 1.45 + 0.08), math.min(1, b.B * 1.45 + 0.08))
+	local amb = lifted:Lerp(Color3.fromRGB(96, 110, 160), (1 - glow) * 0.45)
 	Lighting.Ambient = Lighting.Ambient:Lerp(amb, 0.1)
 	Lighting.OutdoorAmbient = Lighting.OutdoorAmbient:Lerp(amb, 0.1)
 	atmosphere.Color = atmosphere.Color:Lerp(sec.fog, 0.08)
-	atmosphere.Decay = atmosphere.Decay:Lerp(sec.fog:Lerp(Color3.new(0, 0, 0), 0.4), 0.08)
+	atmosphere.Decay = atmosphere.Decay:Lerp(sec.fog:Lerp(Color3.new(0, 0, 0), 0.15), 0.08)
 	atmosphere.Density = atmosphere.Density + (sec.density - atmosphere.Density) * 0.08
 	atmosphere.Haze = atmosphere.Haze + (sec.haze - atmosphere.Haze) * 0.08
 	grade.TintColor = grade.TintColor:Lerp(tint, 0.08)

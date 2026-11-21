@@ -52,6 +52,11 @@ function Route.new(seed: number, miles: number, zone: number?, startMile: number
 
 	local function run(len: number, turnDeg: number, slope: number, toWidth: number, toHeight: number, kind: string)
 		local n = math.max(1, math.floor(len / STEP + 0.5))
+		if height < 1 and toHeight > 0 then
+			-- out of the open gorge into rock: the bore is full height from its first
+			-- slice (ramping it up from 0 left rock in the rig's way: owner)
+			height = toHeight
+		end
 		local w0, h0 = width, height
 		local s0 = length()
 		for i = 1, n do

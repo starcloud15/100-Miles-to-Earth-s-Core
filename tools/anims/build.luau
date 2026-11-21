@@ -11,7 +11,7 @@ local roblox = require("@lune/roblox")
 local Poses = require("../../src/shared/Poses")
 
 fs.writeDir("art/anims/Character")
-for _, name in { "Slide" } do
+for _, name in Poses.MOVES do
 	local kfs = Poses.build(Poses[name], roblox.Instance, roblox.CFrame, roblox.Enum)
 	kfs.Name = name
 	fs.writeFile("art/anims/Character/" .. name .. ".rbxm", roblox.serializeModel({ kfs }))

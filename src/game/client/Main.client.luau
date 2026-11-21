@@ -80,11 +80,16 @@ local function nearestVein(): Model?
 	return best
 end
 
+local playMove -- (the tool-use animations, defined below)
+
 local function activate(tool: Tool)
 	if tool.Name == "Crank Pump" then
+		playMove("Crank")
 		Net.Crank:FireServer()
 		shake(0.15)
 	elseif tool.Name == "Pickaxe" then
+		-- every click swings, vein or not (owner)
+		playMove("Swing")
 		local v = nearestVein()
 		if v then
 			Net.Mine:FireServer(v)
@@ -94,11 +99,19 @@ local function activate(tool: Tool)
 		end
 	elseif tool.Name == "Delver's Hook" then
 		if delving then
+			playMove("Reel")
 			Net.Delve:FireServer("reel")
 		else
-			Net.Delve:FireServer("cast")
+			playMove("Cast")
+			-- (the hook leaves the rod as the arm comes forward)
+			task.delay(0.18, function()
+				Net.Delve:FireServer("cast")
+			end)
 		end
 	elseif tool.Name == "Food" then
+		if (player:GetAttribute("RawFinds") or 0) > 0 then
+			playMove("Eat")
+		end
 		Net.Eat:FireServer()
 	end
 end
@@ -246,11 +259,11 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	elseif kind == "Fed" then
 		Hud.toast("+0.1x", Color3.fromRGB(255, 214, 40), 0.6)
 	elseif kind == "Cast" then
-		delving = { bite = os.clock() + (tonumber(data) or 3) }
-		Hud.toast("...", Color3.new(1, 1, 1), tonumber(data) or 3)
+		-- ("..." and "!" are drawn on the hook itself: client/Hook.luau)
+		local d = { bite = os.clock() + (tonumber(data) or 3) }
+		delving = d
 		task.delay(tonumber(data) or 3, function()
-			if delving then
-				Hud.toast("! CLICK", Color3.fromRGB(255, 214, 40), 1.2)
+			if delving == d then
 				shake(0.25)
 			end
 		end)
@@ -293,14 +306,13 @@ local Poses = require(Shared.Poses)
 local slideTrack: AnimationTrack? = nil
 local slideChar: Model? = nil
 
-local function getSlideTrack(hum: Humanoid): AnimationTrack?
-	if slideTrack and slideChar == hum.Parent then
-		return slideTrack
-	end
-	local id = Art.get("animations", "Character/Slide")
+-- load one of Shared.Poses' animations on a humanoid: the uploaded one, or in
+-- Studio, the same pose data registered on the fly
+local function loadPose(hum: Humanoid, name: string): AnimationTrack?
+	local id = Art.get("animations", "Character/" .. name)
 	if not id and RunService:IsStudio() then
 		local ok, res = pcall(function()
-			local kfs = Poses.build(Poses.Slide, Instance, CFrame, Enum)
+			local kfs = Poses.build(Poses[name], Instance, CFrame, Enum)
 			return game:GetService("KeyframeSequenceProvider"):RegisterKeyframeSequence(kfs)
 		end)
 		id = ok and res or nil
@@ -311,11 +323,43 @@ local function getSlideTrack(hum: Humanoid): AnimationTrack?
 	end
 	local anim = Instance.new("Animation")
 	anim.AnimationId = id
-	slideTrack = animator:LoadAnimation(anim)
-	slideTrack.Looped = true
-	slideTrack.Priority = Enum.AnimationPriority.Action4
-	slideChar = hum.Parent
+	local track = animator:LoadAnimation(anim)
+	track.Looped = Poses[name].looped == true
+	track.Priority = Enum.AnimationPriority.Action4
+	return track
+end
+
+local function getSlideTrack(hum: Humanoid): AnimationTrack?
+	if slideTrack and slideChar == hum.Parent then
+		return slideTrack
+	end
+	slideTrack = loadPose(hum, "Slide")
+	slideChar = slideTrack and hum.Parent or nil
 	return slideTrack
+end
+
+-- tool use: Swing (Pickaxe), Crank, Cast and Reel (Delver's Hook), Eat
+local moveTracks: { [string]: AnimationTrack } = {}
+local moveChar: Model? = nil
+playMove = function(name: string)
+	local hum = humanoid()
+	if not hum then
+		return
+	end
+	if moveChar ~= hum.Parent then
+		moveTracks = {}
+		moveChar = hum.Parent
+	end
+	local track = moveTracks[name]
+	if not track then
+		track = loadPose(hum, name)
+		if not track then
+			return
+		end
+		moveTracks[name] = track
+	end
+	track:Play(0.05)
+	track.TimePosition = 0
 end
 
 RunService.Heartbeat:Connect(function()
@@ -474,6 +518,9 @@ end)
 
 -- creatures on the rig and their SPAM! buttons
 require(script.Parent:WaitForChild("Creatures")).init({ deck = deck, shake = shake, toast = Hud.toast })
+
+-- every player's Delver's Hook, cast out on its line
+require(script.Parent:WaitForChild("Hook")).init(deck)
 
 -- notice boards: "[E] Read" opens the Journal note card
 local Journal = require(script.Parent:WaitForChild("Journal"))
