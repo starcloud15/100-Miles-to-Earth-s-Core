@@ -515,6 +515,7 @@ end)
 -- every frame -------------------------------------------------------------------------
 local acc = 0
 local rumbleT = 0
+local liftY = 0
 RunService.RenderStepped:Connect(function(dt)
 	local r, hum = root(), humanoid()
 	local aboard = r ~= nil and onDeck(r.Position)
@@ -533,8 +534,11 @@ RunService.RenderStepped:Connect(function(dt)
 	rumbleT += dt
 	jolt = math.max(0, jolt - dt * 2.5)
 	local amount = (aboard and moving and math.clamp(speed / 100, 0, 1) * 0.22 or 0) + jolt * 0.6
+	-- aboard, the camera's focus rises above the engine's stacks, so it looks down
+	-- on the deck and the route like the reference's raft camera
+	liftY += ((aboard and 7 or 0) - liftY) * math.min(1, dt * 4)
 	if hum then
-		hum.CameraOffset = Vector3.new(math.noise(rumbleT * 18, 1) * amount, math.noise(rumbleT * 18, 7) * amount, 0)
+		hum.CameraOffset = Vector3.new(math.noise(rumbleT * 18, 1) * amount, liftY + math.noise(rumbleT * 18, 7) * amount, 0)
 	end
 
 	-- off the rig: slide down the slope faster than you can run
