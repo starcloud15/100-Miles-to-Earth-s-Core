@@ -322,6 +322,10 @@ def notice_board():
     for x in (-3, 3):
         beam((x, 0, 0), (x, 0, 6.6), 0.55, "WoodDark")
     emit(box(6.6, 0.35, 3.8, bevel=0.05), "Wood", at(z=4.1))
+    # plank grooves standing just proud of both faces (stylized; no z-fighting)
+    for z in (3.15, 4.1, 5.05):
+        for side in (-1, 1):
+            emit(box(6.3, 0.05, 0.08), "WoodDark", at(0, side * 0.2, z))
     emit(box(7.2, 0.5, 0.35, bevel=0.04), "WoodDark", at(z=6.15))
     emit(box(7.2, 0.5, 0.35, bevel=0.04), "WoodDark", at(z=2.05))
     for side in (-1, 1):
@@ -381,7 +385,12 @@ def arch():
 
 def minecart():
     # a Quarrymen ore cart, abandoned on its rails (about 5 long)
-    emit(cone(2.1, 2.6, 2.2, 4, 1, 110, wobble=0.0, twist=0), "Steel", at(z=1.1, rz=math.pi / 4) @ Matrix.Scale(1, 4) @ Matrix.Diagonal((1.25, 0.9, 1, 1)))
+    # the hopper: square-rotated first, then stretched, so its sides line up with the
+    # frame; open at the top so the ore load shows
+    hop = cone(2.1, 2.6, 2.2, 4, 1, 110, wobble=0.0, twist=0, cap_top=False)
+    hop.normal_update()
+    bmesh.ops.solidify(hop, geom=hop.faces[:], thickness=0.18)  # (real walls, so it stays open)
+    emit(hop, "Steel", Matrix.Translation((0, 0, 1.1)) @ Matrix.Diagonal((1.25, 0.9, 1, 1)) @ Matrix.Rotation(math.pi / 4, 4, "Z"))
     emit(box(4.2, 3.0, 0.3), "WoodDark", at(z=1.15))
     for x in (-1.6, 1.6):
         for y in (-1.55, 1.55):
@@ -390,9 +399,22 @@ def minecart():
         emit(box(7, 0.25, 0.3), "Steel", at(0, y, 0.15))
     for x in (-3, -1, 1, 3):
         emit(box(0.6, 4.2, 0.25), "WoodDark", at(x, 0, 0.1))
+    # stylized detail: a dark iron rim round the top, corner bands and rivets, and a
+    # heaped load of rock studded with glowstone
+    rim_r = 2.6 * 1.25 * 0.72
+    for side in (-1, 1):  # (a frame, not a lid)
+        emit(box(4.75, 0.3, 0.32, bevel=0.05), "RockDark", at(0, side * 1.58, 3.35))
+        emit(box(0.3, 3.45, 0.32, bevel=0.05), "RockDark", at(side * 2.23, 0, 3.35))
+    for x in (-1.55, 1.55):
+        for side in (-1, 1):
+            emit(box(0.32, 0.12, 2.0), "RockDark", at(x, side * 1.55, 2.2, rx=side * 0.12))
+            for z in (1.6, 2.3, 2.9):
+                emit(cyl(0.09, 0.08, 5), "Steel", at(x + 0.32 * (1 if x > 0 else -1), side * 1.6, z, rx=math.pi / 2))
+    emit(rock(1.55, 125, subdiv=1, squash=(1.35, 0.95, 0.45)), "RockDark", at(0, 0, 2.95))
     rnd = random.Random(3)
-    for i in range(5):
-        emit(rock(0.6, 120 + i, subdiv=1), "Glow" if i % 2 == 0 else "RockDark", at(rnd.uniform(-1.2, 1.2), rnd.uniform(-0.8, 0.8), 3.2))
+    for i in range(6):
+        emit(rock(0.45, 120 + i, subdiv=1), "Glow" if i % 2 == 0 else "Rock", at(rnd.uniform(-1.3, 1.3), rnd.uniform(-0.7, 0.7), 3.35 + rnd.uniform(0, 0.3)))
+    _ = rim_r
 
 
 def mushroom_cap(radius, height, sides=16, rings=4, seed=0):
@@ -526,7 +548,7 @@ def tris(objs) -> int:
     return sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
 
 
-BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 500, "GiantMushroom": 1000}
+BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 500, "GiantMushroom": 1000, "Minecart": 1000, "NoticeBoard": 900}
 
 os.makedirs(OUT, exist_ok=True)
 # ONLY=Name1,Name2 exports just those (re-exporting rewrites the FBX bytes, and

@@ -72,7 +72,7 @@ hmax = max((o.matrix_world @ Vector(c)).z for o in scene.objects if o.type == "M
 cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam"))
 scene.collection.objects.link(cam)
 cam.data.type = "ORTHO"
-cam.data.ortho_scale = max(x, hmax * 2.2) * 1.05
+cam.data.ortho_scale = max(x, hmax * 2.4) * 1.3
 cam.location = (x / 2, 200, hmax * 0.5 + 60)
 cam.rotation_euler = (math.radians(73), 0, math.radians(180))
 scene.camera = cam
