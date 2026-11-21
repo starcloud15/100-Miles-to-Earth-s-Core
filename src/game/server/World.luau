@@ -1017,6 +1017,193 @@ local function buildDeepmine(model: Model, cf: CFrame, len: number, w: number, s
 	end
 end
 
+-- zone 4, part 1: the Fossil Sea (GDD 9.0): an underground ocean with a horizon; a
+-- long pale causeway on stilts crosses it, between the ribs of something enormous
+-- that died here once, under a glowing geode "moon" -----------------------------------
+local BONE = Color3.fromRGB(232, 222, 198)
+local BONE_DARK = Color3.fromRGB(196, 182, 152)
+local SEA = Color3.fromRGB(40, 110, 150)
+
+local function rib(model: Model, centre: CFrame, radius: number, rng: Random)
+	-- one great curved rib arching over the causeway, from the sea to the sea
+	local n = 10
+	local lean = rng:NextNumber(-0.25, 0.25)
+	for i = 0, n - 1 do
+		local a0 = math.pi * i / n
+		local a1 = math.pi * (i + 1) / n
+		local p0 = Vector3.new(math.cos(a0) * radius, math.sin(a0) * radius * 1.1, math.sin(a0) * radius * lean)
+		local p1 = Vector3.new(math.cos(a1) * radius, math.sin(a1) * radius * 1.1, math.sin(a1) * radius * lean)
+		local thick = 7 - math.sin(a0) * 2.5
+		part({ Name = "Rib", Shape = Enum.PartType.Cylinder, Size = Vector3.new((p1 - p0).Magnitude + 3, thick, thick), CFrame = centre * CFrame.lookAt((p0 + p1) / 2, p1) * CFrame.Angles(0, math.rad(90), 0), Color = i % 2 == 0 and BONE or BONE_DARK, Material = Enum.Material.SmoothPlastic, Parent = model })
+	end
+end
+
+local function buildFossilSea(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0) * 0.5
+	local ce = hallCeil(s0) + 60
+	local sea = 26 -- the water lies this far below the causeway
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	-- the shell: a dark stone bowl, very wide and high, mostly full of sea
+	T:FillBlock(ccf * CFrame.new(0, -sea - 30, 0), Vector3.new(W + 80, 20, L), Enum.Material.Basalt)
+	T:FillBlock(ccf * CFrame.new(0, -sea - 10, 0), Vector3.new(W, 20, L), Enum.Material.Water)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Slate)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - sea) / 2, 0), Vector3.new(28, ce + sea + 60, L), Enum.Material.Slate)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.4, 0), Vector3.new(12, 14, L), Enum.Material.Limestone)
+	end
+	if rng:NextNumber() < 0.15 then
+		-- a rocky islet breaking the surface
+		local x = rng:NextNumber(-W / 2 + 40, W / 2 - 40)
+		if math.abs(x - off) > 50 then
+			T:FillBall((ccf * CFrame.new(x, -sea - 6, 0)).Position, rng:NextNumber(10, 22), Enum.Material.Limestone)
+		end
+	end
+
+	-- the route: a pale stone causeway on stilts, its crumbling edges stepping down
+	local deckW = w + 12
+	part({ Name = "Causeway", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = Color3.fromRGB(206, 194, 168), Material = Enum.Material.Limestone, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "Crumble", Size = Vector3.new(4, 2, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 + 1), -3.5, 0) * CFrame.Angles(0, 0, side * 0.2), Color = Color3.fromRGB(176, 164, 140), Material = Enum.Material.Limestone, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 3 == 0 then
+		for _, side in { -1, 1 } do
+			part({ Name = "Stilt", Size = Vector3.new(3, sea + 10, 3), CFrame = cf * CFrame.new(side * (deckW / 2 - 4), -(sea + 10) / 2 - 4, 0), Color = Color3.fromRGB(150, 140, 120), Material = Enum.Material.Limestone, Parent = model })
+		end
+	end
+	if k % 5 == 0 then
+		-- a fleet lantern on a pole, to steer by
+		local pole = part({ Name = "Pole", Size = Vector3.new(0.6, 9, 0.6), CFrame = cf * CFrame.new((k % 10 == 0 and -1 or 1) * (deckW / 2 - 1.5), 4.5, 0), Color = Color3.fromRGB(90, 70, 50), Material = Enum.Material.Wood, Parent = model })
+		local lamp = part({ Name = "FleetLamp", Size = Vector3.new(1.2, 1.4, 1.2), CFrame = pole.CFrame * CFrame.new(0, 5.2, 0), Color = Color3.fromRGB(255, 210, 130), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+		light(lamp, Color3.fromRGB(255, 200, 120), 30, 1.4)
+	end
+
+	-- the ribs of the dead giant: an arch every so often, in runs, like a ribcage
+	if (math.floor(s0 / 900) % 3 == 1) and k % 3 == 0 then
+		rib(model, cf * CFrame.new(0, -sea, 0), deckW * 0.5 + 34, rng)
+	end
+	if k % 97 == 40 then
+		-- the skull, half sunk, beside the route
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local at = ccf * CFrame.new(off + side * 90, -sea, 0)
+		part({ Name = "Skull", Shape = Enum.PartType.Ball, Size = Vector3.new(60, 40, 80), CFrame = at * CFrame.new(0, 8, 0), Color = BONE, Material = Enum.Material.SmoothPlastic, Parent = model })
+		for _, ex in { -14, 14 } do
+			part({ Name = "EyeHole", Shape = Enum.PartType.Ball, Size = Vector3.new(14, 14, 14), CFrame = at * CFrame.new(ex, 18, -side * 0 - 30), Color = Color3.fromRGB(30, 26, 24), Material = Enum.Material.SmoothPlastic, Parent = model })
+		end
+	end
+	if k % 61 == 25 then
+		-- the geode moon, high over the sea
+		local m = part({ Name = "GeodeMoon", Shape = Enum.PartType.Ball, Size = Vector3.one * 70, CFrame = ccf * CFrame.new(rng:NextNumber(-W / 4, W / 4), ce - 50, 0), Color = Color3.fromRGB(230, 220, 255), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		light(m, Color3.fromRGB(210, 200, 255), 60, 3)
+		part({ Name = "MoonRim", Shape = Enum.PartType.Ball, Size = Vector3.one * 78, CFrame = m.CFrame, Color = Color3.fromRGB(110, 90, 160), Material = Enum.Material.Glass, Transparency = 0.5, CanCollide = false, CastShadow = false, Parent = model })
+	end
+	if k % 4 == 1 then
+		-- fossils set in the walls: ammonite spirals
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local r = rng:NextNumber(6, 14)
+		part({ Name = "Ammonite", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2, r * 2, r * 2), CFrame = ccf * CFrame.new(side * (W / 2 - 1), rng:NextNumber(0, ce * 0.6), 0), Color = BONE_DARK, Material = Enum.Material.Limestone, Parent = model })
+	end
+	if k % 5 == 3 then
+		geode(model, ccf * CFrame.new((rng:NextNumber() < 0.5 and -1 or 1) * (W / 2 - 4), rng:NextNumber(0, ce * 0.5), 0), rng:NextNumber(1.6, 2.6), GEODE[2], rng)
+	end
+	if k % 3 == 0 then
+		glowWorms(model, ccf * CFrame.new(rng:NextNumber(-W / 4, W / 4), ce - 3, 0), W * 0.6, L)
+	end
+	if rng:NextNumber() < 0.3 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- zone 4, part 2: the Sporewood Shores: a red and green mushroom jungle in warm mist,
+-- reached up twisting ramps from the far shore -----------------------------------------
+local JUNGLE_CAPS = {
+	Color3.fromRGB(214, 60, 52), -- red
+	Color3.fromRGB(96, 186, 72), -- green
+	Color3.fromRGB(236, 150, 44), -- orange
+	Color3.fromRGB(150, 210, 80), -- lime
+}
+
+local function warmMist(model: Model, at: CFrame, width: number, len: number)
+	local p = part({ Name = "WarmMist", Size = Vector3.new(width, 1, len), CFrame = at, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(255, 226, 190), Color3.fromRGB(220, 255, 200))
+	e.Size = NumberSequence.new(14, 30)
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.82), NumberSequenceKeypoint.new(1, 1) })
+	e.Speed = NumberRange.new(1, 2)
+	e.Lifetime = NumberRange.new(10, 14)
+	e.Rate = 1.5
+	e.Parent = p
+end
+
+local function buildSporewood(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0) * 0.7
+	local fl, ce = hallFloor(s0) * 0.6, hallCeil(s0)
+	local W = HALL.WIDTH * 0.8
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Mud)
+	T:FillBlock(ccf * CFrame.new(0, -fl + 0.5, 0), Vector3.new(W, 2, L), Enum.Material.LeafyGrass)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Ground)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Ground)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.2, 0), Vector3.new(12, 30, L), Enum.Material.Grass)
+	end
+	if rng:NextNumber() < 0.5 then
+		T:FillBall((ccf * CFrame.new(rng:NextNumber(-W / 2 + 30, W / 2 - 30), -fl, 0)).Position, rng:NextNumber(12, 26), Enum.Material.Grass)
+	end
+
+	-- the route: a root-and-cap ramp, earthy, with fern fronds along its edges
+	local deckW = w + 16
+	part({ Name = "RootWalk", Size = Vector3.new(deckW, 5, len + 2), CFrame = cf * CFrame.new(0, -2.5, 0), Color = Color3.fromRGB(110, 78, 52), Material = Enum.Material.Ground, Parent = model })
+	part({ Name = "MossTop", Size = Vector3.new(deckW - 6, 0.4, len + 2), CFrame = cf * CFrame.new(0, 0.1, 0), Color = Color3.fromRGB(90, 150, 60), Material = Enum.Material.Grass, CanCollide = false, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "Root", Shape = Enum.PartType.Cylinder, Size = Vector3.new(len + 4, 3, 3), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.5), 1, 0) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(92, 64, 44), Material = Enum.Material.Wood, Parent = model })
+		if (k + (side > 0 and 1 or 0)) % 3 == 0 then
+			for i = 1, 3 do
+				part({ Name = "Frond", Size = Vector3.new(0.3, rng:NextNumber(3, 6), 1.4), CFrame = cf * CFrame.new(side * (deckW / 2 - 1), 2.5, rng:NextNumber(-8, 8)) * CFrame.Angles(rng:NextNumber(-0.4, 0.4), 0, side * rng:NextNumber(0.3, 0.8)), Color = Color3.fromRGB(70 + i * 20, 160, 60), Material = Enum.Material.Grass, CanCollide = false, Parent = model })
+			end
+		end
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 4 == 0 then
+		local h = fl - 4
+		part({ Name = "RootPillar", Size = Vector3.new(10, h, 10), CFrame = cf * CFrame.new(0, -5 - h / 2, 0) * CFrame.Angles(0, 0.5, 0), Color = Color3.fromRGB(92, 64, 44), Material = Enum.Material.Wood, Parent = model })
+	end
+
+	-- the jungle: giant red and green mushrooms, hanging vines, glowing pods, warm mist
+	for _ = 1, 2 do
+		if rng:NextNumber() < 0.7 then
+			local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+			if math.abs(x - off) > 45 then
+				giantMushroom(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)), rng:NextNumber(50, fl + 90), JUNGLE_CAPS[rng:NextInteger(1, #JUNGLE_CAPS)], rng)
+			end
+		end
+	end
+	if rng:NextNumber() < 0.6 then
+		local top = ccf * CFrame.new(rng:NextNumber(-W / 2 + 20, W / 2 - 20), ce - 2, 0)
+		for i = 1, rng:NextInteger(3, 6) do
+			local h = rng:NextNumber(20, 60)
+			part({ Name = "Vine", Size = Vector3.new(0.8, h, 0.8), CFrame = top * CFrame.new(rng:NextNumber(-10, 10), -h / 2, rng:NextNumber(-10, 10)), Color = Color3.fromRGB(60 + i * 10, 130, 50), Material = Enum.Material.Grass, CanCollide = false, CastShadow = false, Parent = model })
+		end
+	end
+	if k % 3 == 1 then
+		local pod = part({ Name = "GlowPod", Shape = Enum.PartType.Ball, Size = Vector3.new(3, 4, 3), CFrame = ccf * CFrame.new(rng:NextNumber(-W / 3, W / 3), rng:NextNumber(0, ce * 0.5), 0), Color = Color3.fromRGB(255, 200, 90), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+		light(pod, Color3.fromRGB(255, 190, 90), 30, 1.2)
+	end
+	if k % 4 == 2 then
+		warmMist(model, ccf * CFrame.new(off * 0.5, -fl * 0.4, 0), W * 0.6, L * 2)
+	end
+	if k % 4 == 3 then
+		fungi(model, cf * CFrame.new((rng:NextNumber() < 0.5 and -1 or 1) * (deckW / 2 - 4), 0, 0), rng)
+	end
+	if rng:NextNumber() < 0.35 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
 -- which cavern a distance is in (zones with two caverns switch theme part way)
 local function themeAt(s: number): string
 	local split = HALL.split
@@ -1036,6 +1223,12 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 		return
 	elseif theme == "Deepmine" then
 		buildDeepmine(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "FossilSea" then
+		buildFossilSea(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Sporewood" then
+		buildSporewood(model, cf, len, w, s0, k, kind, rng)
 		return
 	end
 	local off = hallOffset(s0)
@@ -1185,7 +1378,7 @@ local function hallPlug(model: Model, s: number)
 	local cf = route:sample(s)
 	local off = hallOffset(s)
 	local fl, ce = hallFloor(s), hallCeil(s)
-	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), ({ Grotto = Enum.Material.Basalt, Crystal = Enum.Material.Glacier, Deepmine = Enum.Material.Rock })[HALL.theme] or Enum.Material.Sandstone)
+	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), ({ Grotto = Enum.Material.Basalt, Crystal = Enum.Material.Glacier, Deepmine = Enum.Material.Rock, FossilSea = Enum.Material.Slate })[HALL.theme] or Enum.Material.Sandstone)
 	local _ = model
 end
 
@@ -1444,6 +1637,25 @@ function World.init(r)
 			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
 		end
 		VEIN_COLOR = Color3.fromRGB(170, 220, 255) -- pale blue veins in the ice (GDD 9.2)
+	elseif HALL.theme == "FossilSea" then
+		-- zone 4: blue-grey sea cliffs, bone-pale limestone, a dark green sea; then jungle earth
+		for mat, rgb in {
+			[Enum.Material.Sandstone] = { 150, 140, 120 },
+			[Enum.Material.Rock] = { 90, 96, 106 },
+			[Enum.Material.Slate] = { 70, 82, 98 },
+			[Enum.Material.Basalt] = { 40, 44, 52 },
+			[Enum.Material.Limestone] = { 214, 204, 176 },
+			[Enum.Material.Mud] = { 80, 56, 40 },
+			[Enum.Material.Ground] = { 110, 80, 56 },
+			[Enum.Material.LeafyGrass] = { 90, 160, 60 },
+			[Enum.Material.Grass] = { 80, 150, 64 },
+		} do
+			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
+		end
+		T.WaterColor = Color3.fromRGB(36, 104, 140)
+		T.WaterTransparency = 0.3
+		T.WaterWaveSize = 0.25
+		VEIN_COLOR = Color3.fromRGB(196, 232, 96) -- green-gold pockets inside the fossils (GDD 9.2)
 	end
 	regions = {}
 	for _, p in route.pieces do
@@ -1501,6 +1713,9 @@ local SECTIONS = {
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
 	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
 	-- zone 2's cavern: teal haze, violet shadows, glowing everywhere
+	-- zone 4: a cool sea under a geode moon, then a warm misty jungle
+	FossilSea = { amb = Color3.fromRGB(112, 132, 152), fog = Color3.fromRGB(92, 142, 172), density = 0.26, haze = 1.8, tint = Color3.fromRGB(236, 246, 255), sat = 0.15 },
+	Sporewood = { amb = Color3.fromRGB(140, 122, 92), fog = Color3.fromRGB(196, 170, 112), density = 0.34, haze = 2.0, tint = Color3.fromRGB(255, 246, 226), sat = 0.25 },
 	-- zone 3: the cold blue crystal cathedral, then the warm lamplit Deepmine
 	Crystal = { amb = Color3.fromRGB(130, 160, 196), fog = Color3.fromRGB(160, 206, 238), density = 0.3, haze = 1.4, tint = Color3.fromRGB(232, 246, 255), sat = 0.12 },
 	Deepmine = { amb = Color3.fromRGB(112, 92, 74), fog = Color3.fromRGB(120, 92, 66), density = 0.38, haze = 1.2, tint = Color3.fromRGB(255, 236, 212), sat = 0.1 },

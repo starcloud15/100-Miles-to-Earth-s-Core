@@ -56,6 +56,11 @@ local PAINT = {
 	Fur = { Color3.fromRGB(96, 76, 66), Enum.Material.Fabric },
 	Claw = { Color3.fromRGB(226, 214, 196), Enum.Material.SmoothPlastic },
 	Snout = { Color3.fromRGB(232, 150, 150), Enum.Material.SmoothPlastic },
+	-- zone 4
+	Skull = { Color3.fromRGB(232, 222, 198), Enum.Material.SmoothPlastic },
+	CrabShell = { Color3.fromRGB(200, 90, 60), Enum.Material.SmoothPlastic },
+	Scale = { Color3.fromRGB(70, 110, 66), Enum.Material.SmoothPlastic },
+	ScaleBelly = { Color3.fromRGB(196, 190, 140), Enum.Material.SmoothPlastic },
 }
 
 local RED = Color3.fromRGB(226, 38, 38)
@@ -163,6 +168,36 @@ function STANDIN.TunnelMole(m: Model)
 		for k = -1, 1 do
 			piece(m, "Head_Claw", nil, Vector3.new(0.3, 0.3, 1.6), CFrame.new(side * 1.7 + k * 0.3, -1.2, -1.3) * CFrame.Angles(0.4, 0, 0))
 		end
+	end
+end
+function STANDIN.BoneCrab(m: Model)
+	-- a hermit crab living in a fossil skull: red legs and claws out of a bone dome
+	piece(m, "Body_Skull", Enum.PartType.Ball, Vector3.new(4, 3, 4.4), CFrame.new(0, 2, 0.4))
+	piece(m, "Body_Void", Enum.PartType.Ball, Vector3.new(0.9, 0.9, 0.5), CFrame.new(-0.8, 2.4, -1.7))
+	piece(m, "Body_Void", Enum.PartType.Ball, Vector3.new(0.9, 0.9, 0.5), CFrame.new(0.8, 2.4, -1.7))
+	for i = 0, 2 do
+		for _, side in { -1, 1 } do
+			piece(m, "Body_CrabShell", nil, Vector3.new(2.4, 0.4, 0.4), CFrame.new(side * 2, 0.7, -0.8 + i * 1.1) * CFrame.Angles(0, 0, side * -0.6))
+		end
+	end
+	for _, side in { -1, 1 } do
+		piece(m, "Body_CrabShell", Enum.PartType.Ball, Vector3.new(1.2, 0.9, 1.6), CFrame.new(side * 1.5, 1.1, -2.2))
+	end
+end
+function STANDIN.Snapjaw(m: Model)
+	-- a long-jawed shore lizard: scaled green back, pale belly, a jaw full of teeth
+	for i = 1, 6 do
+		local r = 3 - i * 0.3
+		piece(m, ("Seg%d_Scale"):format(i), Enum.PartType.Ball, Vector3.new(r * 1.2, r * 0.8, r * 1.3), CFrame.new())
+	end
+	piece(m, "Head_Scale", nil, Vector3.new(2.4, 1.2, 5), CFrame.new(0, 0.3, -0.8))
+	piece(m, "Head_ScaleBelly", nil, Vector3.new(2.2, 0.8, 4.6), CFrame.new(0, -0.6, -0.8))
+	for k = 0, 5 do
+		piece(m, "Head_Bone", nil, Vector3.new(0.25, 0.6, 0.25), CFrame.new(1, -0.1, -2.8 + k * 0.6))
+		piece(m, "Head_Bone", nil, Vector3.new(0.25, 0.6, 0.25), CFrame.new(-1, -0.1, -2.8 + k * 0.6))
+	end
+	for _, side in { -1, 1 } do
+		piece(m, "Head_Eye", Enum.PartType.Ball, Vector3.new(0.5, 0.5, 0.5), CFrame.new(side * 0.8, 1.1, 0.6))
 	end
 end
 function STANDIN.Hollow(m: Model)

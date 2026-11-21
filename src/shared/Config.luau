@@ -51,12 +51,24 @@ local Config = {
 			{ mile = 33.6, name = "Old Pumphouse Landing", kind = "landing" },
 			{ mile = 35.0, name = "Waystation 3", kind = "waystation" },
 		},
+		{
+			{ mile = 37.0, name = "Tidewrack Camp", kind = "camp" },
+			{ mile = 39.6, name = "Rib Island Landing", kind = "landing" },
+			{ mile = 42.2, name = "Lighthouse Camp", kind = "camp" },
+			{ mile = 45.0, name = "Midsea Waystation", kind = "landing" }, -- (GDD 9.1: the mid-zone save; for now a landing)
+			{ mile = 47.8, name = "Sporewood Landing", kind = "landing" },
+			{ mile = 50.6, name = "Canopy Camp", kind = "camp" },
+			{ mile = 53.2, name = "Rootfall Landing", kind = "landing" },
+			{ mile = 55.0, name = "Waystation 4", kind = "waystation" },
+		},
 	},
 	ZONE_HALL = {
 		{ untilMile = 9.5, WIDTH = 380, FLOOR = 150, CEILING = 120, theme = "Hollow" },
 		{ untilMile = 19.5, WIDTH = 420, FLOOR = 170, CEILING = 150, theme = "Grotto" },
 		-- zone 3 has two caverns: the Crystal Hollows, then the Old Deepmine from mile 28
 		{ untilMile = 34.5, WIDTH = 400, FLOOR = 160, CEILING = 170, theme = "Crystal", split = { mile = 28, theme = "Deepmine" } },
+		-- zone 4: the Fossil Sea, then the Sporewood Shores from mile 46
+		{ untilMile = 54.5, WIDTH = 600, FLOOR = 160, CEILING = 140, theme = "FossilSea", split = { mile = 46, theme = "Sporewood" } },
 	},
 	SURFACE_MILES = 0.9, -- open gorge before The Drop
 	DIG_IN = 700, -- studs of dig after The Drop before the zone's cavern (GDD 9.0)
@@ -157,6 +169,7 @@ local Config = {
 			{ board = "Cragskitter", grab = "Burrowmaw" },
 			{ board = "Puffcap", grab = "LanternEel" },
 			{ board = "Shardback", grab = "TunnelMole" },
+			{ board = "BoneCrab", grab = "Snapjaw" },
 		},
 	},
 }
