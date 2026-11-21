@@ -101,7 +101,8 @@ function Rewards.init()
 
 	Net.FreeRevive.OnServerEvent:Connect(function(player)
 		local p = Data.get(player)
-		if not p or p.failed or p.freeRevive then
+		local today = os.time() // 86400
+		if not p or p.failed or p.freeReviveDay == today then
 			return
 		end
 		local ok, member = pcall(function()
@@ -110,9 +111,10 @@ function Rewards.init()
 		if ok and member then
 			Data.update(player, function(q)
 				q.freeRevive = true
+				q.freeReviveDay = today
 				q.reviveFlares += 1
 			end)
-			Net.Notify:FireClient(player, "Toast", "+1 Revive Flare! It's in your pack for the next descent")
+			Net.Notify:FireClient(player, "Toast", "+1 Revive Flare! Come back tomorrow for another")
 		else
 			Net.Notify:FireClient(player, "Toast", "Join the group first!")
 		end

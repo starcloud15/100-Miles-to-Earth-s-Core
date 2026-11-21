@@ -106,7 +106,7 @@ local function buildFreeRevive()
 	close.Activated:Connect(function()
 		show(nil)
 	end)
-	Ui.text({ Parent = body, Text = "Get a free revive in 1 step!", Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6) })
+	Ui.text({ Parent = body, Text = "A free Revive Flare every day!", Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 6) })
 	local step = Ui.inset({ Parent = body, Size = UDim2.new(1, -40, 0, 170), Position = UDim2.fromOffset(20, 60) })
 	local num = Ui.inset({ Parent = step, Color = Ui.SLATE, Size = UDim2.fromOffset(44, 44), Position = UDim2.fromOffset(18, 18) })
 	Ui.text({ Parent = num, Text = "1", Size = UDim2.fromScale(1, 1) })
@@ -139,8 +139,8 @@ local function refreshRevive()
 		member = ok and member
 		v.join.Label.Text = member and "Joined ✓" or "Join Group"
 		v.join.BackgroundColor3 = member and Ui.SLATE or Ui.BUTTON_GREEN
-		local claimed = profile.freeRevive
-		v.claim.Label.Text = claimed and "CLAIMED" or "CLAIM"
+		local claimed = profile.freeReviveDay == os.time() // 86400
+		v.claim.Label.Text = claimed and "Back tomorrow" or "CLAIM"
 		v.claim.BackgroundColor3 = (member and not claimed) and Ui.BUTTON_GREEN or Ui.SLATE
 	end)
 end

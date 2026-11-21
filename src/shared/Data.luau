@@ -41,6 +41,7 @@ local function default()
 		class = "",
 		reviveFlares = 0,
 		freeRevive = false,
+		freeReviveDay = 0, -- the UTC day the group's daily Revive Flare was last claimed
 		friendsBrought = 0,
 		favPrompted = false,
 		save = nil, -- { mile, zone } at the last Waystation
