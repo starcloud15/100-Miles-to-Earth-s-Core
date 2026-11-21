@@ -253,6 +253,130 @@ def z1p2():
     render("z1p2")
 
 
+
+# --- zone 2: the Lamp Keepers ---------------------------------------------------------------
+
+
+def shroom(loc, h, rot=0.0, value=None):
+    objs = load("props/GiantMushroom.fbx", loc, (0, 0, rot), h / 60)
+    if value is not None:
+        for o in objs:
+            plain(o, value)
+    return objs
+
+
+def z2n1():
+    # "Mushrooms the size of houses... You could read by them": a lamplighter reading under the caps
+    fresh()
+    ground()
+    shroom((0, 30, 0), 38)
+    shroom((-26, 55, 0), 55, 1)
+    shroom((24, 60, 0), 46, 2)
+    load("props/MushroomCluster.fbx", (6, 18, 0), scale=1.2)
+    figure((-2, 16, 0))
+    load("props/Crate.fbx", (-5, 17, 0), (0, 0, 0.4))
+    camera((-4, -18, 8), (0, 40, 20), 30)
+    render("z2n1")
+
+
+def z2n2():
+    # "Spores fall like snow": a figure under a cap, spores drifting down
+    fresh()
+    ground()
+    shroom((8, 28, 0), 34, 0.5)
+    figure((-3, 10, 0))
+    import random
+    rnd = random.Random(5)
+    for _ in range(40):
+        prim("uv_sphere", (rnd.uniform(-20, 20), rnd.uniform(0, 30), rnd.uniform(2, 30)), scale=(0.35,) * 3, segments=6, ring_count=4)
+    camera((-6, -16, 7), (2, 20, 12), 32)
+    render("z2n2")
+
+
+def z2n3():
+    # "The glow dims... all at once": the caps gone dark, one lantern left
+    fresh()
+    ground()
+    for x, y, h, r in ((-14, 40, 40, 0), (12, 48, 52, 1.2), (0, 70, 34, 2)):
+        shroom((x, y, 0), h, r, 0.12)
+    load("props/LanternPost.fbx", (3, 10, 0), (0, 0, math.radians(-25)))
+    camera((-6, -14, 7), (2, 40, 16), 32)
+    render("z2n3")
+
+
+def z2n4():
+    # "In the dark it comes closer. In the light it waits": the Hollow among the stalks
+    fresh()
+    ground()
+    shroom((-18, 50, 0), 50, 0.3, 0.12)
+    shroom((22, 58, 0), 44, 1.1, 0.12)
+    load("creatures/Hollow.fbx", (3, 52, 0), (0, 0, math.radians(195)), 0.8)
+    load("props/LanternPost.fbx", (-4, 8, 0), (0, 0, math.radians(30)))
+    figure((2, 6, 0))
+    camera((-6, -14, 6), (2, 50, 14), 32)
+    render("z2n4")
+
+
+def z2n5():
+    # "Found Quarrymen tracks. They kept going down": an abandoned ore cart on rails into the dark
+    fresh()
+    ground()
+    load("props/Minecart.fbx", (0, 10, 0), (0, 0, math.radians(90)))
+    for y in range(-6, 60, 4):
+        prim("cube", (0, y, 0.1), scale=(2.2, 0.3, 0.12))
+    for x in (-1.55, 1.55):
+        prim("cube", (x, 27, 0.25), scale=(0.12, 34, 0.12))
+    shroom((-16, 44, 0), 30, 0.4)
+    load("props/MushroomCluster.fbx", (6, 6, 0), scale=1.1)
+    camera((5, -12, 6), (0, 26, 2), 32)
+    render("z2n5")
+
+
+def z2n6():
+    # "Feed the fire and the night goes faster": the Beacon under the mushrooms
+    fresh()
+    ground()
+    load("props/BeaconRing.fbx")
+    prim("cone", (0, 0, 3.2), (0.2, 0.1, 0.3), scale=(1.6, 1.6, 2.6), vertices=6, radius1=1, radius2=0, depth=2)
+    shroom((-14, 22, 0), 30, 0.7)
+    load("props/Tent.fbx", (11, 9, 0), (0, 0, math.radians(-25)))
+    figure((5, -3, 0))
+    camera((4, -30, 13), (0, 8, 6), 32)
+    render("z2n6")
+
+
+def z2p1():
+    # Oren Vale: the mushrooms fade and brighten together, like breathing
+    fresh()
+    ground()
+    for x, y, h, v in ((-20, 40, 46, 0.85), (0, 52, 58, 0.55), (20, 40, 42, 0.85)):
+        shroom((x, y, 0), h, x * 0.1, v)
+    load("props/MushroomCluster.fbx", (-4, 12, 0), scale=1.4)
+    load("props/LanternPost.fbx", (6, 10, 0), (0, 0, math.radians(-90)))
+    figure((2, 8, 0))
+    camera((0, -20, 9), (0, 36, 18), 30)
+    render("z2p1")
+
+
+def z2p2():
+    # "We lost two lamps tonight... emptied": dead lanterns and grey glowstone
+    fresh()
+    ground()
+    for x, r in ((-4, 0.3), (5, -0.5)):
+        objs = load("props/LanternPost.fbx", (x, 6, 0), (0.15 * r, 0, r))
+        for o in objs:
+            plain(o, 0.3)
+    for o in load("props/CrystalCluster.fbx", (0, 2, 0), scale=0.5):
+        plain(o, 0.3)
+    load("props/Crate.fbx", (-8, 3, 0), (0, 0, 0.5))
+    camera((-2, -16, 6), (0, 6, 4), 34)
+    render("z2p2")
+
+
 os.makedirs(OUT, exist_ok=True)
-for fn in (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2):
-    fn()
+ALL = (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2, z2n1, z2n2, z2n3, z2n4, z2n5, z2n6, z2p1, z2p2)
+# ONLY=z2 (a prefix) renders just those scenes
+ONLY = os.environ.get("ONLY", "")
+for fn in ALL:
+    if fn.__name__.startswith(ONLY):
+        fn()
