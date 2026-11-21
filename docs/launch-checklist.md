@@ -10,7 +10,6 @@ Everything here needs the owner's account. The code side is done and tested (see
 - [ ] **Description and genre:** for example: "Drill 100 miles down to the Earth's Core with your crew. Mine glowstone at stops, keep your rig repaired, survive the nights by the Beacon, and don't get left behind. Something lives in the dark between the camps..."
 - [ ] **Maturity questionnaire:** fill in Roblox's questionnaire. The game has mild fantasy peril: a hooded creature that grabs players, with no blood or gore.
 - [ ] **Start place:** check that the Lobby (76938279277561) is the universe's start place. If someone joins the Game place directly, it now sends them to the Lobby.
-- [ ] **API services:** Game Settings → Security → turn on **Enable Studio Access to API Services**. Saves, leaderboards and the MemoryStore used for party launches need it live, and it's needed for Studio testing.
 - [ ] *(Optional)* **Lighting:** in Studio, set Game place → Lighting → Technology to **Future**, then publish. Starport keeps the live place's lighting.
 
 ## Monetization (optional, off until set up)
