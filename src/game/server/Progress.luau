@@ -45,7 +45,15 @@ local function bank(player: Player)
 		p.stats.pushed += player:GetAttribute("RunPushed") or 0
 		p.stats.nights += player:GetAttribute("RunNights") or 0
 		p.camps += player:GetAttribute("RunCamps") or 0
+		p.stats.cooked = (p.stats.cooked or 0) + (player:GetAttribute("RunCooked") or 0)
 		if state:GetAttribute("Phase") == "Complete" then
+			-- badges: a whole zone without coming off the rig; the Core alone
+			if not player:GetAttribute("EverOff") then
+				p.flags.untouched = true
+			end
+			if zone >= #Config.ZONES and #Players:GetPlayers() == 1 then
+				p.flags.loneCore = true
+			end
 			if zone >= #Config.ZONES then
 				-- the Core: the descent is done; the next run starts from the top again
 				p.coreTimes += 1

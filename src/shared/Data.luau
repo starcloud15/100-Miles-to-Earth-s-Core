@@ -31,7 +31,7 @@ local function default()
 		fastest = 0, -- seconds to the Core; 0 = none yet
 		camps = 0,
 		coreTimes = 0,
-		stats = { nights = 0, knocked = 0, revived = 0, glowstone = 0, finds = 0, meals = 0, repairs = 0, pushed = 0 },
+		stats = { nights = 0, knocked = 0, revived = 0, glowstone = 0, finds = 0, meals = 0, cooked = 0, repairs = 0, pushed = 0 },
 		flags = {},
 		notes = {},
 		pages = {},

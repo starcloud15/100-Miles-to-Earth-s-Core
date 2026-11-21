@@ -24,7 +24,7 @@ Content.BADGES = {
 	{ id = "BringAFriend", group = "Crew", name = "Bring a Friend", desc = "Play with a friend you invited", icon = "Invite", reward = 75, check = function(p) return p.friendsBrought >= 1 end },
 	{ id = "Lifesaver", group = "Crew", name = "Lifesaver", desc = "Revive 5 crewmates", icon = "Revive", reward = 75, check = function(p) return p.stats.revived >= 5 end },
 	{ id = "SecondWind", group = "Crew", name = "Second Wind", desc = "Come back with a Revive Flare", icon = "Lantern", reward = 75, check = function(p) return p.flags.secondWind == true end },
-	{ id = "CampChef", group = "Crew", name = "Camp Chef", desc = "Cook 50 meals", icon = "CaveStew", reward = 75, check = function(p) return p.stats.meals >= 50 end },
+	{ id = "CampChef", group = "Crew", name = "Camp Chef", desc = "Cook 50 meals", icon = "CaveStew", reward = 75, check = function(p) return (p.stats.cooked or 0) >= 50 end },
 }
 
 -- Classes (GDD 14.3): the reference's price ladder, our own roles

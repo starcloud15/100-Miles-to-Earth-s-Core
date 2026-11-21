@@ -278,12 +278,14 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 						end
 						if Items.take(player, f.id) then
 							Items.give(player, "RoastedCap")
+							player:SetAttribute("RunCooked", (player:GetAttribute("RunCooked") or 0) + 1)
 							notify(player, "Cooked", "RoastedCap")
 						end
 					end)
 					pot:FindFirstChild("Stew").Triggered:Connect(function(player)
 						if Items.takeRaw(player, 3) then
 							Items.give(player, "CaveStew")
+							player:SetAttribute("RunCooked", (player:GetAttribute("RunCooked") or 0) + 1)
 							notify(player, "Cooked", "CaveStew")
 						else
 							notify(player, "Toast", "Cave Stew needs 3 finds: go delving!")
@@ -305,6 +307,7 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		end
 		Data.update(player, function(q)
 			q.reviveFlares -= 1
+			q.flags.secondWind = true -- (the Second Wind badge)
 		end)
 		getUp(player, 1)
 		notify(player, "Revived", "your Revive Flare")
@@ -639,6 +642,7 @@ function Crew.step(dt: number)
 			if not i.off then
 				i.off = true
 				player:SetAttribute("OffRig", true)
+				player:SetAttribute("EverOff", true) -- (no Untouched badge this zone)
 				if os.clock() - i.pushedAt > 3 then
 					notify(player, "ThrownOff")
 				end
