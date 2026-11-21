@@ -373,8 +373,133 @@ def z2p2():
     render("z2p2")
 
 
+# --- zone 3: the Ice Survey -----------------------------------------------------------------
+
+
+def spire(loc, h, rot=0.0, value=None):
+    objs = load("props/CrystalSpire.fbx", loc, (0, 0, rot), h / 50)
+    if value is not None:
+        for o in objs:
+            plain(o, value)
+    return objs
+
+
+def frame(y, w=14, h=16):
+    for x in (-w / 2, w / 2):
+        prim("cube", (x, y, h / 2), scale=(0.7, 0.7, h / 2))
+    prim("cube", (0, y, h), scale=(w / 2 + 1, 0.8, 0.8))
+
+
+def z3n1():
+    # "Crystals ring when the drill passes": the rig among the spires
+    fresh()
+    ground()
+    load("rig/DrillRig.fbx", (0, 0, 0), (0, 0, math.radians(200)))
+    spire((-22, 30, 0), 44, 0.3)
+    spire((24, 40, 0), 56, 1.2)
+    spire((-6, 60, 0), 36, 2)
+    camera((-22, -26, 14), (0, 14, 10), 30)
+    render("z3n1")
+
+
+def z3n2():
+    # "Light enters the crystal and doesn't come out": a lit spire, a figure close to it
+    fresh()
+    ground()
+    spire((0, 18, 0), 40, 0.4)
+    figure((-6, 8, 0))
+    load("props/LanternPost.fbx", (-9, 6, 0), (0, 0, math.radians(30)))
+    camera((-8, -16, 8), (0, 18, 16), 32)
+    render("z3n2")
+
+
+def z3n3():
+    # "Carvings in the ice: a figure holding a lantern up to a great light"
+    fresh()
+    ground()
+    wall = prim("cube", (0, 12, 10), scale=(16, 1, 10))
+    plain(wall, 0.85)
+    sun = prim("cylinder", (6, 10.9, 13), (math.radians(90), 0, 0), scale=(4, 4, 0.2), vertices=24)
+    plain(sun, 1.0)
+    for i, x in enumerate((-9, -6.5, -4)):
+        figure((x, 10.8, 3 + (0.4 if i == 0 else 0)), 5 if i == 0 else 4)
+    prim("cube", (-8.4, 10.8, 9), scale=(0.3, 0.3, 0.6))
+    figure((-3, 2, 0))
+    camera((-4, -12, 6), (0, 12, 8), 34)
+    render("z3n3")
+
+
+def z3n4():
+    # "The old Deepmine is here": timber frames and a cart going down into the dark
+    fresh()
+    ground()
+    for y in (6, 20, 34, 48):
+        frame(y)
+    for y in range(-4, 60, 3):
+        prim("cube", (0, y, 0.1), scale=(4, 0.3, 0.1))
+    load("props/Minecart.fbx", (0, 12, 0), (0, 0, math.radians(90)))
+    camera((3, -12, 7), (0, 30, 6), 32)
+    render("z3n4")
+
+
+def z3n5():
+    # "The lift cage still works": the cage hanging in the shaft
+    fresh()
+    ground()
+    for x in (-3, 3):
+        for y in (-3, 3):
+            prim("cylinder", (x, 10 + y, 4), scale=(0.15, 0.15, 4), vertices=6)
+    for z in (0.2, 8):
+        prim("cube", (0, 10, z), scale=(3.2, 3.2, 0.2))
+    prim("cylinder", (0, 10, 22), scale=(0.1, 0.1, 14), vertices=4)
+    frame(14, 14, 38)
+    figure((-6, 4, 0))
+    camera((-10, -26, 14), (0, 10, 12), 30)
+    render("z3n5")
+
+
+def z3n6():
+    # "The light breathes once every 3 hours and 11 minutes. The Hollow comes in the gap."
+    fresh()
+    ground()
+    load("props/BeaconRing.fbx", (0, 0, 0))
+    prim("cone", (0, 0, 3.2), (0.2, 0.1, 0.3), scale=(1.6, 1.6, 2.6), vertices=6, radius1=1, radius2=0, depth=2)
+    spire((-20, 40, 0), 40, 1, 0.2)
+    load("creatures/Hollow.fbx", (10, 44, 0), (0, 0, math.radians(200)), 0.8)
+    figure((-4, -2, 0))
+    camera((-2, -20, 9), (2, 20, 12), 32)
+    render("z3n6")
+
+
+def z3p1():
+    # Dr. Brandt: the carving scratched over, the lantern-bearer turning away from the light
+    fresh()
+    ground()
+    wall = prim("cube", (0, 12, 10), scale=(16, 1, 10))
+    plain(wall, 0.55)
+    sun = prim("cylinder", (8, 10.9, 13), (math.radians(90), 0, 0), scale=(4, 4, 0.2), vertices=24)
+    plain(sun, 1.0)
+    load("creatures/Hollow.fbx", (-6, 10.6, 2), (0, 0, math.radians(20)), 0.4)
+    for i in range(6):
+        prim("cube", (-6 + i * 0.6, 10.7, 6 + i * 1.1), (0, math.radians(35), 0), scale=(0.15, 0.2, 2.5))
+    camera((-2, -10, 7), (0, 12, 9), 36)
+    render("z3p1")
+
+
+def z3p2():
+    # "The Deepmine's builders painted one word on every beam: KEEP"
+    fresh()
+    ground()
+    for y in (6, 22, 38):
+        frame(y, 16, 18)
+    load("props/LanternPost.fbx", (5, 2, 0), (0, 0, math.radians(-90)))
+    figure((-3, 1, 0))
+    camera((-6, -14, 7), (0, 20, 10), 32)
+    render("z3p2")
+
+
 os.makedirs(OUT, exist_ok=True)
-ALL = (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2, z2n1, z2n2, z2n3, z2n4, z2n5, z2n6, z2p1, z2p2)
+ALL = (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2, z2n1, z2n2, z2n3, z2n4, z2n5, z2n6, z2p1, z2p2, z3n1, z3n2, z3n3, z3n4, z3n5, z3n6, z3p1, z3p2)
 # ONLY=z2 (a prefix) renders just those scenes
 ONLY = os.environ.get("ONLY", "")
 for fn in ALL:
