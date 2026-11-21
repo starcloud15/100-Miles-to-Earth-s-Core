@@ -63,6 +63,7 @@ local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local Pops = require(script.Parent:WaitForChild("Pops"))
 Hotbar.init()
 Pops.init()
+require(script.Parent:WaitForChild("Coach")).init(state)
 
 local function nearestVein(): Model?
 	local r = root()

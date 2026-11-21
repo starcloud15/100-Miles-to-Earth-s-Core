@@ -282,6 +282,8 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 	end)
 	-- the class each player equipped at camp (their save), for its perks
 	Data.Changed:Connect(function(player, p)
+		-- (how many runs they've done: the client only coaches newer players)
+		player:SetAttribute("Games", p.games or 0)
 		if player:GetAttribute("Class") ~= (p.class or "") then
 			player:SetAttribute("Class", p.class or "")
 			if player.Character then

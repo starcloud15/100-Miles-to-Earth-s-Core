@@ -177,7 +177,8 @@ end
 local function buildSurface(model: Model, cf: CFrame, len: number, w: number, k: number)
 	local rng = Random.new(route.seed + k)
 	part({ Name = "Floor", Size = Vector3.new(w + 70, 6, len + 2), CFrame = cf * CFrame.new(0, -3, 0), Color = Color3.fromRGB(226, 196, 150), Material = Enum.Material.Sand, Parent = model })
-	part({ Name = "Track", Size = Vector3.new(w * 0.7, 0.2, len + 2), CFrame = cf * CFrame.new(0, 0.05, 0), Color = Color3.fromRGB(190, 150, 108), Material = Enum.Material.Ground, CanCollide = false, Parent = model })
+	-- the dirt track down the gorge (Ground's dark texture turned it asphalt-grey)
+	part({ Name = "Track", Size = Vector3.new(w * 0.7, 0.2, len + 2), CFrame = cf * CFrame.new(0, 0.05, 0), Color = Color3.fromRGB(184, 128, 84), Material = Enum.Material.Sand, CanCollide = false, Parent = model })
 	-- grass strips along the foot of the cliffs
 	for _, side in { -1, 1 } do
 		part({ Name = "Grass", Size = Vector3.new(14, 0.4, len + 2), CFrame = cf * CFrame.new(side * (w / 2 + 14), 0.1, 0), Color = Color3.fromRGB(96, 168, 70), Material = Enum.Material.Grass, CanCollide = false, Parent = model })
