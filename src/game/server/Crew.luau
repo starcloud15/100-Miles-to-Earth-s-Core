@@ -783,6 +783,15 @@ function Crew.isDowned(player: Player): boolean
 	return downed[player] ~= nil
 end
 
+-- the rig hit a boulder: each player aboard has `chance` of being thrown off
+function Crew.crashJolt(chance: number)
+	for _, p in Players:GetPlayers() do
+		if Crew.isAboard(p) and not downed[p] and math.random() < chance then
+			shove(p, nil, "ThrownOff")
+		end
+	end
+end
+
 -- a creature dragged this player off the rig
 function Crew.throwOff(player: Player)
 	shove(player, nil, "Dragged")

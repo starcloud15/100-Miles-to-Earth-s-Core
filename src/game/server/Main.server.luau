@@ -152,6 +152,10 @@ local rig
 rig = Rig.new(route, function(kind, info)
 	if kind == "Hit" then
 		Net.Notify:FireAllClients("Hit", info.kind)
+		if info.kind == "Boulder" then
+			-- a hard knock: anyone aboard may be thrown off (steer round the ROCK! signs)
+			Crew.crashJolt(0.3)
+		end
 		Crew.onHazard()
 	elseif kind == "Arrived" then
 		Run.onArrived()
