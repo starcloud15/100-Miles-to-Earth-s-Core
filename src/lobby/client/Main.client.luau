@@ -51,7 +51,7 @@ for i, item in { { "Journal", "Journal" }, { "Invite", "Invite" }, { "Badges", "
 		end
 	end)
 end
-local money = Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 132), Size = UDim2.fromOffset(260, 64), Parent = gui })
+local money = Ui.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 128), Size = UDim2.fromOffset(260, 64), Parent = top })
 Ui.icon("Deepstone", { Parent = money, Size = UDim2.fromOffset(64, 64), FallbackColor = Color3.fromRGB(150, 80, 230) })
 local moneyText = italic({ Parent = money, Text = "0", TextColor3 = Ui.GOLD, Position = UDim2.fromOffset(70, 2), Size = UDim2.fromOffset(190, 60), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 4 })
 
@@ -68,8 +68,8 @@ play.Label.FontFace = Ui.FONT
 play.Activated:Connect(function()
 	Net.QuickPlay:FireServer()
 end)
-local arrow = Ui.text({ Parent = gui, Text = "V", TextColor3 = Ui.GOLD, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -140), Size = UDim2.fromOffset(70, 60), Stroke = 4, Visible = false })
-TweenService:Create(arrow, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Position = UDim2.new(0.5, 0, 1, -160) }):Play()
+local arrow = Ui.text({ Parent = play, Text = "V", TextColor3 = Ui.GOLD, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 0, -8), Size = UDim2.fromOffset(70, 60), Stroke = 4, Visible = false })
+TweenService:Create(arrow, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Position = UDim2.new(0.5, 0, 0, -28) }):Play()
 
 local toast = Ui.text({ Parent = gui, Text = "", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.72), Size = UDim2.fromOffset(760, 42), Visible = false })
 
@@ -156,10 +156,12 @@ task.spawn(function()
 	local me = tostring(player.UserId)
 	while true do
 		task.wait(0.3)
+		local inParty = false
 		for _, bay in camp:GetChildren() do
 			if bay.Name:sub(1, 3) == "Bay" then
 				local members = bay:GetAttribute("Members") or ""
 				local mine = table.find(string.split(members, ","), me) ~= nil
+				inParty = inParty or mine
 				for _, p in bay:GetChildren() do
 					if p.Name == "Edge" then
 						if mine then
@@ -173,6 +175,9 @@ task.spawn(function()
 				end
 			end
 		end
+		-- in a party, the bay's own sign (crew and countdown) is what matters: clear
+		-- the top buttons out of its way
+		top.Visible = not inParty
 	end
 end)
 

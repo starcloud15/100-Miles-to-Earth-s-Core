@@ -39,17 +39,34 @@ function Ui.new(class: string, props: { [string]: any }?, children: { Instance }
 end
 
 -- scale a pixel-sized ScreenGui with the screen: full size at 1080 tall, never
--- below half (phones held sideways are about 390 tall)
+-- below half (phones held sideways are about 390 tall). Each top-level element
+-- gets its own UIScale, so it shrinks about its anchor (a UIScale on the
+-- ScreenGui itself draws buttons away from where their clicks land).
 function Ui.fit(gui: ScreenGui, design: number?)
-	local scale = Instance.new("UIScale")
-	scale.Parent = gui
 	local camera = workspace.CurrentCamera
-	local function update()
-		scale.Scale = math.clamp(camera.ViewportSize.Y / (design or 1080), 0.5, 1.25)
+	local scales: { UIScale } = {}
+	local function value(): number
+		return math.clamp(camera.ViewportSize.Y / (design or 1080), 0.5, 1.25)
 	end
-	update()
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
-	return scale
+	local function add(child: Instance)
+		if child:IsA("GuiObject") and not child:FindFirstChild("Fit") then
+			local s = Instance.new("UIScale")
+			s.Name = "Fit"
+			s.Scale = value()
+			s.Parent = child
+			table.insert(scales, s)
+		end
+	end
+	for _, c in gui:GetChildren() do
+		add(c)
+	end
+	gui.ChildAdded:Connect(add)
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		local v = value()
+		for _, s in scales do
+			s.Scale = v
+		end
+	end)
 end
 
 function Ui.corner(radius: UDim?): UICorner
