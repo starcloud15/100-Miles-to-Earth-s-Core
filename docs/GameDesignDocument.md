@@ -301,6 +301,25 @@ The long zones (3–6) have **two caverns**, one per sub-biome, joined by a shor
 | 5 | Emberflow / Obsidian Rifts | Basalt ledges over a lava river with rising embers; then glassy black canyons lit from below |
 | 6 | Heartstone Ruins / The Core Approach | Golden temples on bridges across the void; then a spiral down into the light |
 
+**Built (Nov 20, 2026).** All six zones generate in the Game place.
+
+- **Which run starts where.** A server runs the zone in its teleport data, `{ seed, zone, mile }`, which the lobby takes from the leader's save. It starts at that zone's Waystation, or at a mid-zone Waystation. For Studio playtests, set the Workspace attributes `StartZone` and `StartMile`.
+- **Edges.** Crew-only invisible walls run along every cavern walkway, with a visible lip, fence or balustrade, so nobody can jump off.
+- **Glowstone.** It takes the zone's colour, as in 9.2.
+
+The SPAM! creatures and the Hollow's behaviour by zone:
+
+| # | Boarder (drops on the deck, bites; SPAM! to knock off) | Grabber (seizes one player; SPAM! to break free, or dragged off) | The Hollow at camp |
+|---|---|---|---|
+| 1 | Cragskitter (rock crawler) | Burrowmaw (plated worm) | Watches |
+| 2 | Puffcap (mushroom critter) | Lantern Eel | Watches |
+| 3 | Shardback (crystal beetle) | Tunnel Mole | Hunts anyone outside the light, at 9 studs/s; its grab is "TAKEN!", back at the Beacon on half health |
+| 4 | Bone Crab | Snapjaw | Hunts at 13 studs/s; once the Beacon is out, it hunts everyone |
+| 5 | Cinder Imp | Magma Salamander | Hunts at 17 studs/s |
+| 6 | Ashwisp | Temple Guardian | Hunts at 24 studs/s |
+
+The hunt speed rises 8% at each camp. The zone rules in 9.1 (Cold, Heat, Pulses) are not built yet.
+
 ### 9.1 The ladder
 
 | # | Miles | Length | Target time | Zone and sub-biomes | Look and light | Route | New rule | Stops (camps / landings / saves) |
