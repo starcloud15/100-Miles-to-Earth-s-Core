@@ -96,16 +96,16 @@ local function boarders(): number
 	return n
 end
 
-local function spawnBoarder()
+local function spawnBoarder(kind: string?)
 	local R = Config.Rig
-	spawn(zoneCreatures().board, "Board", {
+	spawn(kind or zoneCreatures().board, "Board", {
 		OffX = rng:NextNumber(-R.DECK_W / 2 + 2.5, R.DECK_W / 2 - 2.5),
 		OffZ = rng:NextNumber(-R.DECK_L / 2 + 3, R.DECK_L / 2 - 4),
 		Yaw = rng:NextNumber(0, math.pi * 2),
 	})
 end
 
-local function spawnGrabber(): boolean
+local function spawnGrabber(kind: string?): boolean
 	local crew = aboardPlayers()
 	if #crew == 0 then
 		return false
@@ -121,7 +121,7 @@ local function spawnGrabber(): boolean
 	if root then
 		side = rig.deck.CFrame:PointToObjectSpace(root.Position).X >= 0 and 1 or -1
 	end
-	spawn(zoneCreatures().grab, "Grab", { Target = victim.UserId, Side = side })
+	spawn(kind or zoneCreatures().grab, "Grab", { Target = victim.UserId, Side = side })
 	return true
 end
 
@@ -166,14 +166,20 @@ function Creatures.init(theRig, theRoute, theState, theCrew)
 		end
 	end)
 	if RunService:IsStudio() then
-		-- playtest handle: set RunState's DebugCreature to "Board" or "Grab"
+		-- playtest handle: set RunState's DebugCreature to "Board" or "Grab" (the zone's),
+		-- or "Board:<Kind>" / "Grab:<Kind>" for any creature
 		state:GetAttributeChangedSignal("DebugCreature"):Connect(function()
 			local what = state:GetAttribute("DebugCreature")
 			state:SetAttribute("DebugCreature", nil)
-			if what == "Board" then
-				spawnBoarder()
-			elseif what == "Grab" then
-				spawnGrabber()
+			if type(what) ~= "string" then
+				return
+			end
+			local mode, kind = what:match("^(%a+):?(%a*)$")
+			kind = kind ~= "" and kind or nil
+			if mode == "Board" then
+				spawnBoarder(kind)
+			elseif mode == "Grab" then
+				spawnGrabber(kind)
 			end
 		end)
 	end

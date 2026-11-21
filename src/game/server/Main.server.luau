@@ -40,10 +40,73 @@ for _, name in { "Baseplate", "SpawnLocation" } do
 	end
 end
 
-local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+-- back to Topside Camp: retried, and if Roblox keeps refusing, a kick that says why
+-- (so nobody is ever stuck in a finished run)
+local function sendHome(list: { Player })
+	local options = Instance.new("TeleportOptions")
+	options:SetTeleportData({ fromRun = true })
+	for attempt = 1, 5 do
+		local here = {}
+		for _, p in list do
+			if p.Parent then
+				table.insert(here, p)
+			end
+		end
+		if #here == 0 then
+			return
+		end
+		if pcall(function()
+			TeleportService:TeleportAsync(Config.LOBBY_PLACE_ID, here, options)
+		end) then
+			return
+		end
+		task.wait(2 * attempt)
+	end
+	for _, p in list do
+		if p.Parent then
+			p:Kick("Couldn't get you back to camp. Rejoin to carry on from your save!")
+		end
+	end
+end
+TeleportService.TeleportInitFailed:Connect(function(player, _result, _message, placeId)
+	if placeId == Config.LOBBY_PLACE_ID then
+		task.wait(3)
+		sendHome({ player })
+	end
+end)
+
 local seed = math.random(1, 2 ^ 30)
 local zone, startMile = 1, nil
-local data = first:GetJoinData().TeleportData
+local data = nil
+if not RunService:IsStudio() then
+	if game.PrivateServerId == "" then
+		-- not a party's reserved server (someone joined this place directly): runs
+		-- only start from the camp's bays
+		local function away(p: Player)
+			task.spawn(sendHome, { p })
+		end
+		Players.PlayerAdded:Connect(away)
+		for _, p in Players:GetPlayers() do
+			away(p)
+		end
+		return
+	end
+	-- the run's settings, kept on Roblox's side by the bay that reserved this server
+	-- (teleport data passes through the client, so it isn't trusted)
+	for attempt = 1, 5 do
+		local ok, v = pcall(function()
+			return game:GetService("MemoryStoreService"):GetHashMap("RunParams"):GetAsync(game.PrivateServerId)
+		end)
+		if ok then
+			data = v
+			break
+		end
+		task.wait(attempt)
+	end
+else
+	local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+	data = first:GetJoinData().TeleportData
+end
 if type(data) == "table" then
 	seed = tonumber(data.seed) or seed
 	zone = tonumber(data.zone) or zone
@@ -204,11 +267,7 @@ state:GetAttributeChangedSignal("Phase"):Connect(function()
 	if state:GetAttribute("Phase") == "Complete" then
 		task.wait(20)
 		if not RunService:IsStudio() then
-			local options = Instance.new("TeleportOptions")
-			options:SetTeleportData({ fromRun = true })
-			pcall(function()
-				TeleportService:TeleportAsync(Config.LOBBY_PLACE_ID, Players:GetPlayers(), options)
-			end)
+			sendHome(Players:GetPlayers())
 		end
 	end
 end)

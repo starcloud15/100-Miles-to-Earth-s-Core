@@ -38,6 +38,20 @@ function Ui.new(class: string, props: { [string]: any }?, children: { Instance }
 	return inst
 end
 
+-- scale a pixel-sized ScreenGui with the screen: full size at 1080 tall, never
+-- below half (phones held sideways are about 390 tall)
+function Ui.fit(gui: ScreenGui, design: number?)
+	local scale = Instance.new("UIScale")
+	scale.Parent = gui
+	local camera = workspace.CurrentCamera
+	local function update()
+		scale.Scale = math.clamp(camera.ViewportSize.Y / (design or 1080), 0.5, 1.25)
+	end
+	update()
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
+	return scale
+end
+
 function Ui.corner(radius: UDim?): UICorner
 	return Ui.new("UICorner", { CornerRadius = radius or UDim.new(0, 8) })
 end

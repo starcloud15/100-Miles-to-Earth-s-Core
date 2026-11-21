@@ -24,6 +24,7 @@ local BoardView = require(script.Parent:WaitForChild("BoardView"))
 
 local player = Players.LocalPlayer
 local gui = Ui.new("ScreenGui", { Name = "Camp", ResetOnSpawn = false, IgnoreGuiInset = true, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, Parent = player:WaitForChild("PlayerGui") })
+Ui.fit(gui) -- (everything here is sized in pixels: shrink it on phones)
 
 local function italic(props)
 	local l = Ui.text(props)

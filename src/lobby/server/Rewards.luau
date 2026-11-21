@@ -3,8 +3,6 @@
 	joining the group. Everything pays or costs Deepstones.
 ]]
 
-local Players = game:GetService("Players")
-
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Content = require(Shared.Content)
 local Net = require(Shared.Net)
@@ -119,19 +117,14 @@ function Rewards.init()
 
 	Net.GetProfile.OnServerInvoke = function(player)
 		local p = Data.get(player) or Data.load(player)
-		return Data.snapshot(p)
+		return p and Data.snapshot(p) or nil
 	end
 	Data.Changed:Connect(function(player, p)
 		if player.Parent then
 			Net.Profile:FireClient(player, Data.snapshot(p))
 		end
 	end)
-	Players.PlayerAdded:Connect(function(player)
-		Data.load(player)
-	end)
-	for _, player in Players:GetPlayers() do
-		task.spawn(Data.load, player)
-	end
+	-- (loading on join is Data.start's job)
 end
 
 return Rewards

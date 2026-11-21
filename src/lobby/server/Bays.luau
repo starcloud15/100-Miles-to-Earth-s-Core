@@ -22,6 +22,8 @@ local Bays = {}
 
 local GREEN = Color3.fromRGB(70, 230, 60)
 local bays = {}
+local MemoryStoreService = game:GetService("MemoryStoreService")
+
 local friendCache: { [string]: boolean } = {}
 
 local function isFriend(a: Player, b: Player): boolean
@@ -33,7 +35,10 @@ local function isFriend(a: Player, b: Player): boolean
 		local ok, res = pcall(function()
 			return a:IsFriendsWith(b.UserId)
 		end)
-		friendCache[k] = ok and res or false
+		if not ok then
+			return false -- (a failed check isn't cached: try again next time)
+		end
+		friendCache[k] = res
 	end
 	return friendCache[k]
 end
@@ -95,6 +100,13 @@ local function launch(bay)
 	bay.starting = true
 	refresh(bay)
 	local members = table.clone(party.members)
+	-- carry on from the leader's last Waystation (GDD 9.1), read before anything
+	-- yields, in case the leader leaves mid-launch
+	local lead = Data.get(party.leader)
+	local zone = lead and lead.save and tonumber(lead.save.zone) or 1
+	zone = math.clamp(zone, 1, Config.BUILT_ZONES)
+	local mile = lead and lead.save and tonumber(lead.save.mile) or nil
+	local leaderId = party.leader.UserId
 	-- friends who start together count as "brought"
 	for _, m in members do
 		for _, o in members do
@@ -112,21 +124,42 @@ local function launch(bay)
 		end
 		task.wait(4)
 	else
+		-- save first, so the Game place loads the latest (it waits on the session
+		-- lock until this server lets go as they leave)
+		local saving = #members
 		for _, m in members do
-			Data.save(m) -- save first, so the Game place loads the latest
+			task.spawn(function()
+				Data.save(m)
+				saving -= 1
+			end)
 		end
-		-- carry on from the leader's last Waystation (GDD 9.1: saves at each Waystation)
-		local lead = Data.get(party.leader)
-		local zone = lead and lead.save and tonumber(lead.save.zone) or 1
-		zone = math.clamp(zone, 1, Config.BUILT_ZONES)
-		local mile = lead and lead.save and tonumber(lead.save.mile) or nil
-		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = party.leader.UserId, friendsOnly = party.friendsOnly, zone = zone, mile = mile }
+		local deadline = os.clock() + 10
+		while saving > 0 and os.clock() < deadline do
+			task.wait()
+		end
+		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = leaderId, friendsOnly = party.friendsOnly, zone = zone, mile = mile }
 		local ok, err
 		for attempt = 1, 3 do
+			-- (only the members still here: one who left would fail the whole teleport)
+			local here = {}
+			for _, m in members do
+				if m.Parent then
+					table.insert(here, m)
+				end
+			end
+			members = here
+			if #members == 0 then
+				ok = true
+				break
+			end
 			ok, err = pcall(function()
+				local code, serverId = TeleportService:ReserveServer(Config.GAME_PLACE_ID)
+				-- the run's settings stay on Roblox's side, keyed by the reserved server:
+				-- teleport data passes through the client, so the Game place doesn't trust it
+				MemoryStoreService:GetHashMap("RunParams"):SetAsync(serverId, data, 7200)
 				local options = Instance.new("TeleportOptions")
-				options.ReservedServerAccessCode = TeleportService:ReserveServer(Config.GAME_PLACE_ID)
-				options:SetTeleportData(data)
+				options.ReservedServerAccessCode = code
+				options:SetTeleportData({ fromLobby = true })
 				TeleportService:TeleportAsync(Config.GAME_PLACE_ID, members, options)
 			end)
 			if ok then
@@ -148,6 +181,9 @@ local function launch(bay)
 end
 
 local function createParty(bay, leader: Player, size: number, friendsOnly: boolean)
+	if size ~= size then
+		size = Config.PARTY_DEFAULT -- (NaN from the client)
+	end
 	bay.pending = nil
 	bay.party = {
 		leader = leader,
@@ -168,6 +204,21 @@ end
 
 function Bays.init(list)
 	bays = list
+	-- a member whose teleport into the run failed: try them again into the same server
+	TeleportService.TeleportInitFailed:Connect(function(player, _result, _message, placeId, options)
+		if placeId ~= Config.GAME_PLACE_ID or not options then
+			return
+		end
+		task.wait(2)
+		if player.Parent then
+			local ok = pcall(function()
+				TeleportService:TeleportAsync(Config.GAME_PLACE_ID, { player }, options)
+			end)
+			if not ok then
+				Net.Notify:FireClient(player, "Toast", "Couldn't join your crew's descent. Try again!")
+			end
+		end
+	end)
 	for _, bay in bays do
 		refresh(bay)
 	end

@@ -5,7 +5,7 @@
 	  - The run's miles (total and best), games played, creatures knocked off,
 	    and the Waystation save point.
 	Notes are written as they're read; the run is written when the zone is
-	complete and when a player leaves.
+	complete and when a player leaves (shared/Data.luau's lifecycle).
 ]]
 
 local Players = game:GetService("Players")
@@ -32,7 +32,7 @@ local function bank(player: Player)
 	local miles = math.max(0, rig.s - (runStart[player] or 0)) / Config.STUDS_PER_MILE
 	Data.update(player, function(p)
 		local zone = state:GetAttribute("Zone") or 1
-		local reached = Config.zoneStart(zone) + rig.s / Config.STUDS_PER_MILE
+		local reached = (state:GetAttribute("MileOffset") or Config.zoneStart(zone)) + rig.s / Config.STUDS_PER_MILE
 		p.totalMiles += math.floor(miles * 10) / 10
 		p.bestMiles = math.max(p.bestMiles, reached)
 		p.games += 1
@@ -80,39 +80,16 @@ end
 function Progress.init(theRig, theState, theWorld)
 	rig, state, World = theRig, theState, theWorld
 	local function join(player: Player)
-		runStart[player] = rig.s
-		-- give the lobby's save a moment to land after the teleport
-		task.delay(2, function()
-			if player.Parent then
-				Data.load(player)
-			end
-		end)
+		runStart[player] = runStart[player] or rig.s
 	end
 	Players.PlayerAdded:Connect(join)
 	for _, player in Players:GetPlayers() do
 		join(player)
 	end
-	-- Data.start's lifecycle, with the run banked before the profile is released
-	Players.PlayerRemoving:Connect(function(player)
-		bank(player)
-		Data.postAll(player)
-		Data.release(player)
-	end)
-	game:BindToClose(function()
-		for _, player in Players:GetPlayers() do
-			bank(player)
-			Data.postAll(player)
-			Data.save(player)
-		end
-	end)
-	task.spawn(function()
-		while true do
-			task.wait(120)
-			for _, player in Players:GetPlayers() do
-				Data.save(player)
-			end
-		end
-	end)
+	-- the shared lifecycle (load, autosave, safe shutdown), banking the run before
+	-- each final save. (Loading waits on the Lobby's session lock, so the Lobby's
+	-- last save always lands first.)
+	Data.start({ beforeSave = bank })
 	-- a mid-zone Waystation saves where the run will carry on from
 	state:GetAttributeChangedSignal("SavedAt"):Connect(function()
 		local mile = state:GetAttribute("SavedAt")

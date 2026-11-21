@@ -70,29 +70,84 @@ local function key(player: Player): string
 	return "p_" .. player.UserId
 end
 
+-- Session lock (live-server audit): a profile is written only by the server that
+-- holds its lock, so the Lobby can't load a stale copy while the Game place is
+-- still writing the run (or the other way round) and then overwrite it. A lock
+-- is refreshed by every save; one older than LOCK_STALE belongs to a server that
+-- died, and is taken over.
+local LOCK_STALE = 150
+local LOCK_WAIT = 25 -- seconds to wait for the other server's last save to land
+local loading: { [Player]: boolean } = {}
+local pending = 0 -- saves in flight (BindToClose waits for them)
+
+local function lockedByOther(old): boolean
+	local lock = old and old._lock
+	return lock ~= nil and lock.job ~= game.JobId and os.time() - (lock.t or 0) < LOCK_STALE
+end
+
 function Data.load(player: Player)
 	if profiles[player] then
 		return profiles[player]
 	end
+	if loading[player] then
+		-- (someone else is already loading it: wait for that instead of racing it)
+		while loading[player] and player.Parent do
+			task.wait(0.1)
+		end
+		return profiles[player]
+	end
+	loading[player] = true
 	local profile, err
 	if store then
-		for attempt = 1, 3 do
+		local started = os.clock()
+		local attempt = 0
+		while player.Parent do
+			attempt += 1
+			local waiting = false
 			local okGet, result = pcall(function()
-				return store:GetAsync(key(player))
+				return store:UpdateAsync(key(player), function(old)
+					if lockedByOther(old) and os.clock() - started < LOCK_WAIT then
+						waiting = true
+						return nil -- leave it alone, and try again shortly
+					end
+					old = old or default()
+					old._lock = { job = game.JobId, t = os.time() }
+					return old
+				end)
 			end)
-			if okGet then
+			if okGet and not waiting then
 				profile = reconcile(result or default(), default())
 				err = nil
 				break
 			end
-			err = result
-			if string.find(tostring(result), "StudioAccessToApisNotAllowed", 1, true) then
-				break -- Studio without API access: retrying won't help
+			if not okGet then
+				err = result
+				if string.find(tostring(result), "StudioAccessToApisNotAllowed", 1, true) or attempt >= 4 then
+					break -- (Studio without API access, or the DataStore is down)
+				end
+				task.wait(attempt)
+			else
+				task.wait(1.5) -- the other server is still saving this player
 			end
-			task.wait(attempt)
 		end
 	else
 		err = "no DataStore"
+	end
+	loading[player] = nil
+	if not player.Parent then
+		-- they left while it loaded: let the lock go without changing anything
+		if profile and store then
+			pcall(function()
+				store:UpdateAsync(key(player), function(old)
+					if old and old._lock and old._lock.job == game.JobId then
+						old._lock = nil
+						return old
+					end
+					return nil
+				end)
+			end)
+		end
+		return nil
 	end
 	if not profile then
 		profile = default()
@@ -101,8 +156,11 @@ function Data.load(player: Player)
 		else
 			profile.failed = true
 			warn("Couldn't load " .. player.Name .. "'s save: " .. tostring(err))
+			-- never play on a blank save that could later look like theirs
+			player:Kick("Couldn't load your save. Please rejoin in a moment.")
 		end
 	end
+	profile._lock = nil
 	profile.joinedAt = os.time()
 	profiles[player] = profile
 	changed:Fire(player, profile)
@@ -124,7 +182,9 @@ function Data.update(player: Player, fn: (any) -> ())
 	return p
 end
 
-function Data.save(player: Player)
+-- write the profile (only while this server holds its lock); `release` also
+-- lets the lock go, for the next server the player joins
+function Data.save(player: Player, release: boolean?)
 	local p = profiles[player]
 	if not p or p.failed or p.offline or not store then
 		return false
@@ -134,17 +194,36 @@ function Data.save(player: Player)
 	p.joinedAt = now
 	local copy = table.clone(p)
 	copy.joinedAt = nil
-	local okSet, err = pcall(function()
-		store:SetAsync(key(player), copy, { player.UserId })
-	end)
+	copy._lock = not release and { job = game.JobId, t = now } or nil
+	pending += 1
+	local okSet, err, lost = false, nil, false
+	for attempt = 1, 3 do
+		okSet, err = pcall(function()
+			store:UpdateAsync(key(player), function(old)
+				if lockedByOther(old) then
+					lost = true -- another server took this player over: don't clobber it
+					return nil
+				end
+				return copy
+			end, { player.UserId })
+		end)
+		if okSet then
+			break
+		end
+		task.wait(attempt * 1.5)
+	end
+	pending -= 1
 	if not okSet then
 		warn("Couldn't save " .. player.Name .. ": " .. tostring(err))
+	elseif lost then
+		warn(player.Name .. "'s save is held by another server; not overwriting it")
+		okSet = false
 	end
 	return okSet
 end
 
 function Data.release(player: Player)
-	Data.save(player)
+	Data.save(player, true)
 	profiles[player] = nil
 end
 
@@ -182,22 +261,58 @@ function Data.postAll(player: Player)
 	end
 end
 
-function Data.start()
-	Players.PlayerRemoving:Connect(function(player)
-		Data.postAll(player)
-		Data.release(player)
-	end)
+-- the profile lifecycle: load on join, autosave, and on leave / shutdown write the
+-- profile first, then the leaderboards. `beforeSave(player)` lets a place fold
+-- its own state in first (the Game place banks the run). Shutdown waits for every
+-- save still in flight, so a solo player quitting doesn't lose the run.
+function Data.start(opts: { beforeSave: ((Player) -> ())?, loadDelay: number? }?)
+	opts = opts or {}
+	local function join(player: Player)
+		if opts.loadDelay then
+			task.wait(opts.loadDelay)
+		end
+		if player.Parent then
+			Data.load(player)
+		end
+	end
+	Players.PlayerAdded:Connect(join)
+	for _, player in Players:GetPlayers() do
+		task.spawn(join, player)
+	end
+	local leaving = 0
+	local left: { [Player]: boolean } = {}
+	local function leave(player: Player)
+		if left[player] then
+			return
+		end
+		left[player] = true
+		leaving += 1
+		pcall(function()
+			if opts.beforeSave then
+				opts.beforeSave(player)
+			end
+			Data.save(player, true) -- (lets the session lock go)
+			Data.postAll(player)
+		end)
+		profiles[player] = nil
+		left[player] = nil
+		leaving -= 1
+	end
+	Players.PlayerRemoving:Connect(leave)
 	game:BindToClose(function()
 		for _, player in Players:GetPlayers() do
-			Data.postAll(player)
-			Data.save(player)
+			task.spawn(leave, player)
+		end
+		local deadline = os.clock() + 25
+		while (leaving > 0 or pending > 0) and os.clock() < deadline do
+			task.wait()
 		end
 	end)
 	task.spawn(function()
 		while true do
-			task.wait(120)
+			task.wait(60) -- (also keeps each player's session lock fresh)
 			for _, player in Players:GetPlayers() do
-				Data.save(player)
+				task.spawn(Data.save, player)
 			end
 		end
 	end)
