@@ -151,6 +151,8 @@ local function build(kind: string)
 	local m: Model
 	if src then
 		m = src:Clone()
+		-- Blender's front (+Y) imports facing +Z; turn it to face Roblox's forward (-Z)
+		m:PivotTo(m:GetPivot() * CFrame.Angles(0, math.pi, 0))
 	else
 		m = Instance.new("Model")
 		local fn = STANDIN[kind] or STANDIN.Cragskitter
