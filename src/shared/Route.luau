@@ -44,7 +44,9 @@ function Route.new(seed: number, miles: number, zone: number?, startMile: number
 	local T = Config.Tunnel
 	local pos, yaw = Vector3.zero, 0
 	local width, height = 64, 0
-	table.insert(self.nodes, { p = pos, yaw = yaw, w = width, h = height, kind = "Gorge" })
+	-- (only zone 1 starts on the surface; deeper zones start in a Waystation chamber:
+	-- a "Gorge" first point built a strip of the surface's sand under it)
+	table.insert(self.nodes, { p = pos, yaw = yaw, w = width, h = height, kind = (zone or 1) == 1 and "Gorge" or "Stop" })
 
 	local function length()
 		return (#self.nodes - 1) * STEP

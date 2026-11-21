@@ -733,7 +733,7 @@ local function giantMushroom(model: Model, at: CFrame, height: number, color: Co
 		local lean = CFrame.Angles(rng:NextNumber(-0.08, 0.08), 0, rng:NextNumber(-0.08, 0.08))
 		local top = at * lean * CFrame.new(0, height, 0)
 		part({ Name = "Stem", Shape = Enum.PartType.Cylinder, Size = Vector3.new(height, r * 2, r * 2), CFrame = at * lean * CFrame.new(0, height / 2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = STEM, Material = Enum.Material.SmoothPlastic, Parent = model })
-		part({ Name = "Cap", Shape = Enum.PartType.Ball, Size = Vector3.new(height * 0.75, height * 0.24, height * 0.75), CFrame = top, Color = color, Material = Enum.Material.SmoothPlastic, Parent = model })
+		part({ Name = "Cap", Shape = Enum.PartType.Ball, Size = Vector3.new(height * 0.75, height * 0.24, height * 0.75), CFrame = top, Color = color:Lerp(Color3.fromRGB(30, 20, 60), 0.2), Material = Enum.Material.Fabric, Parent = model })
 		part({ Name = "Gills", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.8, height * 0.66, height * 0.66), CFrame = top * CFrame.new(0, -height * 0.05, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = GILLS, Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
 		for i = 1, 6 do
 			local a = i / 6 * math.pi * 2
@@ -743,7 +743,8 @@ local function giantMushroom(model: Model, at: CFrame, height: number, color: Co
 	if m then
 		for _, p in m:GetChildren() do
 			if p.Name == "Cap" then
-				(p :: BasePart).Color = color
+				(p :: BasePart).Color = color:Lerp(Color3.fromRGB(30, 20, 60), 0.2);
+				(p :: BasePart).Material = Enum.Material.Fabric
 			end
 		end
 	end
@@ -828,8 +829,16 @@ local function buildGrotto(model: Model, cf: CFrame, len: number, w: number, s0:
 	elseif k % 2 == 0 then
 		local col = CAP[(math.floor(k / 2) % #CAP) + 1]
 		local D = deckW + 18
-		part({ Name = "CapPath", Shape = Enum.PartType.Cylinder, Size = Vector3.new(6, D, D), CFrame = cf * CFrame.new(0, -3, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = col, Material = Enum.Material.SmoothPlastic, Parent = model })
-		part({ Name = "CapRim", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1.2, D + 3, D + 3), CFrame = cf * CFrame.new(0, -6.2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = col:Lerp(Color3.new(1, 1, 1), 0.35), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		-- the cap: a deeper tone with a velvety surface (not flat bright plastic),
+		-- pale spots, and only a soft glow at its rim (full neon blew out the screen)
+		local deep = col:Lerp(Color3.fromRGB(30, 20, 60), 0.3)
+		part({ Name = "CapPath", Shape = Enum.PartType.Cylinder, Size = Vector3.new(6, D, D), CFrame = cf * CFrame.new(0, -3, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = deep, Material = Enum.Material.Fabric, Parent = model })
+		part({ Name = "CapRim", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1.2, D + 3, D + 3), CFrame = cf * CFrame.new(0, -6.2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = col, Material = Enum.Material.Neon, Transparency = 0.45, CanCollide = false, CastShadow = false, Parent = model })
+		for i = 1, 5 do
+			local a = (i / 5 + k * 0.13) * math.pi * 2
+			local rr = D * (0.28 + (i % 2) * 0.12)
+			part({ Name = "CapSpot", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, 3 + (i % 3), 3 + (i % 3)), CFrame = cf * CFrame.new(math.cos(a) * rr, 0.05, math.sin(a) * rr * 0.8) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(236, 240, 255), Material = Enum.Material.SmoothPlastic, CanCollide = false, CastShadow = false, Parent = model })
+		end
 		part({ Name = "CapGills", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, D - 4, D - 4), CFrame = cf * CFrame.new(0, -7, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = GILLS, Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
 		if k % 4 == 0 then
 			-- the cap's stalk, down to the moss
