@@ -42,27 +42,35 @@ end
 
 local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 local seed = math.random(1, 2 ^ 30)
-local zone = 1
+local zone, startMile = 1, nil
 local data = first:GetJoinData().TeleportData
 if type(data) == "table" then
 	seed = tonumber(data.seed) or seed
 	zone = tonumber(data.zone) or zone
+	startMile = tonumber(data.mile)
 end
 if RunService:IsStudio() then
-	-- playtest a later zone: set the Game place's Workspace attribute StartZone
+	-- playtest a later zone: set the Game place's Workspace attributes StartZone (and StartMile
+	-- for a mid-zone Waystation)
 	zone = workspace:GetAttribute("StartZone") or zone
+	startMile = workspace:GetAttribute("StartMile") or startMile
 end
 zone = math.clamp(math.floor(zone), 1, Config.BUILT_ZONES)
+local zoneStart = Config.zoneStart(zone)
+local zoneEnd = zoneStart + Config.ZONES[zone].miles
+if not startMile or startMile <= zoneStart or startMile >= zoneEnd then
+	startMile = zoneStart
+end
 
 local state = Instance.new("Folder")
 state.Name = "RunState"
 state:SetAttribute("Seed", seed)
 state:SetAttribute("Zone", zone)
-state:SetAttribute("MileOffset", Config.zoneStart(zone))
-state:SetAttribute("Miles", Config.ZONES[zone].miles)
+state:SetAttribute("MileOffset", startMile)
+state:SetAttribute("Miles", zoneEnd - startMile)
 state.Parent = ReplicatedStorage
 
-local route = Route.new(seed, Config.ZONES[zone].miles, zone)
+local route = Route.new(seed, zoneEnd - startMile, zone, startMile)
 state:SetAttribute("RouteLength", route.length)
 World.init(route)
 World.update(0)

@@ -113,6 +113,17 @@ function Progress.init(theRig, theState, theWorld)
 			end
 		end
 	end)
+	-- a mid-zone Waystation saves where the run will carry on from
+	state:GetAttributeChangedSignal("SavedAt"):Connect(function()
+		local mile = state:GetAttribute("SavedAt")
+		local zone = state:GetAttribute("Zone") or 1
+		for _, player in Players:GetPlayers() do
+			Data.update(player, function(p)
+				p.save = { mile = math.floor(mile * 10 + 0.5) / 10, zone = zone }
+			end)
+			task.spawn(Data.save, player)
+		end
+	end)
 	state:GetAttributeChangedSignal("Phase"):Connect(function()
 		if state:GetAttribute("Phase") == "Complete" then
 			for _, player in Players:GetPlayers() do

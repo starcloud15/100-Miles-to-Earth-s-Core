@@ -119,7 +119,8 @@ local function launch(bay)
 		local lead = Data.get(party.leader)
 		local zone = lead and lead.save and tonumber(lead.save.zone) or 1
 		zone = math.clamp(zone, 1, Config.BUILT_ZONES)
-		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = party.leader.UserId, friendsOnly = party.friendsOnly, zone = zone }
+		local mile = lead and lead.save and tonumber(lead.save.mile) or nil
+		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = party.leader.UserId, friendsOnly = party.friendsOnly, zone = zone, mile = mile }
 		local ok, err
 		for attempt = 1, 3 do
 			ok, err = pcall(function()

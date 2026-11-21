@@ -118,6 +118,13 @@ local function arrive()
 	set("StopName", stop.name)
 	set("StopKind", stop.kind)
 	Net.Notify:FireAllClients("StopName", stop.name)
+	if stop.save then
+		-- a mid-zone Waystation: the run can carry on from here next time (GDD 9.1)
+		set("SavedAt", (route.mileStart or 0) + stop.s / Config.STUDS_PER_MILE)
+		task.delay(2.4, function()
+			Net.Notify:FireAllClients("Banner", "Progress saved at " .. stop.name)
+		end)
+	end
 	set("RepairNeed", rig:brokenCount() * Config.Rig.REPAIR_PER_PIECE)
 	set("RepairHave", 0)
 	if rig:brokenCount() > 0 then

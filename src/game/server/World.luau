@@ -404,8 +404,15 @@ local function buildStop(model: Model, stop)
 		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = 12
 		prompt.RequiresLineOfSight = false
-		local index = table.find(route.stops, stop) or 1
-		prompt:SetAttribute("Notes", table.concat(Story.boardEntries(route.zone or 1, index, #route.stops), ","))
+		-- (indexed in the zone's full stop list, so a run resumed mid-zone shows the same notes)
+		local all = Config.ZONE_STOPS[route.zone or 1] or Config.STOPS
+		local index = 1
+		for i, st in all do
+			if st.name == stop.name then
+				index = i
+			end
+		end
+		prompt:SetAttribute("Notes", table.concat(Story.boardEntries(route.zone or 1, index, #all), ","))
 		prompt.Parent = boardPart
 		table.insert(World.notePrompts, prompt)
 	end

@@ -55,7 +55,7 @@ local Config = {
 			{ mile = 37.0, name = "Tidewrack Camp", kind = "camp" },
 			{ mile = 39.6, name = "Rib Island Landing", kind = "landing" },
 			{ mile = 42.2, name = "Lighthouse Camp", kind = "camp" },
-			{ mile = 45.0, name = "Midsea Waystation", kind = "landing" }, -- (GDD 9.1: the mid-zone save; for now a landing)
+			{ mile = 45.0, name = "Midsea Waystation", kind = "landing", save = true }, -- GDD 9.1: the mid-zone save
 			{ mile = 47.8, name = "Sporewood Landing", kind = "landing" },
 			{ mile = 50.6, name = "Canopy Camp", kind = "camp" },
 			{ mile = 53.2, name = "Rootfall Landing", kind = "landing" },
@@ -65,7 +65,7 @@ local Config = {
 			{ mile = 57.4, name = "Cinder Camp", kind = "camp" },
 			{ mile = 60.0, name = "Basalt Steps Landing", kind = "landing" },
 			{ mile = 62.8, name = "Geyser Camp", kind = "camp" },
-			{ mile = 66.0, name = "Ashfall Waystation", kind = "landing" }, -- (the mid-zone save; for now a landing)
+			{ mile = 66.0, name = "Ashfall Waystation", kind = "landing", save = true },
 			{ mile = 69.0, name = "Glass Rift Landing", kind = "landing" },
 			{ mile = 71.6, name = "Ember Watch Camp", kind = "camp" },
 			{ mile = 74.3, name = "Redglass Camp", kind = "camp" },
@@ -75,7 +75,7 @@ local Config = {
 			{ mile = 79.4, name = "Gatehouse Camp", kind = "camp" },
 			{ mile = 82.0, name = "Statue Road Landing", kind = "landing" },
 			{ mile = 84.8, name = "Sunstone Camp", kind = "camp" },
-			{ mile = 88.0, name = "Heartstone Waystation", kind = "landing" }, -- (the mid-zone save; for now a landing)
+			{ mile = 88.0, name = "Heartstone Waystation", kind = "landing", save = true },
 			{ mile = 90.8, name = "Lantern Gate Landing", kind = "landing" },
 			{ mile = 93.4, name = "Last Light Camp", kind = "camp" },
 			{ mile = 96.6, name = "Corelight Camp", kind = "camp" },

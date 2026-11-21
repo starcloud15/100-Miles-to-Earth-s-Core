@@ -22,13 +22,14 @@ local function forwardOf(yaw: number): Vector3
 	return Vector3.new(-math.sin(yaw), 0, -math.cos(yaw))
 end
 
-function Route.new(seed: number, miles: number, zone: number?)
+function Route.new(seed: number, miles: number, zone: number?, startMile: number?)
 	zone = zone or 1
 	local rng = Random.new(seed)
 	local self = setmetatable({}, Route)
 	self.seed = seed
 	self.zone = zone
-	self.mileStart = Config.zoneStart(zone) -- the HUD counts on from here
+	-- the HUD counts on from here: the zone's start, or a mid-zone Waystation (GDD 9.1)
+	self.mileStart = startMile or Config.zoneStart(zone)
 	self.hallDef = Config.ZONE_HALL[zone] or Config.ZONE_HALL[1]
 	self.nodes = {} -- { p, yaw, w, h, kind }
 	self.hazards = {} -- { s, len, offset, radius, kind }
@@ -77,15 +78,23 @@ function Route.new(seed: number, miles: number, zone: number?)
 		sign(s - 520, "Warning", "ROCK!")
 	end
 
-	local STOPS = Config.ZONE_STOPS[zone] or Config.STOPS
+	local STOPS = {}
+	local startName = "Waystation " .. (zone - 1)
+	for _, st in Config.ZONE_STOPS[zone] or Config.STOPS do
+		if st.mile > self.mileStart + 0.05 then
+			table.insert(STOPS, st)
+		elseif math.abs(st.mile - self.mileStart) < 0.05 then
+			startName = st.name
+		end
+	end
 	local function stopAt(stop): number
 		return (stop.mile - self.mileStart) * SPM
 	end
 
-	if zone > 1 then
-		-- the last zone's Waystation chamber: the crew wakes here, then digs on down
+	if self.mileStart > 0 then
+		-- the Waystation the crew saved at: they wake here, then dig on down
 		local a, b = run(220, 0, 0, 110, 46, "Stop")
-		self.start = { s0 = a, s1 = b, name = "Waystation " .. (zone - 1) }
+		self.start = { s0 = a, s1 = b, name = startName }
 		run(60, 0, -0.06, T.WIDTH, T.HEIGHT, "StopOut")
 		run(240, rng:NextNumber(-30, 30), -0.2, T.WIDTH, T.HEIGHT, "Tunnel")
 	end
@@ -127,7 +136,7 @@ function Route.new(seed: number, miles: number, zone: number?)
 				-- a stop on an outcrop platform looking out over the cavern
 				stopIndex += 1
 				local a, b = run(220, rng:NextNumber(-10, 10), 0, 110, 0, "HallStop")
-				table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind, hall = true })
+				table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind, hall = true, save = stop.save })
 				run(40, 0, -0.05, 54, 0, "Hall")
 			elseif rng:NextNumber() < 0.16 then
 				-- a ramp down to a lower level of the cavern
@@ -148,7 +157,7 @@ function Route.new(seed: number, miles: number, zone: number?)
 			stopIndex += 1
 			run(60, 0, -0.04, 110, 46, "StopIn")
 			local a, b = run(200, rng:NextNumber(-12, 12), 0, 110, 46, "Stop")
-			table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind })
+			table.insert(self.stops, { s = (a + b) / 2, name = stop.name, kind = stop.kind, save = stop.save })
 			run(60, 0, -0.04, T.WIDTH, T.HEIGHT, "StopOut")
 			sinceCavern = 0
 		elseif sinceCavern > 1500 and rng:NextNumber() < 0.5 then
