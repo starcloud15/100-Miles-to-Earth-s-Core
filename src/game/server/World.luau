@@ -89,6 +89,10 @@ local PROP_PAINT = {
 	Cap = { Color3.fromRGB(60, 214, 200), Enum.Material.SmoothPlastic },
 	Gills = { Color3.fromRGB(70, 46, 104), Enum.Material.SmoothPlastic },
 	Spots = { Color3.fromRGB(230, 255, 250), Enum.Material.Neon },
+	-- zone 3's crystals
+	Ice = { Color3.fromRGB(150, 214, 255), Enum.Material.Glass },
+	IceDeep = { Color3.fromRGB(70, 140, 220), Enum.Material.Glass },
+	IceCore = { Color3.fromRGB(226, 244, 255), Enum.Material.Neon },
 }
 local HANGING = { Stalactite = true }
 local function prop(name: string, cf: CFrame, scale: number, model: Model, fallback: () -> ()): Model?

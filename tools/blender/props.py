@@ -41,6 +41,10 @@ PAINT = {
     "Cap": (60, 214, 200),
     "Gills": (70, 46, 104),
     "Spots": (230, 255, 250),
+    # zone 3
+    "Ice": (150, 214, 255),
+    "IceDeep": (70, 140, 220),
+    "IceCore": (226, 244, 255),
 }
 MATS = {}
 
@@ -422,6 +426,34 @@ def mushroom_cluster():
         emit(mushroom_cap(h * 0.42, h * 0.2, sides=10, rings=2, seed=310 + i), "Spots" if i % 2 else "Cap", at(x, y, h))
 
 
+def prism(r, h, sides, seed, tip=0.35, lean=(0, 0)):
+    """A crystal: a faceted prism with a pointed tip."""
+    bm = cone(r, r * 0.92, h * (1 - tip), sides, 2, seed, wobble=0.03, lean=lean, cap_top=False)
+    top = [v for v in bm.verts if abs(v.co.z - h * (1 - tip)) < 1e-4]
+    c = sum((v.co for v in top), Vector()) / len(top)
+    apex = bm.verts.new((c.x, c.y, h))
+    top.sort(key=lambda v: math.atan2(v.co.y - c.y, v.co.x - c.x))
+    for j in range(len(top)):
+        bm.faces.new((top[j], top[(j + 1) % len(top)], apex))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
+def crystal_spire():
+    # a giant ice crystal spire of the Crystal Hollows (50 tall): a main six-sided
+    # prism with a glowing core, a cluster of smaller crystals around its foot
+    emit(prism(4.2, 50, 6, 401, tip=0.22, lean=(0.04, 0.02)), "Ice")
+    emit(prism(1.4, 44, 6, 402, tip=0.1, lean=(0.04, 0.02)), "IceCore")
+    rnd = random.Random(403)
+    for i in range(6):
+        a = i / 6 * math.tau + rnd.uniform(-0.3, 0.3)
+        h = rnd.uniform(8, 22)
+        tilt = rnd.uniform(0.25, 0.55)
+        m = at(math.cos(a) * 4.5, math.sin(a) * 4.5, -0.5) @ Matrix.Rotation(a, 4, "Z") @ Matrix.Rotation(tilt, 4, "Y")
+        emit(prism(rnd.uniform(1.0, 2.0), h, 6, 410 + i, tip=0.3), "IceDeep" if i % 2 else "Ice", m)
+    emit(rock(5, 420, subdiv=2, squash=(1.3, 1.3, 0.35)), "IceDeep", at(z=0.4))
+
+
 PROPS = {
     "Stalagmite": stalagmite,
     "Stalactite": stalactite,
@@ -437,6 +469,7 @@ PROPS = {
     "Minecart": minecart,
     "GiantMushroom": giant_mushroom,
     "MushroomCluster": mushroom_cluster,
+    "CrystalSpire": crystal_spire,
 }
 
 

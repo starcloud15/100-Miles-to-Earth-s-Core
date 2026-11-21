@@ -47,6 +47,12 @@ PAINT = {
     "EelSkin": (40, 52, 96),
     "EelBelly": (110, 150, 190),
     "Fin": (90, 200, 230),
+    # zone 3
+    "Carapace": (52, 60, 84),
+    "Crystal": (160, 220, 255),
+    "Fur": (96, 76, 66),
+    "Claw": (226, 214, 196),
+    "Snout": (232, 150, 150),
 }
 MATS = {}
 PARTS = []  # (group, paint, object)
@@ -406,7 +412,60 @@ def lantern_eel(n=7):
         emit(spike((side * 1.4, -0.4, 0.2), (side * 2.6, -1.2, 0.6), 0.35, 4), g, "Fin")  # gill frills
 
 
-CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow, "Puffcap": puffcap, "LanternEel": lantern_eel}
+# --- zone 3: the Crystal Hollows and the Old Deepmine (the Ice Survey) -----------------------
+
+
+def shardback():
+    """A beetle about 5 long: a glossy dark carapace split down the back, a ridge
+    of ice crystals grown out of it, six legs, mandibles, two pale eyes. It drops
+    from the icicles onto the deck (the boarder role, GDD 9.2)."""
+    g = "Body"
+    emit(ball(1.6, 12, 7, seed=31), g, "Carapace", at(0, -0.3, 1.0, sx=1.05, sy=1.45, sz=0.62))
+    emit(ball(1.0, 10, 6, seed=32), g, "Carapace", at(0, 1.75, 0.9, sx=0.95, sy=0.8, sz=0.6))  # head
+    for side in (-1, 1):
+        emit(dome(1.3, 10, 3, seed=33 + side, rough=0.04), g, "Carapace", at(side * 0.62, -0.4, 1.35, sx=0.55, sy=1.4, sz=0.6))  # wing cases
+        emit(spike((side * 0.45, 2.4, 0.8), (-side * 0.1, 3.3, 0.7), 0.2, 4), g, "Claw")  # mandibles
+        emit(ball(0.17, 6, 4), g, "Glow", at(side * 0.5, 2.35, 1.15))
+        for k, y in enumerate((0.9, -0.2, -1.3)):
+            hip = Vector((side * 1.2, y, 0.8))
+            knee = Vector((side * 2.2, y + (k - 1) * 0.4, 1.4))
+            foot = Vector((side * 2.7, y + (k - 1) * 0.8, 0.05))
+            emit(taper(hip, knee, 0.2, 0.15), g, "Legs")
+            emit(taper(knee, foot, 0.15, 0.05), g, "Legs")
+    rnd = random.Random(34)
+    for i in range(6):
+        y = -1.6 + i * 0.6
+        h = 1.6 + math.sin(i / 5 * math.pi) * 1.6
+        emit(spike((rnd.uniform(-0.3, 0.3), y, 1.6), (rnd.uniform(-0.6, 0.6), y + rnd.uniform(-0.3, 0.3), 1.6 + h), 0.38, 6), g, "Crystal")
+
+
+def tunnel_mole(n=5):
+    """A Tunnel Mole as big as an ore cart: shaggy furred segments, a naked pink
+    star-shaped snout, tiny eyes, and huge pale digging claws. It bursts out of
+    the Deepmine walls and drags one of the crew back into its hole (the grabber
+    role). Segments shrink towards the rump, built along -Y behind the head."""
+    for i in range(1, n + 1):
+        r = 2.0 - i * 0.18
+        y = -2.4 * i
+        g = "Seg%d" % i
+        emit(ball(r, 12, 7, seed=40 + i, rough=0.08), g, "Fur", at(0, y, 0, sy=0.95))
+    g = "Head"
+    emit(ball(2.1, 12, 7, seed=50, rough=0.07), g, "Fur", at(0, 0.3, 0, sy=1.15, sz=0.95))
+    emit(ball(0.6, 8, 5), g, "Snout", at(0, 2.75, -0.1, sy=1.3))
+    for k in range(11):
+        a = k / 11 * math.tau
+        emit(spike((0, 3.3, -0.1), (math.cos(a) * 0.9, 3.55, -0.1 + math.sin(a) * 0.9), 0.16, 4), g, "Snout")  # the star
+    for side in (-1, 1):
+        emit(ball(0.13, 6, 4), g, "Eye", at(side * 0.75, 2.1, 0.75))
+        wrist = Vector((side * 2.1, 1.6, -1.2))
+        emit(taper((side * 1.4, 0.6, -0.6), wrist, 0.55, 0.45, 6), g, "Fur")
+        emit(ball(0.7, 8, 5), g, "Snout", at(*wrist, sx=1.2, sy=0.8, sz=0.5))  # palm
+        for k in range(4):
+            x = (k - 1.5) * 0.35
+            emit(spike(wrist + Vector((x, 0.4, 0)), wrist + Vector((x * 1.4, 2.0, -0.4)), 0.2, 4), g, "Claw")
+
+
+CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow, "Puffcap": puffcap, "LanternEel": lantern_eel, "Shardback": shardback, "TunnelMole": tunnel_mole}
 BUDGET = 2000  # one grabber at a time on screen
 
 
