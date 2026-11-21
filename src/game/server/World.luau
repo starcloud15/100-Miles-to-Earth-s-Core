@@ -297,9 +297,31 @@ local function beacon(model: Model, cf: CFrame, name: string)
 			part({ Name = "Stone", Size = Vector3.new(2.6, 1.8, 2.2), CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * 4, 0.6, math.sin(a) * 4)) * CFrame.Angles(0, -a, rng:NextNumber(-0.2, 0.2)), Color = Color3.fromRGB(120, 112, 104), Material = Enum.Material.Slate, Parent = model })
 		end
 	end)
-	local core = part({ Name = "Beacon", Size = Vector3.new(3, 4.5, 3), CFrame = CFrame.new(pos + Vector3.new(0, 2.6, 0)) * CFrame.Angles(0.3, 0.6, 0.2), Color = AMBER, Material = Enum.Material.Neon, Parent = model })
+	-- a real campfire, like the reference's: split logs leaned into a cone over a
+	-- glowstone heart, a bed of embers, flames and sparks rising
+	local log = Color3.fromRGB(136, 92, 56)
+	for i = 1, 7 do
+		local a = i / 7 * math.pi * 2 + 0.3
+		local foot = pos + Vector3.new(math.cos(a) * 2.6, 0.3, math.sin(a) * 2.6)
+		local top = pos + Vector3.new(math.cos(a) * 0.35, 5.2, math.sin(a) * 0.35)
+		local mid = (foot + top) / 2
+		part({ Name = "FireLog", Shape = Enum.PartType.Cylinder, Size = Vector3.new((top - foot).Magnitude, 0.75, 0.75), CFrame = CFrame.lookAt(mid, top) * CFrame.Angles(0, math.rad(90), 0), Color = i % 2 == 0 and log or Color3.fromRGB(112, 74, 44), Material = Enum.Material.Wood, Parent = model })
+	end
+	part({ Name = "Embers", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4, 5.4, 5.4), CFrame = CFrame.new(pos + Vector3.new(0, 0.15, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(255, 96, 30), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	local core = part({ Name = "Beacon", Size = Vector3.new(1.6, 2.4, 1.6), CFrame = CFrame.new(pos + Vector3.new(0, 1.4, 0)) * CFrame.Angles(0.3, 0.6, 0.2), Color = AMBER, Material = Enum.Material.Neon, Parent = model })
+	local sparks = Instance.new("ParticleEmitter")
+	sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	sparks.Color = ColorSequence.new(Color3.fromRGB(255, 190, 90), Color3.fromRGB(255, 90, 30))
+	sparks.Size = NumberSequence.new(0.25, 0)
+	sparks.Lifetime = NumberRange.new(1.2, 2.4)
+	sparks.Rate = 14
+	sparks.Speed = NumberRange.new(5, 9)
+	sparks.SpreadAngle = Vector2.new(18, 18)
+	sparks.LightEmission = 1
+	sparks.Acceleration = Vector3.new(0, 2, 0)
+	sparks.Parent = core
 	core:SetAttribute("Stop", name)
-	light(core, Color3.fromRGB(255, 170, 80), 60, 2.2)
+	light(core, Color3.fromRGB(255, 150, 70), 46, 2.4)
 	local fire = Instance.new("Fire")
 	fire.Size = 12
 	fire.Heat = 16
@@ -2131,11 +2153,14 @@ function World.atmosphere(s: number, glow: number)
 	local tint = glow > 0.35 and sec.tint:Lerp(dusk, (1 - glow) * 0.6) or dusk:Lerp(night, (0.35 - glow) / 0.35)
 	local b = sec.amb
 	local lifted = Color3.new(math.min(1, b.R * 1.45 + 0.08), math.min(1, b.G * 1.45 + 0.08), math.min(1, b.B * 1.45 + 0.08))
-	local amb = lifted:Lerp(Color3.fromRGB(96, 110, 160), (1 - glow) * 0.45)
+	-- night: a readable deep blue (never black), the firelight the warm pool in it
+	local amb = lifted:Lerp(Color3.fromRGB(74, 88, 140), (1 - glow) * 0.8)
 	-- zone 6's Pulses: the light swells gold on the beat and drops away in the gaps
 	local pulse = World.state and World.state:GetAttribute("Pulse")
 	local exposure = 0.35
-	local fog = sec.fog
+	-- at night the haze goes a deep cool blue, so the camp's firelight is the warm
+	-- pool in it (the reference's nights)
+	local fog = sec.fog:Lerp(Color3.fromRGB(44, 58, 104), (1 - glow) * 0.75)
 	if pulse == "Light" then
 		tint = tint:Lerp(Color3.fromRGB(255, 236, 190), 0.5)
 		exposure = 0.6
@@ -2148,6 +2173,8 @@ function World.atmosphere(s: number, glow: number)
 		exposure = -0.5
 	end
 	Lighting.ExposureCompensation += (exposure - Lighting.ExposureCompensation) * 0.12
+	local sun = 2.4 - (1 - glow) * 1.5
+	Lighting.Brightness += (sun - Lighting.Brightness) * 0.1
 	Lighting.Ambient = Lighting.Ambient:Lerp(amb, 0.1)
 	Lighting.OutdoorAmbient = Lighting.OutdoorAmbient:Lerp(amb, 0.1)
 	atmosphere.Color = atmosphere.Color:Lerp(fog, pulse and 0.14 or 0.08)
