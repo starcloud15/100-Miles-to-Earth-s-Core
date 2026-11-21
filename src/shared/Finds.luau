@@ -48,7 +48,10 @@ Finds.RARITY = {
 	LEGENDARY = Color3.fromRGB(255, 196, 40),
 }
 for _, f in LIST do
-	f.rarity = f.id == "CorelightPeach" and "LEGENDARY" or (f.rare and "RARE" or (f.hunger >= 13 and "UNCOMMON" or "COMMON"))
+	-- (no cooking yet, so a raw find fills half again as much: the reference's
+	-- cooked fish gives about 45%)
+	f.hunger = math.floor(f.hunger * 1.5 + 0.5)
+	f.rarity = f.id == "CorelightPeach" and "LEGENDARY" or (f.rare and "RARE" or (f.hunger >= 20 and "UNCOMMON" or "COMMON"))
 end
 
 -- glowstone, the one resource, is an item too: in the Bag, held, dropped
