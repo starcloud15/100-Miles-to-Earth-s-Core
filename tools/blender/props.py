@@ -548,7 +548,7 @@ def tris(objs) -> int:
     return sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
 
 
-BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 500, "GiantMushroom": 1000, "Minecart": 1000, "NoticeBoard": 900}
+BUDGET = {"Arch": 1200, "Tent": 600, "Crate": 500, "GiantMushroom": 1000, "Minecart": 1000, "NoticeBoard": 1000}
 
 os.makedirs(OUT, exist_ok=True)
 # ONLY=Name1,Name2 exports just those (re-exporting rewrites the FBX bytes, and
