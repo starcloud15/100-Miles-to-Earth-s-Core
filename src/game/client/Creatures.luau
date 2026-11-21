@@ -50,6 +50,12 @@ local PAINT = {
 	EelBelly = { Color3.fromRGB(110, 150, 190), Enum.Material.SmoothPlastic },
 	Lure = { Color3.fromRGB(120, 255, 230), Enum.Material.Neon },
 	Fin = { Color3.fromRGB(90, 200, 230), Enum.Material.Glass },
+	-- zone 3
+	Carapace = { Color3.fromRGB(52, 60, 84), Enum.Material.SmoothPlastic },
+	Crystal = { Color3.fromRGB(160, 220, 255), Enum.Material.Glass },
+	Fur = { Color3.fromRGB(96, 76, 66), Enum.Material.Fabric },
+	Claw = { Color3.fromRGB(226, 214, 196), Enum.Material.SmoothPlastic },
+	Snout = { Color3.fromRGB(232, 150, 150), Enum.Material.SmoothPlastic },
 }
 
 local RED = Color3.fromRGB(226, 38, 38)
@@ -128,6 +134,35 @@ function STANDIN.LanternEel(m: Model)
 	piece(m, "Head_Lure", Enum.PartType.Ball, Vector3.new(0.8, 0.8, 0.8), CFrame.new(0, 2.2, -2))
 	for _, side in { -1, 1 } do
 		piece(m, "Head_Lure", Enum.PartType.Ball, Vector3.new(0.35, 0.35, 0.35), CFrame.new(side * 0.9, 0.5, -1.6))
+	end
+end
+function STANDIN.Shardback(m: Model)
+	-- a beetle with a dark carapace and a ridge of ice crystals grown on its back
+	piece(m, "Body_Carapace", Enum.PartType.Ball, Vector3.new(3.4, 1.8, 4.4), CFrame.new(0, 1.3, 0))
+	for i = -1, 1 do
+		piece(m, "Body_Crystal", nil, Vector3.new(0.7, 2.2 - math.abs(i) * 0.6, 0.7), CFrame.new(i * 0.6, 2.6, i * 0.9) * CFrame.Angles(0.2 * i, 0, 0.3 * i))
+	end
+	for i = 0, 2 do
+		for _, side in { -1, 1 } do
+			piece(m, "Body_Legs", nil, Vector3.new(2.2, 0.3, 0.3), CFrame.new(side * 1.9, 0.7, -1.2 + i * 1.2) * CFrame.Angles(0, side * (i - 1) * 0.4, side * -0.6))
+		end
+	end
+	for _, side in { -1, 1 } do
+		piece(m, "Body_Glow", Enum.PartType.Ball, Vector3.new(0.4, 0.4, 0.4), CFrame.new(side * 0.6, 1.5, -2.2))
+	end
+end
+function STANDIN.TunnelMole(m: Model)
+	-- a huge mole bursting from the wall: furred segments, a pink star snout, digging claws
+	for i = 1, 5 do
+		local r = 3.4 - i * 0.3
+		piece(m, ("Seg%d_Fur"):format(i), Enum.PartType.Ball, Vector3.new(r, r, r * 1.1), CFrame.new())
+	end
+	piece(m, "Head_Fur", Enum.PartType.Ball, Vector3.new(3.4, 3, 3.6), CFrame.new())
+	piece(m, "Head_Snout", Enum.PartType.Ball, Vector3.new(1.4, 1.2, 1.2), CFrame.new(0, -0.2, -1.9))
+	for _, side in { -1, 1 } do
+		for k = -1, 1 do
+			piece(m, "Head_Claw", nil, Vector3.new(0.3, 0.3, 1.6), CFrame.new(side * 1.7 + k * 0.3, -1.2, -1.3) * CFrame.Angles(0.4, 0, 0))
+		end
 	end
 end
 function STANDIN.Hollow(m: Model)

@@ -43,10 +43,20 @@ local Config = {
 			{ mile = 17.9, name = "Mirror Pool Camp", kind = "camp" },
 			{ mile = 20.0, name = "Waystation 2", kind = "waystation" },
 		},
+		{
+			{ mile = 22.8, name = "Frostlight Camp", kind = "camp" },
+			{ mile = 25.4, name = "Prism Bridge Landing", kind = "landing" },
+			{ mile = 29.4, name = "Lift Cage Landing", kind = "landing" },
+			{ mile = 31.8, name = "Pithead Camp", kind = "camp" },
+			{ mile = 33.6, name = "Old Pumphouse Landing", kind = "landing" },
+			{ mile = 35.0, name = "Waystation 3", kind = "waystation" },
+		},
 	},
 	ZONE_HALL = {
 		{ untilMile = 9.5, WIDTH = 380, FLOOR = 150, CEILING = 120, theme = "Hollow" },
 		{ untilMile = 19.5, WIDTH = 420, FLOOR = 170, CEILING = 150, theme = "Grotto" },
+		-- zone 3 has two caverns: the Crystal Hollows, then the Old Deepmine from mile 28
+		{ untilMile = 34.5, WIDTH = 400, FLOOR = 160, CEILING = 170, theme = "Crystal", split = { mile = 28, theme = "Deepmine" } },
 	},
 	SURFACE_MILES = 0.9, -- open gorge before The Drop
 	DIG_IN = 700, -- studs of dig after The Drop before the zone's cavern (GDD 9.0)
@@ -146,6 +156,7 @@ local Config = {
 		ZONES = {
 			{ board = "Cragskitter", grab = "Burrowmaw" },
 			{ board = "Puffcap", grab = "LanternEel" },
+			{ board = "Shardback", grab = "TunnelMole" },
 		},
 	},
 }

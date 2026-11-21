@@ -785,9 +785,253 @@ local function buildGrotto(model: Model, cf: CFrame, len: number, w: number, s0:
 	end
 end
 
+-- zone 3, part 1: the Crystal Hollows (GDD 9.0): an ice-blue crystal cathedral; the
+-- route crosses on crystal bridges between giant spires, frozen falls hang from
+-- the walls, icicles from the roof, snow drifts over the floor --------------------------
+local ICE = Color3.fromRGB(150, 214, 255)
+local ICE_DEEP = Color3.fromRGB(70, 140, 220)
+local FROST = Color3.fromRGB(226, 244, 255)
+
+local function crystalSpire(model: Model, at: CFrame, height: number, rng: Random)
+	prop("CrystalSpire", at * CFrame.Angles(0, rng:NextNumber(0, 6), 0), height / 50, model, function()
+		local w = height * 0.16
+		local lean = CFrame.Angles(rng:NextNumber(-0.15, 0.15), 0, rng:NextNumber(-0.15, 0.15))
+		part({ Name = "Ice", Size = Vector3.new(w, height, w), CFrame = at * lean * CFrame.new(0, height / 2, 0) * CFrame.Angles(0, math.rad(45), 0), Color = ICE, Material = Enum.Material.Glass, Transparency = 0.25, Parent = model })
+		part({ Name = "IceCore", Size = Vector3.new(w * 0.35, height * 0.9, w * 0.35), CFrame = at * lean * CFrame.new(0, height * 0.45, 0), Color = FROST, Material = Enum.Material.Neon, Transparency = 0.3, CanCollide = false, Parent = model })
+		part({ Name = "Ice", ClassName = "WedgePart", Size = Vector3.new(w, w * 1.6, w), CFrame = at * lean * CFrame.new(0, height + w * 0.8, 0), Color = ICE, Material = Enum.Material.Glass, Transparency = 0.25, Parent = model })
+		for i = 1, 3 do
+			local h = height * rng:NextNumber(0.25, 0.5)
+			local a = i / 3 * math.pi * 2
+			part({ Name = "Ice", Size = Vector3.new(w * 0.5, h, w * 0.5), CFrame = at * CFrame.new(math.cos(a) * w, h / 2 - 1, math.sin(a) * w) * CFrame.Angles(math.sin(a) * 0.4, 0, -math.cos(a) * 0.4), Color = ICE_DEEP, Material = Enum.Material.Glass, Transparency = 0.2, Parent = model })
+		end
+	end)
+	local glow = part({ Name = "SpireLight", Size = Vector3.one, CFrame = at * CFrame.new(0, height * 0.5, 0), Transparency = 1, CanCollide = false, CanQuery = false, Parent = model })
+	light(glow, Color3.fromRGB(150, 210, 255), math.clamp(height * 0.6, 24, 50), 1.2)
+end
+
+local function iceDust(model: Model, at: CFrame, width: number, len: number)
+	local p = part({ Name = "IceDust", Size = Vector3.new(width, 1, len), CFrame = at, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(230, 246, 255))
+	e.LightEmission = 1
+	e.Size = NumberSequence.new(0.3)
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, 0.3), NumberSequenceKeypoint.new(0.8, 0.3), NumberSequenceKeypoint.new(1, 1) })
+	e.EmissionDirection = Enum.NormalId.Bottom
+	e.Speed = NumberRange.new(1, 3)
+	e.SpreadAngle = Vector2.new(40, 40)
+	e.Lifetime = NumberRange.new(20, 30)
+	e.Rate = 3
+	e.Parent = p
+end
+
+local function buildCrystal(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0)
+	local fl, ce = hallFloor(s0), hallCeil(s0)
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	-- the shell: blue glacier ice, bands of clear ice, snow over the floor
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Glacier)
+	T:FillBlock(ccf * CFrame.new(0, -fl + 0.5, 0), Vector3.new(W, 2, L), Enum.Material.Snow)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Glacier)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Glacier)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.4, 0), Vector3.new(12, 16, L), Enum.Material.Ice)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.45, 0), Vector3.new(12, 10, L), Enum.Material.Ice)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.1, 0), Vector3.new(12, 6, L), Enum.Material.Snow)
+	end
+	if rng:NextNumber() < 0.5 then
+		local r = rng:NextNumber(12, 26)
+		T:FillBall((ccf * CFrame.new(rng:NextNumber(-W / 2 + 30, W / 2 - 30), -fl, 0)).Position, r, Enum.Material.Snow)
+	end
+	if rng:NextNumber() < 0.5 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local r = rng:NextNumber(14, 30)
+		T:FillBall((ccf * CFrame.new(side * (W / 2 - r * 0.25), rng:NextNumber(-fl, ce), 0)).Position, r, Enum.Material.Ice)
+	end
+	-- a frozen lake down on the floor
+	local lake = math.sin(s0 / 900) * W * 0.18
+	T:FillBlock(ccf * CFrame.new(lake, -fl, 0), Vector3.new(W * 0.3, 3, L), Enum.Material.Ice)
+
+	-- the route: crystal bridges, clear ice over a glowing seam, pale lines along the edges
+	local deckW = w + 16
+	part({ Name = "IceBridge", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = ICE, Material = Enum.Material.Glass, Transparency = 0.15, Parent = model })
+	part({ Name = "IceSeam", Size = Vector3.new(deckW * 0.4, 0.6, len + 2), CFrame = cf * CFrame.new(0, -3.4, 0), Color = Color3.fromRGB(170, 230, 255), Material = Enum.Material.Neon, Transparency = 0.35, CanCollide = false, CastShadow = false, Parent = model })
+	part({ Name = "IceKeel", ClassName = "WedgePart", Size = Vector3.new(deckW * 0.6, 14, len + 2), CFrame = cf * CFrame.new(0, -11, 0) * CFrame.Angles(0, 0, math.pi), Color = ICE_DEEP, Material = Enum.Material.Glass, Transparency = 0.3, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "IceLip", Size = Vector3.new(2.4, 2.6, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.2), 1.3, 0), Color = FROST, Material = Enum.Material.Ice, Parent = model })
+		part({ Name = "IceEdge", Size = Vector3.new(0.4, 0.4, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.2), 2.7, 0), Color = Color3.fromRGB(190, 236, 255), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 6 == 0 then
+		-- crystal piers down to the floor, lit from inside
+		local h = fl - 14
+		part({ Name = "IcePier", Size = Vector3.new(12, h, 12), CFrame = cf * CFrame.new(0, -18 - h / 2, 0) * CFrame.Angles(0, math.rad(45), 0), Color = ICE_DEEP, Material = Enum.Material.Glass, Transparency = 0.2, Parent = model })
+		local core = part({ Name = "PierCore", Size = Vector3.new(3, h, 3), CFrame = cf * CFrame.new(0, -18 - h / 2, 0), Color = FROST, Material = Enum.Material.Neon, Transparency = 0.4, CanCollide = false, Parent = model })
+		light(core, ICE, 50, 1.4)
+	end
+
+	-- the cathedral: spires from the floor, icicles from the roof, frozen falls on the walls
+	if k % 2 == 1 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		if math.abs(x - off) > 45 then
+			crystalSpire(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)), rng:NextNumber(50, fl + 80), rng)
+		end
+	end
+	if rng:NextNumber() < 0.6 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		local h = rng:NextNumber(14, 40)
+		part({ Name = "Icicle", ClassName = "WedgePart", Size = Vector3.new(rng:NextNumber(3, 7), h, rng:NextNumber(3, 7)), CFrame = ccf * CFrame.new(x, ce - h / 2, rng:NextNumber(-8, 8)) * CFrame.Angles(math.pi, rng:NextNumber(0, 3), 0), Color = FROST, Material = Enum.Material.Ice, CanCollide = false, Parent = model })
+	end
+	if k % 23 == 11 then
+		-- a frozen waterfall: a curtain of ice from the roof to the lake
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local top = ccf * CFrame.new(side * (W / 2 - 16), ce, 0)
+		local h = ce + fl
+		part({ Name = "FrozenFall", Size = Vector3.new(10, h, 34), CFrame = top * CFrame.new(0, -h / 2, 0), Color = FROST, Material = Enum.Material.Ice, Parent = model })
+		local inner = part({ Name = "FrozenFallGlow", Size = Vector3.new(4, h * 0.9, 20), CFrame = top * CFrame.new(-side * 4, -h / 2, 0), Color = ICE, Material = Enum.Material.Neon, Transparency = 0.5, CanCollide = false, Parent = model })
+		light(inner, ICE, 60, 1.4)
+	end
+	if k % 5 == 2 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		geode(model, ccf * CFrame.new(side * (W / 2 - 4), rng:NextNumber(-fl * 0.5, ce * 0.6), 0) * CFrame.Angles(0, 0, math.rad(side * 75)), rng:NextNumber(1.8, 2.8), k % 10 == 2 and GEODE[4] or GEODE[2], rng)
+	end
+	if k % 4 == 2 then
+		iceDust(model, ccf * CFrame.new(off * 0.5, ce * 0.6, 0), W * 0.6, L * 2)
+	end
+	if rng:NextNumber() < 0.35 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- zone 3, part 2: the Old Deepmine: somebody dug this far before Sunfall had a name.
+-- Lamplit timber scaffolds with rails, steam pipes along the walls, hanging lamps,
+-- abandoned ore carts, and warm light against black rock --------------------------------
+local TIMBER = Color3.fromRGB(122, 82, 50)
+local TIMBER_DARK = Color3.fromRGB(86, 58, 38)
+local IRON = Color3.fromRGB(92, 88, 86)
+
+local function hangingLamp(model: Model, top: Vector3, drop: number)
+	part({ Name = "Chain", Size = Vector3.new(0.2, drop, 0.2), CFrame = CFrame.new(top - Vector3.new(0, drop / 2, 0)), Color = IRON, Material = Enum.Material.Metal, CanCollide = false, CastShadow = false, Parent = model })
+	local lamp = part({ Name = "MineLamp", Size = Vector3.new(1.4, 1.8, 1.4), CFrame = CFrame.new(top - Vector3.new(0, drop + 0.9, 0)), Color = Color3.fromRGB(255, 196, 110), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	light(lamp, Color3.fromRGB(255, 180, 100), 34, 1.6)
+end
+
+local function steam(parent: BasePart)
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(230, 226, 220))
+	e.Size = NumberSequence.new(2, 9)
+	e.Transparency = NumberSequence.new(0.5, 1)
+	e.Lifetime = NumberRange.new(2, 3.5)
+	e.Speed = NumberRange.new(4, 8)
+	e.SpreadAngle = Vector2.new(20, 20)
+	e.Rate = 5
+	e.Parent = parent
+end
+
+local function buildDeepmine(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0)
+	local fl, ce = hallFloor(s0) * 0.7, hallCeil(s0) * 0.6 -- lower and closer than the crystal hall
+	local W = HALL.WIDTH * 0.75
+	local ccf = cf * CFrame.new(-off * 0.6, 0, 0)
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Basalt)
+	T:FillBlock(ccf * CFrame.new(0, -fl + 0.5, 0), Vector3.new(W, 2, L), Enum.Material.Ground)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Rock)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Rock)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.3, 0), Vector3.new(12, 10, L), Enum.Material.Slate)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.5, 0), Vector3.new(12, 6, L), Enum.Material.Basalt)
+	end
+	if rng:NextNumber() < 0.5 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local r = rng:NextNumber(12, 24)
+		T:FillBall((ccf * CFrame.new(side * (W / 2 - r * 0.25), rng:NextNumber(-fl, ce), 0)).Position, r, Enum.Material.Slate)
+	end
+
+	-- the route: a plank deck on a timber scaffold, with rails and sleepers down the middle
+	local deckW = w + 16
+	part({ Name = "MineDeck", Size = Vector3.new(deckW, 2, len + 1), CFrame = cf * CFrame.new(0, -1, 0), Color = Color3.fromRGB(140, 96, 60), Material = Enum.Material.WoodPlanks, Parent = model })
+	for _, x in { -6, 6 } do
+		part({ Name = "Rail", Size = Vector3.new(0.5, 0.5, len + 1), CFrame = cf * CFrame.new(x, 0.25, 0), Color = IRON, Material = Enum.Material.Metal, Parent = model })
+	end
+	for z = -len / 2 + 2, len / 2, 4 do
+		part({ Name = "Sleeper", Size = Vector3.new(16, 0.4, 1.4), CFrame = cf * CFrame.new(0, 0.1, z), Color = TIMBER_DARK, Material = Enum.Material.Wood, CanCollide = false, Parent = model })
+	end
+	for _, side in { -1, 1 } do
+		part({ Name = "Rail", Size = Vector3.new(0.9, 0.9, len + 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.5), 3.6, 0), Color = TIMBER, Material = Enum.Material.Wood, Parent = model })
+		part({ Name = "Post", Size = Vector3.new(1, 4, 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.5), 2, -len / 2 + 1), Color = TIMBER, Material = Enum.Material.Wood, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 2 == 0 then
+		-- a scaffold bent down to the floor, cross-braced
+		for _, side in { -1, 1 } do
+			local h = fl
+			part({ Name = "Leg", Size = Vector3.new(2, h, 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 3), -h / 2 - 2, 0), Color = TIMBER, Material = Enum.Material.Wood, Parent = model })
+		end
+		for _, y in { 0.25, 0.55, 0.85 } do
+			part({ Name = "Brace", Size = Vector3.new(deckW - 4, 1.2, 1.2), CFrame = cf * CFrame.new(0, -fl * y, 0) * CFrame.Angles(0, 0, (y * 10 % 2 < 1) and 0.35 or -0.35), Color = TIMBER_DARK, Material = Enum.Material.Wood, Parent = model })
+		end
+	end
+	if k % 3 == 0 then
+		-- a gallows frame over the track with a lamp hanging from it
+		for _, side in { -1, 1 } do
+			part({ Name = "Upright", Size = Vector3.new(1.4, 14, 1.4), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.5), 7, 0), Color = TIMBER, Material = Enum.Material.Wood, Parent = model })
+		end
+		part({ Name = "Header", Size = Vector3.new(deckW - 1, 1.6, 1.6), CFrame = cf * CFrame.new(0, 14, 0), Color = TIMBER, Material = Enum.Material.Wood, Parent = model })
+		hangingLamp(model, (cf * CFrame.new(0, 13.2, 0)).Position, 2)
+	end
+
+	-- the works: steam pipes on the walls, lamps strung across, old carts on side tracks
+	if k % 2 == 1 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local pipe = part({ Name = "SteamPipe", Shape = Enum.PartType.Cylinder, Size = Vector3.new(L, 3, 3), CFrame = ccf * CFrame.new(side * (W / 2 - 3), rng:NextNumber(-fl * 0.2, ce * 0.3), 0) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(150, 104, 70), Material = Enum.Material.CorrodedMetal, CanCollide = false, Parent = model })
+		if k % 5 == 1 then
+			steam(pipe)
+		end
+	end
+	if k % 4 == 1 then
+		hangingLamp(model, (ccf * CFrame.new(rng:NextNumber(-W / 3, W / 3), ce - 1, 0)).Position, rng:NextNumber(10, 30))
+	end
+	if k % 7 == 3 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		if math.abs(x + off * 0.6) > 35 then
+			prop("Minecart", ccf * CFrame.new(x, -fl, rng:NextNumber(-8, 8)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0), 1.4, model, function() end)
+		end
+	end
+	if rng:NextNumber() < 0.45 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		prop("RockCluster", ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0), rng:NextNumber(1, 2.2), model, function() end)
+	end
+	if k % 6 == 4 then
+		geode(model, ccf * CFrame.new((rng:NextNumber() < 0.5 and -1 or 1) * (W / 2 - 4), rng:NextNumber(-fl * 0.5, ce * 0.5), 0), rng:NextNumber(1.4, 2.2), GEODE[5], rng)
+	end
+	if rng:NextNumber() < 0.4 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- which cavern a distance is in (zones with two caverns switch theme part way)
+local function themeAt(s: number): string
+	local split = HALL.split
+	if split and route.mileStart + s / Config.STUDS_PER_MILE >= split.mile then
+		return split.theme
+	end
+	return HALL.theme
+end
+
 local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
-	if HALL.theme == "Grotto" then
+	local theme = themeAt(s0)
+	if theme == "Grotto" then
 		buildGrotto(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Crystal" then
+		buildCrystal(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Deepmine" then
+		buildDeepmine(model, cf, len, w, s0, k, kind, rng)
 		return
 	end
 	local off = hallOffset(s0)
@@ -937,7 +1181,7 @@ local function hallPlug(model: Model, s: number)
 	local cf = route:sample(s)
 	local off = hallOffset(s)
 	local fl, ce = hallFloor(s), hallCeil(s)
-	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), HALL.theme == "Grotto" and Enum.Material.Basalt or Enum.Material.Sandstone)
+	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), ({ Grotto = Enum.Material.Basalt, Crystal = Enum.Material.Glacier, Deepmine = Enum.Material.Rock })[HALL.theme] or Enum.Material.Sandstone)
 	local _ = model
 end
 
@@ -1181,6 +1425,21 @@ function World.init(r)
 		T.WaterColor = Color3.fromRGB(40, 210, 200)
 		T.WaterTransparency = 0.4
 		VEIN_COLOR = Color3.fromRGB(70, 236, 214) -- teal glowstone in the mushroom roots (GDD 9.2)
+	elseif HALL.theme == "Crystal" then
+		-- zone 3: cold grey-blue rock for the digs, blue glacier ice, black mine rock
+		for mat, rgb in {
+			[Enum.Material.Sandstone] = { 120, 130, 150 },
+			[Enum.Material.Rock] = { 84, 80, 82 },
+			[Enum.Material.Slate] = { 70, 76, 92 },
+			[Enum.Material.Basalt] = { 44, 42, 46 },
+			[Enum.Material.Glacier] = { 120, 186, 236 },
+			[Enum.Material.Ice] = { 190, 228, 252 },
+			[Enum.Material.Snow] = { 236, 244, 252 },
+			[Enum.Material.Ground] = { 74, 64, 56 },
+		} do
+			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
+		end
+		VEIN_COLOR = Color3.fromRGB(170, 220, 255) -- pale blue veins in the ice (GDD 9.2)
 	end
 	regions = {}
 	for _, p in route.pieces do
@@ -1238,6 +1497,9 @@ local SECTIONS = {
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
 	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
 	-- zone 2's cavern: teal haze, violet shadows, glowing everywhere
+	-- zone 3: the cold blue crystal cathedral, then the warm lamplit Deepmine
+	Crystal = { amb = Color3.fromRGB(130, 160, 196), fog = Color3.fromRGB(160, 206, 238), density = 0.3, haze = 1.4, tint = Color3.fromRGB(232, 246, 255), sat = 0.12 },
+	Deepmine = { amb = Color3.fromRGB(112, 92, 74), fog = Color3.fromRGB(120, 92, 66), density = 0.38, haze = 1.2, tint = Color3.fromRGB(255, 236, 212), sat = 0.1 },
 	Grotto = { amb = Color3.fromRGB(104, 112, 168), fog = Color3.fromRGB(64, 150, 184), density = 0.3, haze = 1.6, tint = Color3.fromRGB(226, 248, 255), sat = 0.22 },
 	Hall = { amb = Color3.fromRGB(150, 118, 110), fog = Color3.fromRGB(214, 146, 120), density = 0.28, haze = 1.6, tint = Color3.fromRGB(255, 246, 238), sat = 0.24 },
 }
@@ -1251,7 +1513,8 @@ function World.atmosphere(s: number, glow: number)
 	if kind:sub(1, 4) == "Stop" then
 		kind = "Stop"
 	elseif isHall(kind) then
-		kind = HALL.theme == "Grotto" and "Grotto" or "Hall"
+		local theme = themeAt(s)
+		kind = SECTIONS[theme] and theme or "Hall"
 	end
 	local sec = SECTIONS[kind] or SECTIONS.Tunnel
 	local dusk = Color3.fromRGB(255, 120, 110)
