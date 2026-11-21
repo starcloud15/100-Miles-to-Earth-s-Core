@@ -1485,7 +1485,11 @@ local function buildHeartstone(model: Model, cf: CFrame, len: number, w: number,
 
 	-- the route: a temple bridge of gold-trimmed stone with a balustrade
 	local deckW = w + 16
-	part({ Name = "TempleBridge", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "TempleBridge", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = STONE:Lerp(Color3.fromRGB(150, 110, 70), 0.25), Material = Enum.Material.Cobblestone, Parent = model })
+	-- worn paving bands across the road, so it reads as laid stone, not a slab
+	for z = -len / 2 + 3, len / 2 - 3, 7 do
+		part({ Name = "Paving", Size = Vector3.new(deckW - 3, 0.2, 0.6), CFrame = cf * CFrame.new(0, 0.02, z), Color = Color3.fromRGB(150, 118, 84), Material = Enum.Material.Slate, CanCollide = false, CastShadow = false, Parent = model })
+	end
 	part({ Name = "GoldInlay", Size = Vector3.new(4, 0.3, len + 2), CFrame = cf * CFrame.new(0, 0.05, 0), Color = GOLD, Material = Enum.Material.Metal, CanCollide = false, Parent = model })
 	part({ Name = "BridgeArch", Size = Vector3.new(deckW * 0.7, 8, len + 2), CFrame = cf * CFrame.new(0, -8, 0), Color = STONE_DARK, Material = Enum.Material.Limestone, Parent = model })
 	for _, side in { -1, 1 } do
@@ -2128,8 +2132,8 @@ local SECTIONS = {
 	Emberflow = { amb = Color3.fromRGB(160, 100, 78), fog = Color3.fromRGB(180, 82, 46), density = 0.26, haze = 2.2, tint = Color3.fromRGB(255, 232, 214), sat = 0.22 },
 	Obsidian = { amb = Color3.fromRGB(96, 54, 52), fog = Color3.fromRGB(124, 42, 30), density = 0.36, haze = 2.4, tint = Color3.fromRGB(255, 222, 202), sat = 0.2 },
 	-- zone 6: golden temples, then the rock turning to light
-	Heartstone = { amb = Color3.fromRGB(170, 150, 112), fog = Color3.fromRGB(220, 190, 130), density = 0.28, haze = 2.0, tint = Color3.fromRGB(255, 246, 226), sat = 0.15 },
-	CoreApproach = { amb = Color3.fromRGB(220, 200, 160), fog = Color3.fromRGB(255, 236, 190), density = 0.3, haze = 2.6, tint = Color3.fromRGB(255, 250, 236), sat = 0.08 },
+	Heartstone = { amb = Color3.fromRGB(150, 124, 92), fog = Color3.fromRGB(200, 150, 90), density = 0.22, haze = 1.1, tint = Color3.fromRGB(255, 240, 214), sat = 0.3 },
+	CoreApproach = { amb = Color3.fromRGB(190, 160, 120), fog = Color3.fromRGB(255, 200, 130), density = 0.24, haze = 1.4, tint = Color3.fromRGB(255, 244, 224), sat = 0.24 },
 	-- zone 4: a cool sea under a geode moon, then a warm misty jungle
 	FossilSea = { amb = Color3.fromRGB(112, 132, 152), fog = Color3.fromRGB(92, 142, 172), density = 0.26, haze = 1.8, tint = Color3.fromRGB(236, 246, 255), sat = 0.15 },
 	Sporewood = { amb = Color3.fromRGB(140, 122, 92), fog = Color3.fromRGB(196, 170, 112), density = 0.34, haze = 2.0, tint = Color3.fromRGB(255, 246, 226), sat = 0.25 },
@@ -2163,7 +2167,7 @@ function World.atmosphere(s: number, glow: number)
 	local b = sec.amb
 	local lifted = Color3.new(math.min(1, b.R * 1.45 + 0.08), math.min(1, b.G * 1.45 + 0.08), math.min(1, b.B * 1.45 + 0.08))
 	-- night: a readable deep blue (never black), the firelight the warm pool in it
-	local amb = lifted:Lerp(Color3.fromRGB(74, 88, 140), (1 - glow) * 0.8)
+	local amb = lifted:Lerp(Color3.fromRGB(92, 108, 166), (1 - glow) * 0.75)
 	-- zone 6's Pulses: the light swells gold on the beat and drops away in the gaps
 	local pulse = World.state and World.state:GetAttribute("Pulse")
 	local exposure = 0.35
@@ -2171,8 +2175,8 @@ function World.atmosphere(s: number, glow: number)
 	-- pool in it (the reference's nights)
 	local fog = sec.fog:Lerp(Color3.fromRGB(44, 58, 104), (1 - glow) * 0.75)
 	if pulse == "Light" then
-		tint = tint:Lerp(Color3.fromRGB(255, 236, 190), 0.5)
-		exposure = 0.6
+		tint = tint:Lerp(Color3.fromRGB(255, 226, 170), 0.35)
+		exposure = 0.4
 	elseif pulse == "Fading" then
 		exposure = 0.1
 	elseif pulse == "Dark" then
