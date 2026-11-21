@@ -17,6 +17,7 @@ local Shared = game:GetService("ReplicatedStorage").Shared
 local Config = require(Shared.Config)
 local Route = require(Shared.Route)
 local Story = require(Shared.Story)
+local Art = require(Shared.Art)
 
 local World = {}
 
@@ -320,6 +321,18 @@ local function beacon(model: Model, cf: CFrame, name: string)
 	sparks.LightEmission = 1
 	sparks.Acceleration = Vector3.new(0, 2, 0)
 	sparks.Parent = core
+	local crackle = Art.sound("Fire")
+	if crackle then
+		local s = Instance.new("Sound")
+		s.Name = "Crackle"
+		s.SoundId = crackle
+		s.Looped = true
+		s.Volume = 0.5
+		s.RollOffMinDistance = 10
+		s.RollOffMaxDistance = 90
+		s.Parent = core
+		s:Play()
+	end
 	core:SetAttribute("Stop", name)
 	light(core, Color3.fromRGB(255, 150, 70), 46, 2.4)
 	local fire = Instance.new("Fire")

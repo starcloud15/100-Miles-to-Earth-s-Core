@@ -30,7 +30,11 @@ function Art.icon(name: string): string?
 end
 
 function Art.sound(name: string): string?
-	return Art.get("sounds", name)
+	local id = Art.get("sounds", name)
+	if not id and game:GetService("RunService"):IsStudio() then
+		return "rbxasset://mcpsync/sfx/" .. name .. ".ogg"
+	end
+	return id
 end
 
 return Art

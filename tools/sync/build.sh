@@ -18,4 +18,6 @@ cp build/*.sync.rbxm "$studio/content/mcpsync/"
 # icons not uploaded yet, so Studio can show them (Art.icon falls back to these)
 mkdir -p "$studio/content/mcpsync/icons"
 cp assets/ui/icons/*.png "$studio/content/mcpsync/icons/"
+mkdir -p "$studio/content/mcpsync/sfx"
+cp assets/audio/sfx/*.ogg "$studio/content/mcpsync/sfx/" 2>/dev/null || true
 echo "synced to $studio/content/mcpsync"

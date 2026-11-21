@@ -474,6 +474,7 @@ local function add(f: Instance)
 			view.shown = math.min(view.shown + 1, f:GetAttribute("Need") - 0.3)
 			view.lunge = 0.15
 			Net.Spam:FireServer(f.Name)
+			require(script.Parent:WaitForChild("Sfx")).play("Spam", 0.6)
 		end
 	end)
 	if mode == "Grab" and f:GetAttribute("Target") == player.UserId then
@@ -743,7 +744,10 @@ function Creatures.init(opts: { deck: () -> BasePart?, shake: (number) -> (), to
 	for _, f in folder:GetChildren() do
 		add(f)
 	end
-	folder.ChildAdded:Connect(add)
+	folder.ChildAdded:Connect(function(f)
+		add(f)
+		require(script.Parent:WaitForChild("Sfx")).play("Creature", 0.7)
+	end)
 	Net.Notify.OnClientEvent:Connect(function(kind)
 		if kind == "Bitten" then
 			hurtFlash(0.55)

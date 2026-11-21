@@ -59,6 +59,7 @@ local held: string? = nil
 local heldTool: Tool? = nil
 local Finds = require(Shared.Finds)
 local Hotbar = require(script.Parent:WaitForChild("Hotbar"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local Pops = require(script.Parent:WaitForChild("Pops"))
 Hotbar.init()
 Pops.init()
@@ -91,6 +92,7 @@ local playMove -- (the tool-use animations, defined below)
 local function activate(tool: Tool)
 	if tool.Name == "Crank Pump" then
 		playMove("Crank")
+		Sfx.play("Crank", 0.5)
 		Net.Crank:FireServer()
 		shake(0.15)
 	elseif tool.Name == "Pickaxe" then
@@ -106,9 +108,11 @@ local function activate(tool: Tool)
 	elseif tool.Name == "Delver's Hook" then
 		if delving then
 			playMove("Reel")
+			Sfx.play("Reel", 0.6)
 			Net.Delve:FireServer("reel")
 		else
 			playMove("Cast")
+			Sfx.play("Cast", 0.6)
 			-- (the hook leaves the rod as the arm comes forward)
 			task.delay(0.18, function()
 				Net.Delve:FireServer("cast")
@@ -119,6 +123,7 @@ local function activate(tool: Tool)
 	elseif tool:GetAttribute("Find") then
 		-- a find: eat one
 		playMove("Eat")
+		Sfx.play("Eat", 0.7)
 		Net.Eat:FireServer()
 	end
 end
@@ -263,6 +268,7 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 		Hud.pulledBack()
 	elseif kind == "StopName" then
 		Hud.stopName(tostring(data))
+		Sfx.play("Fanfare", 0.6)
 	elseif kind == "Banner" then
 		task.delay(0.1, function()
 			Hud.toast(tostring(data), Color3.new(1, 1, 1), 2.4)
@@ -272,8 +278,10 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	elseif kind == "Mined" then
 		-- glowstone bursts out of the vein, bounces, and flies into your Bag
 		if type(data) == "table" and typeof(data.at) == "Vector3" then
+			Sfx.play("Mine", 0.8, data.at)
 			Pops.burst("Glowstone", data.at, data.n or 1, function()
 				Hotbar.bagPop("Glowstone", 1)
+				Sfx.play("Collect", 0.35)
 			end)
 		end
 	elseif kind == "Fed" then
@@ -295,8 +303,10 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 			local r = root()
 			local from = typeof(data.at) == "Vector3" and data.at or (r and r.Position + r.CFrame.LookVector * 6)
 			if f and from then
+				Sfx.play("Pop", 0.7)
 				Pops.burst(f.id, from, 1, function()
 					Hotbar.bump(f.id)
+					Sfx.play("Collect", 0.5)
 				end)
 				Hud.toast((f.rare and "RARE! " or "") .. "You reeled up a " .. f.name .. "!", f.rare and Color3.fromRGB(255, 214, 40) or Ui.GREEN, 1.6)
 			end
@@ -314,7 +324,9 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 		Hud.toast("You came to on the rig. Half your glowstone was left behind", Ui.ORANGE, 2.5)
 	elseif kind == "Downed" then
 		shake(1)
+		Sfx.play("Downed", 0.8)
 	elseif kind == "PickedUp" then
+		Sfx.play("Collect", 0.6)
 		local f = Finds.BY_ID[data]
 		Hotbar.bump(data)
 		Hud.toast("Picked up " .. (f and f.name or "a find"), Ui.GREEN, 1)
@@ -350,6 +362,7 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 			Hud.toast(m[1], m[2])
 			if kind == "Hit" then
 				shake(1.2)
+				Sfx.play("Hit", 0.9)
 			end
 		end
 	end
@@ -748,6 +761,38 @@ do
 			if label then
 				label.Text = "Use Revive Flare (x" .. n .. ")"
 			end
+		end
+	end)
+end
+
+-- the rig's drill, louder and faster with speed; the caves' ambience; Lights Out
+do
+	local drillSound: Sound? = nil
+	local cave = Sfx.loop("Cave", workspace.CurrentCamera, 0.25)
+	local lastPhase = state:GetAttribute("Phase")
+	RunService.Heartbeat:Connect(function()
+		local d = deck()
+		if d and not drillSound then
+			drillSound = Sfx.loop("Drill", d, 0)
+		end
+		if drillSound then
+			local speed = state:GetAttribute("Speed") or 0
+			local moving = state:GetAttribute("Moving") == true
+			local want = moving and math.clamp(0.25 + speed / 120, 0, 0.7) or 0
+			drillSound.Volume += (want - drillSound.Volume) * 0.08
+			drillSound.PlaybackSpeed = 0.85 + math.clamp(speed / 100, 0, 1) * 0.35
+		end
+		if cave then
+			-- (the cave air only underground: quiet on the surface gorge)
+			local miles = (state:GetAttribute("MileOffset") or 0) + (state:GetAttribute("Distance") or 0) / Config.STUDS_PER_MILE
+			cave.Volume = miles < 1 and 0.05 or 0.25
+		end
+		local phase = state:GetAttribute("Phase")
+		if phase ~= lastPhase then
+			if phase == "Night" then
+				Sfx.play("Night", 0.7)
+			end
+			lastPhase = phase
 		end
 	end)
 end

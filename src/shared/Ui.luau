@@ -69,6 +69,20 @@ function Ui.fit(gui: ScreenGui, design: number?)
 	end)
 end
 
+-- a soft click on a button (Assets.sounds.Click; nothing until it's uploaded)
+function Ui.clickSound(b: GuiButton)
+	b.Activated:Connect(function()
+		local Art = require(script.Parent.Art)
+		local id = Art.sound("Click")
+		if id then
+			local s = Instance.new("Sound")
+			s.SoundId = id
+			s.Volume = 0.4
+			game:GetService("SoundService"):PlayLocalSound(s)
+		end
+	end)
+end
+
 function Ui.corner(radius: UDim?): UICorner
 	return Ui.new("UICorner", { CornerRadius = radius or UDim.new(0, 8) })
 end
@@ -193,6 +207,7 @@ function Ui.button(props: { [string]: any }): TextButton
 	end
 	if props.Text then
 		Ui.text({ Name = "Label", Parent = b, Text = props.Text, Size = UDim2.new(1, -16, 1, -12), Position = UDim2.fromOffset(8, 6), Stroke = props.TextStroke or 3 })
+		Ui.clickSound(b)
 	end
 	return b
 end

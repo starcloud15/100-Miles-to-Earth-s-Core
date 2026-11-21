@@ -191,6 +191,13 @@ local function step()
 					spin, jiggle = t * 14, 0
 					h.label.Text = ""
 				elseif st == "Bite" then
+					if not h.bitSounded and p == Players.LocalPlayer then
+						h.bitSounded = true
+						local ok, Sfx = pcall(require, script.Parent:WaitForChild("Sfx"))
+						if ok then
+							Sfx.play("Bite", 0.8)
+						end
+					end
 					-- the tug: it jerks into the rock
 					pos = to + Vector3.new(0, -0.3 + math.sin(clock * 40) * 0.25, 0)
 					spin, jiggle = 0, math.sin(clock * 30) * 0.35
