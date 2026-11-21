@@ -125,6 +125,11 @@ local function build()
 		el[b[1]] = Ui.new("Frame", { BackgroundColor3 = b[3], BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), Parent = holder })
 		Ui.text({ Parent = gui, Text = b[1], AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0.005, b[2] - 0.016), Size = UDim2.fromScale(0.06, 0.032), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2.5 })
 	end
+	-- the zone's temperature (Cold / Heat), under Health, in the zones that have one
+	pos, size, anchor = at(0.063, 0.618, 0.117, 0.027)
+	el.tempHolder = Ui.new("Frame", { Name = "Exposure", BackgroundColor3 = Color3.fromRGB(40, 40, 40), BorderSizePixel = 0, Position = pos, Size = size, AnchorPoint = anchor, Visible = false, Parent = gui }, { Ui.stroke(3, BLACK, true) })
+	el.temp = Ui.new("Frame", { BackgroundColor3 = Color3.fromRGB(120, 196, 255), BorderSizePixel = 0, Size = UDim2.fromScale(0, 1), Parent = el.tempHolder })
+	el.tempLabel = Ui.text({ Parent = gui, Text = "Cold", AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0.005, 0.618 - 0.016), Size = UDim2.fromScale(0.06, 0.032), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2.5, Visible = false })
 
 	-- speedometer and Turbo -------------------------------------------------------------
 	pos, size, anchor = at(0.925, 0.43, 0.093, 0.165)
@@ -407,6 +412,15 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 	el.Hunger.Size = UDim2.fromScale(math.clamp((player:GetAttribute("Hunger") or 100) / 100, 0, 1), 1)
 	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	el.Health.Size = UDim2.fromScale(hum and math.clamp(hum.Health / hum.MaxHealth, 0, 1) or 1, 1)
+	local temp = Config.Temperature[state:GetAttribute("Zone") or 1]
+	el.tempHolder.Visible = temp ~= nil
+	el.tempLabel.Visible = temp ~= nil
+	if temp then
+		local e = (player:GetAttribute("Exposure") or 0) / 100
+		el.tempLabel.Text = temp.name
+		el.temp.BackgroundColor3 = e >= 1 and Color3.fromRGB(255, 40, 40) or temp.color
+		el.temp.Size = UDim2.fromScale(math.clamp(e, 0, 1), 1)
+	end
 	el.glow.Text = "x" .. tostring(player:GetAttribute("Glowstone") or 0)
 	local finds = player:GetAttribute("RawFinds") or 0
 	el.food.Text = finds > 0 and ("Finds x" .. finds) or ""

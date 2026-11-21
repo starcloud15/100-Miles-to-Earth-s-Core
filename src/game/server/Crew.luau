@@ -316,6 +316,7 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		if raw > 0 then
 			player:SetAttribute("RawFinds", raw - 1)
 			addHunger(player, Config.Survival.RAW_FIND)
+			player:SetAttribute("Exposure", math.max(0, (player:GetAttribute("Exposure") or 0) - Config.Temperature.EAT))
 			notify(player, "Ate", Config.Survival.RAW_FIND)
 		else
 			notify(player, "Toast", "No food! Cast your Delver's Hook into the rock")
@@ -405,6 +406,27 @@ function Crew.step(dt: number)
 			hum.Health = math.min(hum.MaxHealth, hum.Health + S.REGEN_PER_SEC * stepDt)
 		else
 			hum.Health = math.max(1, hum.Health - S.STARVE_PER_SEC * stepDt)
+		end
+
+		-- Cold (zone 3) and Heat (zone 5): builds while riding, eases at stops and by the Beacon
+		local TC = Config.Temperature
+		local temp = TC[state:GetAttribute("Zone") or 1]
+		if temp then
+			local e = player:GetAttribute("Exposure") or 0
+			if riding then
+				e += temp.RISE * stepDt
+			else
+				e -= TC.FALL * stepDt
+				local beacon = state:GetAttribute("BeaconPos")
+				if beacon and (root.Position - beacon).Magnitude <= Config.Night.RING * 1.5 then
+					e -= TC.BEACON_FALL * stepDt
+				end
+			end
+			e = math.clamp(e, 0, 100)
+			player:SetAttribute("Exposure", e)
+			if e >= 100 then
+				hum.Health = math.max(1, hum.Health - TC.HURT_PER_SEC * stepDt)
+			end
 		end
 
 		local aboard = rig:deckPosition(root.Position) ~= nil

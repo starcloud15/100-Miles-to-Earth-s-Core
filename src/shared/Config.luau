@@ -144,6 +144,17 @@ local Config = {
 		TOW_COOLDOWN = 3,
 	},
 
+	-- GDD 9.1's zone rules: a meter that builds while you ride and eases at stops and
+	-- by the Beacon; full, it hurts. Zone 3: Cold (a warmth meter); zone 5: Heat.
+	Temperature = {
+		[3] = { name = "Cold", color = Color3.fromRGB(120, 196, 255), RISE = 0.9 },
+		[5] = { name = "Heat", color = Color3.fromRGB(255, 110, 40), RISE = 1.1 },
+		FALL = 2, -- % a second while the rig is stopped
+		BEACON_FALL = 5, -- % a second by the Beacon
+		EAT = 35, -- eating takes this much off
+		HURT_PER_SEC = 3, -- health a second while the meter is full
+	},
+
 	Survival = {
 		HUNGER_PER_MIN = 7.4, -- % (reference: full to empty in about 13.5 min)
 		REGEN_PER_SEC = 1, -- % health while fed

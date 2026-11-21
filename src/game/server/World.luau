@@ -2041,7 +2041,7 @@ local SECTIONS = {
 	Crystal = { amb = Color3.fromRGB(130, 160, 196), fog = Color3.fromRGB(160, 206, 238), density = 0.3, haze = 1.4, tint = Color3.fromRGB(232, 246, 255), sat = 0.12 },
 	Deepmine = { amb = Color3.fromRGB(112, 92, 74), fog = Color3.fromRGB(120, 92, 66), density = 0.38, haze = 1.2, tint = Color3.fromRGB(255, 236, 212), sat = 0.1 },
 	Grotto = { amb = Color3.fromRGB(104, 112, 168), fog = Color3.fromRGB(64, 150, 184), density = 0.3, haze = 1.6, tint = Color3.fromRGB(226, 248, 255), sat = 0.22 },
-	Hall = { amb = Color3.fromRGB(150, 118, 110), fog = Color3.fromRGB(214, 146, 120), density = 0.28, haze = 1.6, tint = Color3.fromRGB(255, 246, 238), sat = 0.24 },
+	Hall = { amb = Color3.fromRGB(176, 146, 136), fog = Color3.fromRGB(222, 168, 138), density = 0.22, haze = 1.0, tint = Color3.fromRGB(255, 246, 238), sat = 0.24 },
 }
 
 -- glow: 1 = full glow, 0 = Lights Out (the reference's day -> dusk -> night grading)
