@@ -241,6 +241,7 @@ end
 
 local function pushOff(pusher: Player, target: Player)
 	shove(target, (rootOf(pusher) :: BasePart).Position, "PushedOff")
+	pusher:SetAttribute("RunPushed", (pusher:GetAttribute("RunPushed") or 0) + 1)
 	pushedAt[target] = os.clock()
 	Net.Notify:FireAllClients("PushOffDone", { by = pusher.DisplayName, target = target.DisplayName })
 end
@@ -345,6 +346,7 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		-- Prospector: +1 glowstone per hit
 		local n = player:GetAttribute("Class") == "Prospector" and 3 or 2
 		player:SetAttribute("Glowstone", (player:GetAttribute("Glowstone") or 0) + n)
+		player:SetAttribute("RunGlowstone", (player:GetAttribute("RunGlowstone") or 0) + n)
 		notify(player, "Mined", { n = n, at = pp.Position })
 		if hp <= 0 then
 			World.removeVein(vein)
@@ -426,6 +428,7 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 				-- a find of this zone (sometimes its rare one), into your inventory
 				local f = Finds.roll(state:GetAttribute("Zone") or 1, Random.new())
 				Items.give(player, f.id)
+				player:SetAttribute("RunFinds", (player:GetAttribute("RunFinds") or 0) + 1)
 				local at = player:GetAttribute("HookAt")
 				if typeof(at) == "Vector3" and player:GetAttribute("HookRig") then
 					at = rig.deck.CFrame:PointToWorldSpace(at)
@@ -442,6 +445,7 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 			-- Delver: food fills 15% more
 			local fill = math.floor(f.hunger * (player:GetAttribute("Class") == "Delver" and 1.15 or 1) + 0.5)
 			addHunger(player, fill)
+			player:SetAttribute("RunMeals", (player:GetAttribute("RunMeals") or 0) + 1)
 			player:SetAttribute("Exposure", math.max(0, (player:GetAttribute("Exposure") or 0) - Config.Temperature.EAT))
 			notify(player, "Ate", { hunger = fill, find = f.id })
 		elseif Items.total(player) == 0 then

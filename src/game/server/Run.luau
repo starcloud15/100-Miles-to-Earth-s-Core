@@ -141,6 +141,9 @@ local function arrive()
 	elseif stop.kind == "camp" then
 		phase("Night")
 		set("CampsThisRun", (state:GetAttribute("CampsThisRun") or 0) + 1)
+		for _, pl in crew() do
+			pl:SetAttribute("RunCamps", (pl:GetAttribute("RunCamps") or 0) + 1)
+		end
 		local b = World.beacons[stop.name]
 		if b then
 			set("BeaconPos", b.Position)
@@ -218,6 +221,7 @@ function Run.repair(player: Player)
 		return
 	end
 	player:SetAttribute("Glowstone", mine - give)
+	player:SetAttribute("RunRepairs", (player:GetAttribute("RunRepairs") or 0) + give)
 	have += give
 	set("RepairHave", have)
 	if have >= need then
@@ -317,6 +321,10 @@ function Run.step(dt: number)
 		end
 		if prog >= 100 then
 			phase("Morning")
+			-- (a night survived, for everyone's stats)
+			for _, pl in crew() do
+				pl:SetAttribute("RunNights", (pl:GetAttribute("RunNights") or 0) + 1)
+			end
 			leg += 1
 			set("Glow", 1)
 			forceLeaveAt = now + 60

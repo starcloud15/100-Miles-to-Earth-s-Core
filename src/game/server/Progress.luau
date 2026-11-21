@@ -37,6 +37,14 @@ local function bank(player: Player)
 		p.bestMiles = math.max(p.bestMiles, reached)
 		p.games += 1
 		p.stats.knocked += player:GetAttribute("Knocked") or 0
+		-- this run's tallies (Crew / Run count them as they happen)
+		p.stats.glowstone += player:GetAttribute("RunGlowstone") or 0
+		p.stats.finds += player:GetAttribute("RunFinds") or 0
+		p.stats.meals += player:GetAttribute("RunMeals") or 0
+		p.stats.repairs += player:GetAttribute("RunRepairs") or 0
+		p.stats.pushed += player:GetAttribute("RunPushed") or 0
+		p.stats.nights += player:GetAttribute("RunNights") or 0
+		p.camps += player:GetAttribute("RunCamps") or 0
 		if state:GetAttribute("Phase") == "Complete" then
 			if zone >= #Config.ZONES then
 				-- the Core: the descent is done; the next run starts from the top again
