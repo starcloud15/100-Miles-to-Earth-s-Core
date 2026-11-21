@@ -164,11 +164,15 @@ local function build()
 	-- (glowstone and finds live in the hotbar now: client/Hotbar.luau)
 	-- the second hint, "G Drop", while you hold a find (like the reference's food)
 	pos, size, anchor = at(0.955, 0.912, 0.071, 0.04)
-	local drop = Ui.new("Frame", { Name = "DropHint", BackgroundColor3 = Color3.fromRGB(20, 20, 22), BackgroundTransparency = 0.25, Position = pos, Size = size, AnchorPoint = anchor, Visible = false, Parent = gui }, { Ui.corner(UDim.new(0.2, 0)) })
+	local drop = Ui.new("TextButton", { Name = "DropHint", Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(20, 20, 22), BackgroundTransparency = 0.25, Position = pos, Size = size, AnchorPoint = anchor, Visible = false, Parent = gui }, { Ui.corner(UDim.new(0.2, 0)) })
 	local dcap = Ui.new("Frame", { BackgroundColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.05, 0.12), Size = UDim2.fromScale(0.38, 0.76), Parent = drop }, { Ui.corner(UDim.new(0.25, 0)) })
 	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "G", FontFace = Ui.FONT, TextScaled = true, TextColor3 = BLACK, Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Parent = dcap })
 	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Drop", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.47, 0.12), Size = UDim2.fromScale(0.5, 0.76), Parent = drop })
 	el.dropHint = drop
+	-- (tap it on a phone: there's no G key)
+	drop.Activated:Connect(function()
+		require(Shared.Net).Drop:FireServer()
+	end)
 
 	-- boarding: BOARD THE RIG! / LEAVING IN 30 / ALL ABOARD! ---------------------------------
 	pos, size, anchor = at(0.5, 0.10, 0.35, 0.06)
@@ -328,7 +332,7 @@ function Hud.setHint(verb: string?, canDrop: boolean?)
 	if verb then
 		el.hintVerb.Text = verb
 	end
-	el.dropHint.Visible = canDrop == true and not (game:GetService("UserInputService").TouchEnabled and not game:GetService("UserInputService").KeyboardEnabled)
+	el.dropHint.Visible = canDrop == true
 end
 
 local lastTenth, compact = -1, false
