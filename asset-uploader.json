@@ -175,6 +175,13 @@
         "live": true
       }
     ],
-    "baseMode": "download"
+    "baseMode": "download",
+    "prebuild": [
+      [
+        "lune",
+        "run",
+        "tools/materials/build"
+      ]
+    ]
   }
 }

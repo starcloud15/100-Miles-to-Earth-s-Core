@@ -3,15 +3,24 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
-      "Shared": { "$path": "src/shared" }
+      "Shared": {
+        "$path": "src/shared"
+      }
     },
     "ServerScriptService": {
-      "Server": { "$path": "src/game/server" }
+      "Server": {
+        "$path": "src/game/server"
+      }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Client": { "$path": "src/game/client" }
+        "Client": {
+          "$path": "src/game/client"
+        }
       }
+    },
+    "MaterialService": {
+      "$path": "build/MaterialService.rbxm"
     }
   }
 }

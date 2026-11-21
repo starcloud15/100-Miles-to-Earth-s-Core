@@ -4,6 +4,7 @@ Everything here needs the owner's account. The code side is done and tested (see
 
 ## Before publishing
 
+- [ ] **Stylized textures:** they upload with the rest (group "textures"). The first time you publish, Starport asks to **Allow** the project's prebuild step (`lune run tools/materials/build`). Allow it: it builds MaterialService from the uploaded textures, so every material gets the hand-painted look. They can't be previewed in Studio before they're uploaded.
 - [ ] **Starport, Publish tab:** Get latest, then **Publish all** to the Test places. This builds the Lobby and Game from the Rojo projects and merges them into the live places.
 - [ ] **Game icon:** Creator Dashboard → the experience → Places → Game icon. Upload `assets/store/icon.png` (512 × 512).
 - [ ] **Thumbnail:** same page → Thumbnails. Upload `assets/store/thumbnail1.png` (1920 × 1080). More can be made with `python tools/build_store_art.py`.

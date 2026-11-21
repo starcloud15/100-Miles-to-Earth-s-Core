@@ -350,7 +350,8 @@ local function beacon(model: Model, cf: CFrame, name: string)
 	local R, SEG = Config.Night.RING, 48
 	for i = 1, SEG do
 		local a = i / SEG * math.pi * 2
-		local p = pos + Vector3.new(math.cos(a) * R, 0.3, math.sin(a) * R)
+		-- (neighbours overlap at their ends: alternate heights so their tops are never coplanar)
+		local p = pos + Vector3.new(math.cos(a) * R, 0.3 + (i % 2) * 0.04, math.sin(a) * R)
 		part({ Name = "RingLine", Size = Vector3.new(0.9, 0.35, R * math.pi * 2 / SEG + 0.3), CFrame = CFrame.lookAt(p, p + Vector3.new(-math.sin(a), 0, math.cos(a))), Color = Color3.fromRGB(255, 214, 60), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
 	end
 	-- log benches round the fire
@@ -1834,7 +1835,10 @@ local function buildChunk(k: number)
 	local len = (pb - pa).Magnitude
 	local w = math.max(nodes[a].w, nodes[b].w)
 	local h = math.max(nodes[a].h, nodes[b].h)
-	local cf = CFrame.lookAt(mid, pb)
+	-- (neighbouring chunks overlap by a couple of studs; lifting every other one by
+	-- an invisible 0.03 keeps their road/track/bridge tops from being coplanar,
+	-- which made the joints flicker)
+	local cf = CFrame.lookAt(mid, pb) * CFrame.new(0, (k % 2) * 0.03, 0)
 	local s0 = (a - 1) * Route.STEP
 	local kind = nodes[a].kind
 	local model = Instance.new("Model")

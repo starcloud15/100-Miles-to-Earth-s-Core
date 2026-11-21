@@ -7,6 +7,7 @@ set -e
 cd "$(dirname "$0")/../.."
 export PATH="$HOME/.rokit/bin:$PATH"
 mkdir -p build
+lune run tools/materials/build >/dev/null
 for p in game lobby; do rojo build "tools/sync/$p.sync.project.json" -o "build/$p.sync.rbxm" >/dev/null; done
 base="$LOCALAPPDATA"
 command -v cygpath >/dev/null && base=$(cygpath "$LOCALAPPDATA")
