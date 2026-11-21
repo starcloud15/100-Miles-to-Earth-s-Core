@@ -75,11 +75,15 @@ local STEEL, STEEL_DARK = { Color3.fromRGB(176, 184, 196), Enum.Material.Metal }
 local BRASS = { Color3.fromRGB(226, 168, 54), Enum.Material.Metal }
 local ROPE, CLOTH = { Color3.fromRGB(120, 84, 50), Enum.Material.Fabric }, { Color3.fromRGB(196, 150, 98), Enum.Material.Fabric }
 local GLOW = { Color3.fromRGB(255, 186, 70), Enum.Material.Neon }
+-- tools are modelled with the handle along Y and their working end (pick, gear,
+-- hook) spread along X; FACE turns that end to point forward from the fist.
+-- The Delver's Hook also leans forward like a fishing rod.
+local FACE = CFrame.Angles(0, math.rad(90), 0)
 local TOOL_MODELS = {
-	["Crank Pump"] = { file = "CrankPump", grip = CFrame.new(0, -0.3, 0), paint = { Handle = WOOD_DARK, Arm = BRASS, Elbow = BRASS, Gear = STEEL, Hub = STEEL_DARK } },
-	Pickaxe = { file = "Pickaxe", grip = CFrame.new(0, -1.4, 0), paint = { Handle = WOOD, Grip = WOOD_DARK, Head = STEEL, Binding = BRASS } },
-	["Delver's Hook"] = { file = "DelversHook", grip = CFrame.new(0, -1.2, 0), paint = { Handle = WOOD, Grip = ROPE, Reel = BRASS, Tip = BRASS, TipArm = BRASS, Line = ROPE, Hook = STEEL, Barb = STEEL, Glow = GLOW } },
-	Food = { file = "FindPouch", grip = CFrame.new(0, 0, 0), paint = { Handle = CLOTH, Neck = CLOTH, Tie = ROPE, Find = GLOW } },
+	["Crank Pump"] = { file = "CrankPump", grip = CFrame.new(0, -0.3, 0) * FACE, paint = { Handle = WOOD_DARK, Arm = BRASS, Elbow = BRASS, Gear = STEEL, Hub = STEEL_DARK } },
+	Pickaxe = { file = "Pickaxe", grip = CFrame.new(0, -1.4, 0) * FACE, paint = { Handle = WOOD, Grip = WOOD_DARK, Head = STEEL, Binding = BRASS } },
+	["Delver's Hook"] = { file = "DelversHook", grip = CFrame.new(0, -1.2, 0) * FACE * CFrame.Angles(math.rad(40), 0, 0), paint = { Handle = WOOD, Grip = ROPE, Reel = BRASS, Tip = BRASS, TipArm = BRASS, Line = ROPE, Hook = STEEL, Barb = STEEL, Glow = GLOW } },
+	Food = { file = "FindPouch", grip = FACE, paint = { Handle = CLOTH, Neck = CLOTH, Tie = ROPE, Find = GLOW } },
 }
 
 local function toolModel(file: string): Model?

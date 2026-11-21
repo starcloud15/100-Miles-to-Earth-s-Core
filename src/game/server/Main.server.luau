@@ -23,10 +23,14 @@ local Creatures = require(script.Parent.Creatures)
 local Hollow = require(script.Parent.Hollow)
 local Progress = require(script.Parent.Progress)
 
-for _, g in { "World", "Rig", "Crew" } do
+for _, g in { "World", "Rig", "Crew", "Barrier" } do
 	PhysicsService:RegisterCollisionGroup(g)
 end
 PhysicsService:CollisionGroupSetCollidable("Rig", "World", false)
+-- the edge walls only stop the crew
+for _, g in { "World", "Rig", "Default", "Barrier" } do
+	PhysicsService:CollisionGroupSetCollidable("Barrier", g, false)
+end
 Players.RespawnTime = 2
 
 for _, name in { "Baseplate", "SpawnLocation" } do
@@ -38,18 +42,27 @@ end
 
 local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 local seed = math.random(1, 2 ^ 30)
+local zone = 1
 local data = first:GetJoinData().TeleportData
 if type(data) == "table" then
 	seed = tonumber(data.seed) or seed
+	zone = tonumber(data.zone) or zone
 end
+if RunService:IsStudio() then
+	-- playtest a later zone: set the Game place's Workspace attribute StartZone
+	zone = workspace:GetAttribute("StartZone") or zone
+end
+zone = math.clamp(math.floor(zone), 1, Config.BUILT_ZONES)
 
 local state = Instance.new("Folder")
 state.Name = "RunState"
 state:SetAttribute("Seed", seed)
-state:SetAttribute("Miles", Config.PROTOTYPE_MILES)
+state:SetAttribute("Zone", zone)
+state:SetAttribute("MileOffset", Config.zoneStart(zone))
+state:SetAttribute("Miles", Config.ZONES[zone].miles)
 state.Parent = ReplicatedStorage
 
-local route = Route.new(seed, Config.PROTOTYPE_MILES)
+local route = Route.new(seed, Config.ZONES[zone].miles, zone)
 state:SetAttribute("RouteLength", route.length)
 World.init(route)
 World.update(0)

@@ -128,8 +128,8 @@ local function arrive()
 	end
 	if stop.kind == "waystation" then
 		phase("Complete")
-		objective("Waystation 1 reached!", "", "white", "Day")
-		Net.Notify:FireAllClients("ZoneComplete", Config.ZONES[1].name)
+		objective(stop.name .. " reached!", "", "white", "Day")
+		Net.Notify:FireAllClients("ZoneComplete", Config.ZONES[route.zone or 1].name)
 	elseif stop.kind == "camp" then
 		phase("Night")
 		local b = World.beacons[stop.name]

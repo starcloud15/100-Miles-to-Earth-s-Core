@@ -33,6 +33,21 @@ local Config = {
 		{ mile = 7.9, name = "Rootcellar Camp", kind = "camp" },
 		{ mile = 10.0, name = "Waystation 1", kind = "waystation" },
 	},
+	-- every zone's stops (miles down from the surface) and its giant cavern (GDD 9.0,
+	-- 9.1): the cavern runs to `untilMile`, then a short dig out to the Waystation
+	ZONE_STOPS = {
+		nil, -- zone 1 uses STOPS (below)
+		{
+			{ mile = 12.7, name = "Glowcap Hollow", kind = "camp" },
+			{ mile = 15.3, name = "Spore Bridge Landing", kind = "landing" },
+			{ mile = 17.9, name = "Mirror Pool Camp", kind = "camp" },
+			{ mile = 20.0, name = "Waystation 2", kind = "waystation" },
+		},
+	},
+	ZONE_HALL = {
+		{ untilMile = 9.5, WIDTH = 380, FLOOR = 150, CEILING = 120, theme = "Hollow" },
+		{ untilMile = 19.5, WIDTH = 420, FLOOR = 170, CEILING = 150, theme = "Grotto" },
+	},
 	SURFACE_MILES = 0.9, -- open gorge before The Drop
 	DIG_IN = 700, -- studs of dig after The Drop before the zone's cavern (GDD 9.0)
 	HALL_UNTIL_MILE = 9.5, -- the cavern runs to here; then a short dig out to the Waystation
@@ -130,8 +145,23 @@ local Config = {
 		-- the creatures of each zone (docs/story.md): { boarder, grabber }
 		ZONES = {
 			{ board = "Cragskitter", grab = "Burrowmaw" },
+			{ board = "Puffcap", grab = "LanternEel" },
 		},
 	},
 }
+
+Config.ZONE_STOPS[1] = Config.STOPS
+
+-- the mile a zone starts at (zone 2 starts at 10, zone 3 at 20...)
+function Config.zoneStart(zone: number): number
+	local m = 0
+	for i = 1, zone - 1 do
+		m += Config.ZONES[i].miles
+	end
+	return m
+end
+
+-- the highest zone that's built so far
+Config.BUILT_ZONES = #Config.ZONE_HALL
 
 return Config

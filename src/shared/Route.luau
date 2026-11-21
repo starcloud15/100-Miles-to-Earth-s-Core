@@ -22,10 +22,14 @@ local function forwardOf(yaw: number): Vector3
 	return Vector3.new(-math.sin(yaw), 0, -math.cos(yaw))
 end
 
-function Route.new(seed: number, miles: number)
+function Route.new(seed: number, miles: number, zone: number?)
+	zone = zone or 1
 	local rng = Random.new(seed)
 	local self = setmetatable({}, Route)
 	self.seed = seed
+	self.zone = zone
+	self.mileStart = Config.zoneStart(zone) -- the HUD counts on from here
+	self.hallDef = Config.ZONE_HALL[zone] or Config.ZONE_HALL[1]
 	self.nodes = {} -- { p, yaw, w, h, kind }
 	self.hazards = {} -- { s, len, offset, radius, kind }
 	self.signs = {} -- { s, kind, text }
@@ -73,38 +77,53 @@ function Route.new(seed: number, miles: number)
 		sign(s - 520, "Warning", "ROCK!")
 	end
 
+	local STOPS = Config.ZONE_STOPS[zone] or Config.STOPS
+	local function stopAt(stop): number
+		return (stop.mile - self.mileStart) * SPM
+	end
+
+	if zone > 1 then
+		-- the last zone's Waystation chamber: the crew wakes here, then digs on down
+		local a, b = run(220, 0, 0, 110, 46, "Stop")
+		self.start = { s0 = a, s1 = b, name = "Waystation " .. (zone - 1) }
+		run(60, 0, -0.06, T.WIDTH, T.HEIGHT, "StopOut")
+		run(240, rng:NextNumber(-30, 30), -0.2, T.WIDTH, T.HEIGHT, "Tunnel")
+	end
+
 	-- the surface: an open red-rock gorge, gentle bends, already going down
-	while length() < Config.SURFACE_MILES * SPM - 300 do
+	while zone == 1 and length() < Config.SURFACE_MILES * SPM - 300 do
 		local turn = rng:NextNumber(18, 36) * (rng:NextNumber() < 0.5 and -1 or 1)
 		local a, b = run(rng:NextInteger(320, 460), turn, -0.12, 64, 0, "Gorge")
 		if b - a > 300 then
 			boulder(a + rng:NextNumber(150, b - a - 60), rng:NextNumber(-0.25, 0.25) * 64)
 		end
 	end
-	run(260, 0, -0.18, 52, 0, "Gorge")
+	if zone == 1 then
+		run(260, 0, -0.18, 52, 0, "Gorge")
 
-	-- The Drop: one and a half turns down the inside of the sinkhole shaft
-	sign(length() - 300, "Drop", "THE DROP")
-	local dropDir = rng:NextNumber() < 0.5 and -1 or 1
-	local d0, d1 = run(1150, 540 * dropDir, -0.3, T.WIDTH, T.HEIGHT, "Drop")
-	self.drop = { s0 = d0, s1 = d1, dir = dropDir }
+		-- The Drop: one and a half turns down the inside of the sinkhole shaft
+		sign(length() - 300, "Drop", "THE DROP")
+		local dropDir = rng:NextNumber() < 0.5 and -1 or 1
+		local d0, d1 = run(1150, 540 * dropDir, -0.3, T.WIDTH, T.HEIGHT, "Drop")
+		self.drop = { s0 = d0, s1 = d1, dir = dropDir }
+	end
 
 	-- zone structure (GDD 9.0): a short dig, then the zone's giant cavern for most
 	-- of the zone, then a short dig out to the Waystation
 	local hallStart = length() + Config.DIG_IN
-	local hallEnd = Config.HALL_UNTIL_MILE * SPM
+	local hallEnd = (self.hallDef.untilMile - self.mileStart) * SPM
 	local stopIndex = 1
 	local sinceCavern = 0
 	-- (keep going until the last stop, the Waystation, is placed too)
-	while length() < total or (Config.STOPS[stopIndex] and Config.STOPS[stopIndex].mile * SPM <= total + 1) do
+	while length() < total or (STOPS[stopIndex] and stopAt(STOPS[stopIndex]) <= total + 1) do
 		local s = length()
-		local stop = Config.STOPS[stopIndex]
+		local stop = STOPS[stopIndex]
 		if s >= hallStart and s < hallEnd then
 			-- the cavern: the route runs on bridges and ledges through the open space
 			if not self.hall then
 				self.hall = { s0 = s }
 			end
-			if stop and stop.kind ~= "waystation" and s >= stop.mile * SPM - 140 then
+			if stop and stop.kind ~= "waystation" and s >= stopAt(stop) - 140 then
 				-- a stop on an outcrop platform looking out over the cavern
 				stopIndex += 1
 				local a, b = run(220, rng:NextNumber(-10, 10), 0, 110, 0, "HallStop")
@@ -124,7 +143,7 @@ function Route.new(seed: number, miles: number)
 			if length() >= hallEnd then
 				self.hall.s1 = length()
 			end
-		elseif stop and s >= stop.mile * SPM - 260 then
+		elseif stop and s >= stopAt(stop) - 260 then
 			-- a stop chamber: wide, high and flat; the rig stops dead in the middle
 			stopIndex += 1
 			run(60, 0, -0.04, 110, 46, "StopIn")
@@ -151,7 +170,7 @@ function Route.new(seed: number, miles: number)
 				-- never overshoot the next stop's chamber
 				local len = rng:NextInteger(420, 720)
 				if stop then
-					len = math.clamp(stop.mile * SPM - 260 - s, 120, len)
+					len = math.clamp(stopAt(stop) - 260 - s, 120, len)
 				end
 				a, b = run(len, turn, -rng:NextNumber(0.15, 0.25), T.WIDTH + rng:NextNumber(-6, 12), T.HEIGHT + rng:NextNumber(-4, 10), "Tunnel")
 				if rng:NextNumber() < 0.45 then

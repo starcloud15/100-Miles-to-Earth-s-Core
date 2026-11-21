@@ -41,6 +41,15 @@ local PAINT = {
 	Iron = { Color3.fromRGB(46, 42, 46), Enum.Material.Metal },
 	Shard = { Color3.fromRGB(76, 70, 92), Enum.Material.Glass },
 	Ember = { Color3.fromRGB(255, 238, 214), Enum.Material.Neon },
+	-- zone 2
+	CapTeal = { Color3.fromRGB(60, 214, 200), Enum.Material.SmoothPlastic },
+	CapViolet = { Color3.fromRGB(150, 104, 242), Enum.Material.SmoothPlastic },
+	Stalk = { Color3.fromRGB(232, 224, 208), Enum.Material.SmoothPlastic },
+	Spot = { Color3.fromRGB(230, 255, 250), Enum.Material.Neon },
+	EelSkin = { Color3.fromRGB(40, 52, 96), Enum.Material.SmoothPlastic },
+	EelBelly = { Color3.fromRGB(110, 150, 190), Enum.Material.SmoothPlastic },
+	Lure = { Color3.fromRGB(120, 255, 230), Enum.Material.Neon },
+	Fin = { Color3.fromRGB(90, 200, 230), Enum.Material.Glass },
 }
 
 local RED = Color3.fromRGB(226, 38, 38)
@@ -89,6 +98,38 @@ function STANDIN.Burrowmaw(m: Model)
 	end
 end
 
+function STANDIN.Puffcap(m: Model)
+	-- a waddling mushroom: a fat pale stalk with stubby feet, a spotted violet cap, two glowing eyes
+	piece(m, "Body_Stalk", Enum.PartType.Ball, Vector3.new(2.4, 2.8, 2.4), CFrame.new(0, 1.5, 0))
+	piece(m, "Body_CapViolet", Enum.PartType.Ball, Vector3.new(4.6, 2.2, 4.6), CFrame.new(0, 3.2, 0))
+	for i = 1, 5 do
+		local a = i / 5 * math.pi * 2
+		piece(m, "Body_Spot", Enum.PartType.Ball, Vector3.new(0.5, 0.4, 0.5), CFrame.new(math.cos(a) * 1.3, 4.1, math.sin(a) * 1.3))
+	end
+	for _, side in { -1, 1 } do
+		piece(m, "Body_Stalk", Enum.PartType.Ball, Vector3.new(0.9, 0.6, 1.2), CFrame.new(side * 0.7, 0.3, -0.2))
+		piece(m, "Body_Lure", Enum.PartType.Ball, Vector3.new(0.4, 0.5, 0.3), CFrame.new(side * 0.5, 1.9, -1.1))
+	end
+end
+function STANDIN.LanternEel(m: Model)
+	-- a dark blue eel with a pale belly, a glowing lure on its brow and fin frills
+	for i = 1, 7 do
+		local r = 2.6 - i * 0.2
+		piece(m, ("Seg%d_EelSkin"):format(i), Enum.PartType.Ball, Vector3.new(r, r, r * 1.2), CFrame.new())
+		piece(m, ("Seg%d_Fin"):format(i), nil, Vector3.new(0.2, r * 0.6, r), CFrame.new(0, r * 0.55, 0))
+	end
+	piece(m, "Head_EelSkin", Enum.PartType.Ball, Vector3.new(3, 2.6, 3.8), CFrame.new())
+	piece(m, "Head_EelBelly", nil, Vector3.new(2.4, 0.5, 2.8), CFrame.new(0, -1, -0.4))
+	for k = 0, 4 do
+		local x = (k - 2) * 0.45
+		piece(m, "Head_Bone", nil, Vector3.new(0.25, 0.7, 0.25), CFrame.new(x, -0.7, -1.8))
+	end
+	piece(m, "Head_EelSkin", nil, Vector3.new(0.25, 0.25, 2), CFrame.new(0, 1.6, -1) * CFrame.Angles(0.7, 0, 0))
+	piece(m, "Head_Lure", Enum.PartType.Ball, Vector3.new(0.8, 0.8, 0.8), CFrame.new(0, 2.2, -2))
+	for _, side in { -1, 1 } do
+		piece(m, "Head_Lure", Enum.PartType.Ball, Vector3.new(0.35, 0.35, 0.35), CFrame.new(side * 0.9, 0.5, -1.6))
+	end
+end
 function STANDIN.Hollow(m: Model)
 	-- a tall hooded shape in a ragged cloak, one long arm, an empty lantern
 	piece(m, "Body_Shadow", nil, Vector3.new(7, 22, 5), CFrame.new(0, 11, 0))

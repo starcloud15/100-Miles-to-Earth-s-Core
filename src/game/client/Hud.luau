@@ -340,7 +340,7 @@ end
 
 function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigDistance: number, rigScreen: Vector3?, onScreen: boolean })
 	local s = state:GetAttribute("Distance") or 0
-	local miles = s / Config.STUDS_PER_MILE
+	local miles = (state:GetAttribute("MileOffset") or 0) + s / Config.STUDS_PER_MILE
 	local phase = state:GetAttribute("Phase") or "Spawn"
 	local moving = state:GetAttribute("Moving") == true
 	local riding = moving and me.aboard

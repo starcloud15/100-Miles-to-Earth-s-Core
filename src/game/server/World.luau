@@ -54,6 +54,14 @@ local function part(props: { [string]: any }): BasePart
 	return p
 end
 
+-- an invisible wall along a drop-off: it stops the crew walking or jumping off
+-- the route (only the crew collide with it; the rig and the world pass through)
+local function barrier(model: Model, cf: CFrame, x: number, len: number)
+	part({ Name = "Barrier", Size = Vector3.new(1, 18, len + 2), CFrame = cf * CFrame.new(x, 8, 0), Transparency = 1, CanQuery = false, CanTouch = false, CastShadow = false, CollisionGroup = "Barrier", Parent = model })
+end
+
+local VEIN_COLOR: Color3? = nil -- the zone's glowstone colour, if not amber
+
 local function light(p: BasePart, color: Color3, range: number, brightness: number)
 	local l = Instance.new("PointLight")
 	l.Color = color
@@ -131,7 +139,14 @@ local function glowVein(parent: Instance, base: CFrame, rng: Random, size: numbe
 		v.Parent = parent
 	end
 	v.Name = name or "Vein"
-	light(v.PrimaryPart :: BasePart, Color3.fromRGB(255, 170, 70), range, 1.3)
+	if VEIN_COLOR then
+		for _, p in v:GetDescendants() do
+			if p:IsA("BasePart") and p.Material == Enum.Material.Neon then
+				p.Color = VEIN_COLOR
+			end
+		end
+	end
+	light(v.PrimaryPart :: BasePart, VEIN_COLOR or Color3.fromRGB(255, 170, 70), range, 1.3)
 	return v :: Model
 end
 
@@ -313,7 +328,9 @@ local function buildStop(model: Model, stop)
 	local cf, w, _, h = route:sample(stop.s)
 	local rng = Random.new(route.seed + math.floor(stop.s))
 	beacon(model, cf, stop.name)
-	if stop.hall then
+	if stop.start then
+		-- (the Waystation the crew left from: its spawn veins are mined instead)
+	elseif stop.hall then
 		-- on a platform in the cavern: veins in rock outcrops around its edge
 		for i = 1, 8 do
 			local side = i % 2 == 0 and 1 or -1
@@ -369,7 +386,7 @@ local function buildStop(model: Model, stop)
 	end
 	-- "[E] Read": the notes pinned on this stop's board (docs/story.md)
 	local boardPart = board and (board:FindFirstChild("Wood") or board:FindFirstChildWhichIsA("BasePart")) or model:FindFirstChild("NoticeBoard")
-	if boardPart then
+	if boardPart and not stop.start then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "NotePrompt"
 		prompt.ActionText = "Read"
@@ -379,7 +396,7 @@ local function buildStop(model: Model, stop)
 		prompt.MaxActivationDistance = 12
 		prompt.RequiresLineOfSight = false
 		local index = table.find(route.stops, stop) or 1
-		prompt:SetAttribute("Notes", table.concat(Story.boardEntries(1, index, #route.stops), ","))
+		prompt:SetAttribute("Notes", table.concat(Story.boardEntries(route.zone or 1, index, #route.stops), ","))
 		prompt.Parent = boardPart
 		table.insert(World.notePrompts, prompt)
 	end
@@ -419,7 +436,7 @@ local function buildCavern(model: Model, cf: CFrame, w: number, h: number, rng: 
 end
 
 -- the zone's cavern (GDD 9.0): a giant hall the route crosses on bridges and ledges ----
-local HALL = Config.HALL
+local HALL = Config.ZONE_HALL[1] -- the current zone's cavern (World.init)
 local function isHall(kind: string): boolean
 	return kind:sub(1, 4) == "Hall"
 end
@@ -505,7 +522,10 @@ local function trestle(model: Model, cf: CFrame, deckW: number, len: number, dep
 	local wood = Color3.fromRGB(140, 92, 54)
 	part({ Name = "TrestleDeck", Size = Vector3.new(deckW, 2, len + 1), CFrame = cf * CFrame.new(0, -1, 0), Color = Color3.fromRGB(160, 108, 64), Material = Enum.Material.WoodPlanks, Parent = model })
 	for _, side in { -1, 1 } do
+		-- a timber fence: a kick rail, a hand rail and a post each span
 		part({ Name = "TrestleRail", Size = Vector3.new(1.2, 1.2, len + 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.6), 1.2, 0), Color = wood, Material = Enum.Material.Wood, Parent = model })
+		part({ Name = "TrestleRail", Size = Vector3.new(0.8, 0.8, len + 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.6), 4, 0), Color = wood, Material = Enum.Material.Wood, Parent = model })
+		part({ Name = "TrestlePost", Size = Vector3.new(1, 4.6, 1), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.6), 2.3, -len / 2 + 1), Color = wood, Material = Enum.Material.Wood, Parent = model })
 	end
 	if k % 2 == 0 then
 		-- a bent: two legs splayed down to the floor, with a cross-brace
@@ -521,7 +541,236 @@ local function trestle(model: Model, cf: CFrame, deckW: number, len: number, dep
 	end
 end
 
+-- the colours glowing in the rock (the cave's palette beside the red stone)
+local GEODE = {
+	Color3.fromRGB(60, 230, 220), -- teal
+	Color3.fromRGB(180, 110, 255), -- violet
+	Color3.fromRGB(255, 110, 200), -- pink
+	Color3.fromRGB(110, 170, 255), -- ice blue
+	Color3.fromRGB(255, 186, 70), -- amber
+}
+
+local function geode(model: Model, at: CFrame, size: number, color: Color3, rng: Random)
+	local g = prop("CrystalCluster", at * CFrame.Angles(0, rng:NextNumber(0, 6), 0), size, model, function()
+		for i = 1, 5 do
+			part({ Name = "Glow", Size = Vector3.new(1.4, 5, 1.4) * size * rng:NextNumber(0.7, 1.2), CFrame = at * CFrame.new(rng:NextNumber(-2, 2) * size, 2.4 * size, rng:NextNumber(-2, 2) * size) * CFrame.Angles(rng:NextNumber(-0.6, 0.6), rng:NextNumber(0, 3), rng:NextNumber(-0.6, 0.6)), Color = color, Material = Enum.Material.Neon, Parent = model })
+		end
+	end)
+	local glowPart
+	if g then
+		for _, p in g:GetChildren() do
+			if p.Name == "Glow" then
+				(p :: BasePart).Color = color
+				glowPart = p
+			end
+		end
+	end
+	local anchor = glowPart or part({ Name = "GeodeLight", Size = Vector3.new(1, 1, 1), CFrame = at * CFrame.new(0, 3 * size, 0), Transparency = 1, CanCollide = false, CanQuery = false, Parent = model })
+	light(anchor :: BasePart, color, 18 + size * 8, 1.6)
+end
+
+local function glowWorms(model: Model, at: CFrame, width: number, len: number)
+	-- tiny blue-green lights speckling the roof, like the glow-worm caves
+	local p = part({ Name = "GlowWorms", Size = Vector3.new(width, 1, len), CFrame = at, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(120, 230, 255), Color3.fromRGB(150, 255, 210))
+	e.LightEmission = 1
+	e.Size = NumberSequence.new(0.35)
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.1, 0.1), NumberSequenceKeypoint.new(0.9, 0.1), NumberSequenceKeypoint.new(1, 1) })
+	e.Speed = NumberRange.new(0)
+	e.Lifetime = NumberRange.new(20, 26)
+	e.Rate = 3
+	e.LockedToPart = true
+	e.Parent = p
+	e:Emit(60)
+end
+
+local function fungi(model: Model, at: CFrame, rng: Random)
+	-- a clump of luminous teal mushrooms on the river bank
+	for i = 1, rng:NextInteger(3, 5) do
+		local h = rng:NextNumber(1.5, 4.5)
+		local base = at * CFrame.new(rng:NextNumber(-4, 4), 0, rng:NextNumber(-4, 4))
+		part({ Name = "Stem", Size = Vector3.new(0.6, h, 0.6), CFrame = base * CFrame.new(0, h / 2, 0) * CFrame.Angles(rng:NextNumber(-0.2, 0.2), 0, rng:NextNumber(-0.2, 0.2)), Color = Color3.fromRGB(226, 236, 222), Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
+		local cap = part({ Name = "Cap", Shape = Enum.PartType.Ball, Size = Vector3.new(h * 0.9, h * 0.38, h * 0.9), CFrame = base * CFrame.new(0, h, 0), Color = i % 2 == 0 and Color3.fromRGB(70, 240, 210) or Color3.fromRGB(120, 200, 255), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+		if i == 1 then
+			light(cap, Color3.fromRGB(80, 240, 220), 22, 1.4)
+		end
+	end
+end
+
+-- zone 2, the Glowshroom Grotto (GDD 9.0): a deep indigo cavern grown with giant
+-- glowing mushrooms; the route crosses a chain of mushroom caps and fallen stems,
+-- spores drift down like snow, a luminous river winds along the floor ---------------------
+local CAP = {
+	Color3.fromRGB(60, 214, 200), -- teal
+	Color3.fromRGB(150, 104, 242), -- violet
+	Color3.fromRGB(232, 104, 196), -- pink
+	Color3.fromRGB(92, 164, 255), -- blue
+}
+local STEM = Color3.fromRGB(222, 214, 200)
+local GILLS = Color3.fromRGB(70, 46, 104)
+
+local function giantMushroom(model: Model, at: CFrame, height: number, color: Color3, rng: Random)
+	local m = prop("GiantMushroom", at * CFrame.Angles(0, rng:NextNumber(0, 6), 0), height / 60, model, function()
+		local r = math.max(2, height * 0.07)
+		local lean = CFrame.Angles(rng:NextNumber(-0.08, 0.08), 0, rng:NextNumber(-0.08, 0.08))
+		local top = at * lean * CFrame.new(0, height, 0)
+		part({ Name = "Stem", Shape = Enum.PartType.Cylinder, Size = Vector3.new(height, r * 2, r * 2), CFrame = at * lean * CFrame.new(0, height / 2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = STEM, Material = Enum.Material.SmoothPlastic, Parent = model })
+		part({ Name = "Cap", Shape = Enum.PartType.Ball, Size = Vector3.new(height * 0.75, height * 0.24, height * 0.75), CFrame = top, Color = color, Material = Enum.Material.SmoothPlastic, Parent = model })
+		part({ Name = "Gills", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.8, height * 0.66, height * 0.66), CFrame = top * CFrame.new(0, -height * 0.05, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = GILLS, Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
+		for i = 1, 6 do
+			local a = i / 6 * math.pi * 2
+			part({ Name = "Spots", Shape = Enum.PartType.Ball, Size = Vector3.one * height * 0.06, CFrame = top * CFrame.new(math.cos(a) * height * 0.2, height * 0.09, math.sin(a) * height * 0.2), Color = Color3.fromRGB(230, 255, 250), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+		end
+	end)
+	if m then
+		for _, p in m:GetChildren() do
+			if p.Name == "Cap" then
+				(p :: BasePart).Color = color
+			end
+		end
+	end
+	local glow = part({ Name = "CapLight", Size = Vector3.one, CFrame = at * CFrame.new(0, height * 0.9, 0), Transparency = 1, CanCollide = false, CanQuery = false, Parent = model })
+	light(glow, color, math.clamp(height * 0.6, 26, 50), 1.0)
+end
+
+local function sporeSnow(model: Model, at: CFrame, width: number, len: number)
+	local p = part({ Name = "SporeSnow", Size = Vector3.new(width, 1, len), CFrame = at, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	e.Color = ColorSequence.new(Color3.fromRGB(170, 255, 236), Color3.fromRGB(210, 180, 255))
+	e.LightEmission = 0.8
+	e.Size = NumberSequence.new(0.45)
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.15, 0.2), NumberSequenceKeypoint.new(0.85, 0.2), NumberSequenceKeypoint.new(1, 1) })
+	e.EmissionDirection = Enum.NormalId.Bottom
+	e.Speed = NumberRange.new(2, 4)
+	e.SpreadAngle = Vector2.new(25, 25)
+	e.Acceleration = Vector3.new(0.4, -0.2, 0)
+	e.Lifetime = NumberRange.new(30, 40)
+	e.Rate = 2
+	e.RotSpeed = NumberRange.new(-40, 40)
+	e.Parent = p
+end
+
+local function buildGrotto(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0)
+	local fl, ce = hallFloor(s0), hallCeil(s0)
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	-- the shell: dark indigo stone banded violet, lilac and pale teal
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Basalt)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Basalt)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Sandstone)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.5, 0), Vector3.new(12, 14, L), Enum.Material.Slate)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.3, 0), Vector3.new(12, 10, L), Enum.Material.Salt)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.7, 0), Vector3.new(12, 6, L), Enum.Material.Limestone)
+	end
+	if rng:NextNumber() < 0.6 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local r = rng:NextNumber(14, 30)
+		T:FillBall((ccf * CFrame.new(side * (W / 2 - r * 0.25), rng:NextNumber(-fl, ce), 0)).Position, r, Enum.Material.Sandstone)
+	end
+	-- violet moss over the floor, a glowing river with teal moss banks
+	T:FillBlock(ccf * CFrame.new(0, -fl + 0.5, 0), Vector3.new(W, 2, L), Enum.Material.Grass)
+	local river = math.sin(s0 / 900) * W * 0.18
+	T:FillBlock(ccf * CFrame.new(river, -fl - 3, 0), Vector3.new(W * 0.26, 8, L), Enum.Material.Water)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(river + side * (W * 0.13 + 12), -fl + 1, 0), Vector3.new(20, 4, L), Enum.Material.LeafyGrass)
+	end
+	if k % 2 == 0 then
+		-- a glow strip on the river, so it reads as luminous from up on the caps
+		local strip = part({ Name = "RiverGlow", Size = Vector3.new(W * 0.2, 0.4, L), CFrame = ccf * CFrame.new(river, -fl - 0.6, 0), Color = Color3.fromRGB(60, 230, 210), Material = Enum.Material.Neon, Transparency = 0.55, CanCollide = false, CanQuery = false, CastShadow = false, Parent = model })
+		if k % 6 == 0 then
+			light(strip, Color3.fromRGB(70, 230, 210), 60, 1.2)
+		end
+	end
+	if rng:NextNumber() < 0.5 then
+		-- glowing vines hanging from the roof
+		local top = ccf * CFrame.new(rng:NextNumber(-W / 2 + 20, W / 2 - 20), ce - 2, 0)
+		for i = 1, rng:NextInteger(3, 6) do
+			local h = rng:NextNumber(12, 45)
+			part({ Name = "Vine", Size = Vector3.new(0.6, h, 0.6), CFrame = top * CFrame.new(rng:NextNumber(-8, 8), -h / 2, rng:NextNumber(-8, 8)), Color = i % 2 == 0 and Color3.fromRGB(80, 230, 200) or Color3.fromRGB(170, 130, 255), Material = Enum.Material.Neon, Transparency = 0.2, CanCollide = false, CanQuery = false, CastShadow = false, Parent = model })
+		end
+	end
+
+	-- the route: a chain of giant mushroom caps, each on its own stalk; every few
+	-- hundred studs a fallen stem lies across the gap as a bridge
+	local deckW = w + 16
+	local isLog = kind == "Hall" and math.floor(s0 / 1100) % 3 == 1
+	if isLog then
+		part({ Name = "FallenStem", Shape = Enum.PartType.Cylinder, Size = Vector3.new(len + 2, 30, 30), CFrame = cf * CFrame.new(0, -15, 0) * CFrame.Angles(0, math.rad(90), 0), Color = STEM, Material = Enum.Material.SmoothPlastic, Parent = model })
+		part({ Name = "StemWalk", Size = Vector3.new(deckW * 0.7, 2, len + 2), CFrame = cf * CFrame.new(0, -1, 0), Color = STEM:Lerp(Color3.new(0, 0, 0), 0.08), Material = Enum.Material.SmoothPlastic, Parent = model })
+		if k % 2 == 0 then
+			-- shelf fungi glowing along its flanks
+			for _, side in { -1, 1 } do
+				part({ Name = "Shelf", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, 7, 7), CFrame = cf * CFrame.new(side * 15, -9, rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(90)), Color = CAP[(k % #CAP) + 1], Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+			end
+		end
+	elseif k % 2 == 0 then
+		local col = CAP[(math.floor(k / 2) % #CAP) + 1]
+		local D = deckW + 18
+		part({ Name = "CapPath", Shape = Enum.PartType.Cylinder, Size = Vector3.new(6, D, D), CFrame = cf * CFrame.new(0, -3, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = col, Material = Enum.Material.SmoothPlastic, Parent = model })
+		part({ Name = "CapRim", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1.2, D + 3, D + 3), CFrame = cf * CFrame.new(0, -6.2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = col:Lerp(Color3.new(1, 1, 1), 0.35), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		part({ Name = "CapGills", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, D - 4, D - 4), CFrame = cf * CFrame.new(0, -7, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = GILLS, Material = Enum.Material.SmoothPlastic, CanCollide = false, Parent = model })
+		if k % 4 == 0 then
+			-- the cap's stalk, down to the moss
+			local h = fl - 6
+			part({ Name = "Stalk", Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 16, 16), CFrame = cf * CFrame.new(0, -6 - h / 2, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = STEM, Material = Enum.Material.SmoothPlastic, Parent = model })
+			local glow = part({ Name = "CapLight", Size = Vector3.one, CFrame = cf * CFrame.new(0, -9, 0), Transparency = 1, CanCollide = false, CanQuery = false, Parent = model })
+			light(glow, col, 50, 1.8)
+		end
+	end
+	-- little glowing mushrooms along the walkway's edges
+	if k % 3 == 1 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		fungi(model, cf * CFrame.new(side * (deckW / 2 - 4), 0, rng:NextNumber(-6, 6)), rng)
+	end
+	for _, side in { -1, 1 } do
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+
+	-- the forest: giant mushrooms rising from the floor, some taller than the route
+	if k % 2 == 1 then
+		for _ = 1, 2 do
+			local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+			if math.abs(x - off) > 55 then
+				giantMushroom(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-10, 10)), rng:NextNumber(70, fl + 60), CAP[rng:NextInteger(1, #CAP)], rng)
+			end
+		end
+	end
+	if k % 41 == 20 then
+		-- the mother mushroom: a canopy almost to the roof, beside the route
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		giantMushroom(model, ccf * CFrame.new(off + side * 90, -fl, 0), fl + ce - 30, CAP[2], rng)
+	end
+	if k % 5 == 2 then
+		local x = rng:NextNumber(-W / 2 + 30, W / 2 - 30)
+		if math.abs(x - off) > 40 then
+			geode(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-8, 8)), rng:NextNumber(2, 3.2), k % 10 == 2 and GEODE[1] or GEODE[2], rng)
+		end
+	end
+	if k % 4 == 3 then
+		fungi(model, ccf * CFrame.new(river + (rng:NextNumber() < 0.5 and -1 or 1) * (W * 0.13 + rng:NextNumber(4, 20)), -fl + 2, rng:NextNumber(-8, 8)), rng)
+	end
+	if k % 3 == 0 then
+		glowWorms(model, ccf * CFrame.new(rng:NextNumber(-W / 4, W / 4), ce - 3, 0), W * 0.7, L)
+	end
+	if k % 4 == 2 then
+		sporeSnow(model, ccf * CFrame.new(off * 0.5, ce * 0.6, 0), W * 0.6, L * 2)
+	end
+	if rng:NextNumber() < 0.35 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
 local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	if HALL.theme == "Grotto" then
+		buildGrotto(model, cf, len, w, s0, k, kind, rng)
+		return
+	end
 	local off = hallOffset(s0)
 	local fl, ce = hallFloor(s0), hallCeil(s0)
 	local W = HALL.WIDTH
@@ -534,6 +783,9 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Sandstone)
 		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.4, 0), Vector3.new(12, 12, L), Enum.Material.Limestone)
 		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.35, 0), Vector3.new(12, 16, L), Enum.Material.Slate)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.75, 0), Vector3.new(12, 10, L), Enum.Material.Salt)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.78, 0), Vector3.new(12, 8, L), Enum.Material.Salt)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.08, 0), Vector3.new(12, 5, L), Enum.Material.Limestone)
 	end
 	-- lumps on the walls, stalactite knots on the roof, mounds on the floor
 	if rng:NextNumber() < 0.6 then
@@ -577,6 +829,15 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 		part({ Name = "Causeway", Size = Vector3.new(deckW, 6, len + 2), CFrame = cf * CFrame.new(0, -3, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
 		part({ Name = "Keel", Size = Vector3.new(deckW * 0.6, 10, len + 2), CFrame = cf * CFrame.new(0, -11, 0), Color = ROCK_RED[((k + 1) % 3) + 1], Material = Enum.Material.Sandstone, Parent = model })
 		part({ Name = "Keel", Size = Vector3.new(deckW * 0.28, 12, len + 2), CFrame = cf * CFrame.new(0, -22, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
+		-- a weathered rock lip along each edge, and now and then a pile of rocks on it
+		for _, side in { -1, 1 } do
+			if not (nearWall and side == wallSide) then
+				part({ Name = "Lip", Size = Vector3.new(3, 2.2, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.5), 1, 0), Color = ROCK_RED[((k + 2) % 3) + 1]:Lerp(Color3.new(0, 0, 0), 0.15), Material = Enum.Material.Sandstone, Parent = model })
+				if (k + (side > 0 and 1 or 0)) % 4 == 0 then
+					prop("RockCluster", cf * CFrame.new(side * (deckW / 2 - 2), 0, rng:NextNumber(-8, 8)) * CFrame.Angles(0, rng:NextNumber(0, 6), 0), rng:NextNumber(0.35, 0.55), model, function() end)
+				end
+			end
+		end
 		if nearWall then
 			-- a shelf back to the wall: the route runs along a ledge here
 			local gap = W / 2 - math.abs(off)
@@ -591,6 +852,33 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 			part({ Name = "Pillar", Size = Vector3.new(14, h, 14), CFrame = cf * CFrame.new(0, -28 - h / 2, 0) * CFrame.Angles(0, 0.4, 0), Color = ROCK_RED[(k % 3) + 1], Material = Enum.Material.Sandstone, Parent = model })
 			part({ Name = "PillarFoot", Size = Vector3.new(26, 14, 26), CFrame = cf * CFrame.new(0, -fl + 4, 0) * CFrame.Angles(0, 0.9, 0), Color = col, Material = Enum.Material.Sandstone, Parent = model })
 		end
+	end
+
+	for _, side in { -1, 1 } do
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+
+	-- colour: glowing geode pockets in the walls and on the floor, glow-worms on
+	-- the roof, luminous fungi along the river banks
+	if k % 5 == 2 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local y = rng:NextNumber(-fl * 0.6, ce * 0.6)
+		local at = ccf * CFrame.new(side * (W / 2 - 4), y, rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(side * 75))
+		geode(model, at, rng:NextNumber(1.6, 2.6), GEODE[(math.floor(k / 5) % #GEODE) + 1], rng)
+	end
+	if k % 6 == 3 then
+		local x = rng:NextNumber(-W / 2 + 30, W / 2 - 30)
+		if math.abs(x - off) > 40 then
+			geode(model, ccf * CFrame.new(x, -fl, rng:NextNumber(-8, 8)), rng:NextNumber(2.2, 3.4), GEODE[(k % #GEODE) + 1], rng)
+		end
+	end
+	if k % 3 == 0 then
+		glowWorms(model, ccf * CFrame.new(rng:NextNumber(-W / 4, W / 4), ce - 3, 0), W * 0.7, L)
+	end
+	if k % 4 == 1 then
+		local river = math.sin(s0 / 900) * W * 0.18
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		fungi(model, ccf * CFrame.new(river + side * (W * 0.15 + rng:NextNumber(6, 22)), -fl + 2, rng:NextNumber(-8, 8)), rng)
 	end
 
 	-- landmarks, placed by chunk so every run has them at the same rhythm
@@ -630,7 +918,7 @@ local function hallPlug(model: Model, s: number)
 	local cf = route:sample(s)
 	local off = hallOffset(s)
 	local fl, ce = hallFloor(s), hallCeil(s)
-	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), Enum.Material.Sandstone)
+	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), HALL.theme == "Grotto" and Enum.Material.Basalt or Enum.Material.Sandstone)
 	local _ = model
 end
 
@@ -669,6 +957,10 @@ local function buildChunk(k: number)
 			-- keep the shaft open through this slice of the spiral
 			local sh = World.shaft
 			T:FillCylinder(CFrame.new(sh.centre.X, cf.Position.Y + h / 2, sh.centre.Z), h + SHELL * 2 + 12, sh.radius - 18, Enum.Material.Air)
+			-- the open side, over the shaft: a rock lip and a wall the crew can't jump
+			local inner = cf.RightVector:Dot(sh.centre - cf.Position) >= 0 and 1 or -1
+			part({ Name = "Lip", Size = Vector3.new(3, 2.2, len + 2), CFrame = cf * CFrame.new(inner * (w / 2 - 1.5), 1, 0), Color = Color3.fromRGB(150, 96, 70), Material = Enum.Material.Sandstone, Parent = model })
+			barrier(model, cf, inner * (w / 2 + 0.5), len)
 		end
 		if kind == "Cavern" then
 			buildCavern(model, cf, w, h, rng)
@@ -678,6 +970,11 @@ local function buildChunk(k: number)
 		if st.s >= s0 and st.s < s0 + CHUNK_LEN then
 			buildStop(model, st)
 		end
+	end
+	local start = route.start
+	if start and (start.s0 + start.s1) / 2 >= s0 and (start.s0 + start.s1) / 2 < s0 + CHUNK_LEN then
+		-- the Waystation the crew set out from: its camp, without veins or notes
+		buildStop(model, { s = (start.s0 + start.s1) / 2, name = start.name, kind = "waystation", start = true })
 	end
 	for _, h2 in route.hazards do
 		if h2.s >= s0 and h2.s < s0 + CHUNK_LEN then
@@ -823,6 +1120,7 @@ end
 
 function World.init(r)
 	route = r
+	HALL = r.hallDef or HALL
 	local old = Workspace:FindFirstChild("Cavern")
 	if old then
 		old:Destroy()
@@ -834,17 +1132,37 @@ function World.init(r)
 	-- (Workspace.FallenPartsDestroyHeight must be set in the place, to -20000:
 	-- the route goes far below the default -500)
 	-- strata colours (terrain materials are tinted globally)
-	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(168, 118, 96))
-	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(150, 116, 102))
-	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(112, 100, 108))
+	T:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(194, 120, 86))
+	T:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(160, 98, 90))
+	T:SetMaterialColor(Enum.Material.Slate, Color3.fromRGB(128, 92, 120))
+	T:SetMaterialColor(Enum.Material.Salt, Color3.fromRGB(236, 152, 128))
 	T:SetMaterialColor(Enum.Material.LeafyGrass, Color3.fromRGB(96, 150, 70))
 	T.WaterColor = Color3.fromRGB(46, 150, 150)
 	T.WaterTransparency = 0.6
 	T.WaterReflectance = 0.4
 	T.WaterWaveSize = 0.08
-	T:SetMaterialColor(Enum.Material.Limestone, Color3.fromRGB(196, 186, 168))
+	T:SetMaterialColor(Enum.Material.Limestone, Color3.fromRGB(238, 208, 160))
 	T:SetMaterialColor(Enum.Material.Basalt, Color3.fromRGB(70, 60, 70))
 	T:SetMaterialColor(Enum.Material.Ground, Color3.fromRGB(150, 110, 80))
+	if HALL.theme == "Grotto" then
+		-- zone 2: indigo stone, violet and teal moss, a luminous teal river
+		for mat, rgb in {
+			[Enum.Material.Sandstone] = { 96, 82, 132 },
+			[Enum.Material.Rock] = { 80, 76, 112 },
+			[Enum.Material.Slate] = { 116, 80, 156 },
+			[Enum.Material.Basalt] = { 46, 42, 70 },
+			[Enum.Material.Limestone] = { 130, 206, 198 },
+			[Enum.Material.Salt] = { 196, 146, 234 },
+			[Enum.Material.Ground] = { 66, 58, 90 },
+			[Enum.Material.Grass] = { 112, 84, 196 },
+			[Enum.Material.LeafyGrass] = { 52, 184, 164 },
+		} do
+			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
+		end
+		T.WaterColor = Color3.fromRGB(40, 210, 200)
+		T.WaterTransparency = 0.4
+		VEIN_COLOR = Color3.fromRGB(70, 236, 214) -- teal glowstone in the mushroom roots (GDD 9.2)
+	end
 	regions = {}
 	for _, p in route.pieces do
 		if p.kind == "Cavern" or p.kind == "Drop" or p.kind:sub(1, 4) == "Stop" then
@@ -900,7 +1218,9 @@ local SECTIONS = {
 	Cavern = { amb = Color3.fromRGB(90, 120, 130), fog = Color3.fromRGB(70, 170, 180), density = 0.34, haze = 2.2, tint = Color3.fromRGB(230, 250, 255) },
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
 	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
-	Hall = { amb = Color3.fromRGB(150, 118, 100), fog = Color3.fromRGB(226, 150, 104), density = 0.3, haze = 2.0, tint = Color3.fromRGB(255, 244, 232) },
+	-- zone 2's cavern: teal haze, violet shadows, glowing everywhere
+	Grotto = { amb = Color3.fromRGB(104, 112, 168), fog = Color3.fromRGB(64, 150, 184), density = 0.3, haze = 1.6, tint = Color3.fromRGB(226, 248, 255), sat = 0.22 },
+	Hall = { amb = Color3.fromRGB(150, 118, 110), fog = Color3.fromRGB(214, 146, 120), density = 0.28, haze = 1.6, tint = Color3.fromRGB(255, 246, 238), sat = 0.24 },
 }
 
 -- glow: 1 = full glow, 0 = Lights Out (the reference's day -> dusk -> night grading)
@@ -912,7 +1232,7 @@ function World.atmosphere(s: number, glow: number)
 	if kind:sub(1, 4) == "Stop" then
 		kind = "Stop"
 	elseif isHall(kind) then
-		kind = "Hall"
+		kind = HALL.theme == "Grotto" and "Grotto" or "Hall"
 	end
 	local sec = SECTIONS[kind] or SECTIONS.Tunnel
 	local dusk = Color3.fromRGB(255, 120, 110)
@@ -926,8 +1246,8 @@ function World.atmosphere(s: number, glow: number)
 	atmosphere.Density = atmosphere.Density + (sec.density - atmosphere.Density) * 0.08
 	atmosphere.Haze = atmosphere.Haze + (sec.haze - atmosphere.Haze) * 0.08
 	grade.TintColor = grade.TintColor:Lerp(tint, 0.08)
-	grade.Saturation = 0.08
-	grade.Contrast = 0.12
+	grade.Saturation = grade.Saturation + ((sec.sat or 0.12) - grade.Saturation) * 0.08
+	grade.Contrast = 0.14
 	Lighting.ClockTime = kind == "Gorge" and 14.5 or 14.5
 end
 
@@ -939,18 +1259,11 @@ function World.spawnVeins(at: CFrame)
 	local rng = Random.new(route.seed)
 	for i, off in { Vector3.new(-18, 0, 26), Vector3.new(16, 0, 30), Vector3.new(-8, 0, 44), Vector3.new(22, 0, 50), Vector3.new(-24, 0, 58) } do
 		local base = at * CFrame.new(off) * CFrame.Angles(0, rng:NextNumber(0, 6), 0)
-		part({ Name = "Outcrop", Size = Vector3.new(7, 3, 6), CFrame = base * CFrame.new(0, 1, 0), Color = CLIFF[i % 4 + 1], Material = Enum.Material.Sandstone, Parent = model })
-		local v = Instance.new("Model")
-		v.Name = "Vein"
-		for j = 1, 5 do
-			local c = part({ Name = "Crystal", Size = Vector3.new(1.6, 5, 1.6) * rng:NextNumber(0.8, 1.3), CFrame = base * CFrame.new(rng:NextNumber(-2, 2), 3.5, rng:NextNumber(-2, 2)) * CFrame.Angles(rng:NextNumber(-0.5, 0.5), rng:NextNumber(0, 3), rng:NextNumber(-0.5, 0.5)), Color = j % 2 == 0 and AMBER or Color3.fromRGB(255, 214, 110), Material = Enum.Material.Neon, Parent = v })
-			if j == 1 then
-				light(c, Color3.fromRGB(255, 170, 70), 18, 1.4)
-				v.PrimaryPart = c
-			end
-		end
+		prop("RockCluster", base, 0.6, model, function()
+			part({ Name = "Outcrop", Size = Vector3.new(7, 3, 6), CFrame = base * CFrame.new(0, 1, 0), Color = CLIFF[i % 4 + 1], Material = Enum.Material.Sandstone, Parent = model })
+		end)
+		local v = glowVein(model, base * CFrame.new(0, 2, 0), rng, 1, 18)
 		v:SetAttribute("HP", 12)
-		v.Parent = model
 		table.insert(World.veins, v)
 	end
 end

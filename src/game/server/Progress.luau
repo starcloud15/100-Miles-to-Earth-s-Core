@@ -31,12 +31,15 @@ local function bank(player: Player)
 	banked[player] = true
 	local miles = math.max(0, rig.s - (runStart[player] or 0)) / Config.STUDS_PER_MILE
 	Data.update(player, function(p)
+		local zone = state:GetAttribute("Zone") or 1
+		local reached = Config.zoneStart(zone) + rig.s / Config.STUDS_PER_MILE
 		p.totalMiles += math.floor(miles * 10) / 10
-		p.bestMiles = math.max(p.bestMiles, rig.s / Config.STUDS_PER_MILE)
+		p.bestMiles = math.max(p.bestMiles, reached)
 		p.games += 1
 		p.stats.knocked += player:GetAttribute("Knocked") or 0
 		if state:GetAttribute("Phase") == "Complete" then
-			p.save = { mile = math.floor(rig.s / Config.STUDS_PER_MILE), zone = 2 }
+			-- saved at the Waystation: the next run starts the next zone
+			p.save = { mile = Config.zoneStart(zone + 1), zone = zone + 1 }
 		end
 	end)
 end

@@ -115,7 +115,11 @@ local function launch(bay)
 		for _, m in members do
 			Data.save(m) -- save first, so the Game place loads the latest
 		end
-		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = party.leader.UserId, friendsOnly = party.friendsOnly }
+		-- carry on from the leader's last Waystation (GDD 9.1: saves at each Waystation)
+		local lead = Data.get(party.leader)
+		local zone = lead and lead.save and tonumber(lead.save.zone) or 1
+		zone = math.clamp(zone, 1, Config.BUILT_ZONES)
+		local data = { seed = math.random(1, 2 ^ 30), size = #members, leader = party.leader.UserId, friendsOnly = party.friendsOnly, zone = zone }
 		local ok, err
 		for attempt = 1, 3 do
 			ok, err = pcall(function()
