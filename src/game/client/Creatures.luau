@@ -61,6 +61,13 @@ local PAINT = {
 	CrabShell = { Color3.fromRGB(200, 90, 60), Enum.Material.SmoothPlastic },
 	Scale = { Color3.fromRGB(70, 110, 66), Enum.Material.SmoothPlastic },
 	ScaleBelly = { Color3.fromRGB(196, 190, 140), Enum.Material.SmoothPlastic },
+	-- zone 5
+	Cinder = { Color3.fromRGB(52, 40, 40), Enum.Material.Basalt },
+	Magma = { Color3.fromRGB(255, 110, 30), Enum.Material.Neon },
+	-- zone 6
+	Wisp = { Color3.fromRGB(30, 24, 40), Enum.Material.SmoothPlastic },
+	Statue = { Color3.fromRGB(214, 196, 160), Enum.Material.Limestone },
+	Gold = { Color3.fromRGB(232, 186, 86), Enum.Material.Metal },
 }
 
 local RED = Color3.fromRGB(226, 38, 38)
@@ -198,6 +205,50 @@ function STANDIN.Snapjaw(m: Model)
 	end
 	for _, side in { -1, 1 } do
 		piece(m, "Head_Eye", Enum.PartType.Ball, Vector3.new(0.5, 0.5, 0.5), CFrame.new(side * 0.8, 1.1, 0.6))
+	end
+end
+function STANDIN.CinderImp(m: Model)
+	-- a little imp of cooled lava: a black crusted body cracked with glowing magma, horns
+	piece(m, "Body_Cinder", Enum.PartType.Ball, Vector3.new(2.6, 3, 2.4), CFrame.new(0, 1.8, 0))
+	piece(m, "Body_Magma", Enum.PartType.Ball, Vector3.new(1.8, 1.2, 0.4), CFrame.new(0, 1.8, -1.1))
+	for _, side in { -1, 1 } do
+		piece(m, "Body_Cinder", nil, Vector3.new(0.5, 1.6, 0.5), CFrame.new(side * 0.6, 3.6, 0) * CFrame.Angles(0, 0, -side * 0.5))
+		piece(m, "Body_Magma", Enum.PartType.Ball, Vector3.new(0.4, 0.4, 0.3), CFrame.new(side * 0.5, 2.5, -1.1))
+		piece(m, "Body_Cinder", nil, Vector3.new(0.6, 1.2, 0.6), CFrame.new(side * 0.6, 0.5, 0))
+	end
+end
+function STANDIN.MagmaSalamander(m: Model)
+	-- a long salamander of black crust over glowing magma, crawling out of the lava
+	for i = 1, 7 do
+		local r = 2.8 - i * 0.25
+		piece(m, ("Seg%d_Cinder"):format(i), Enum.PartType.Ball, Vector3.new(r * 1.2, r * 0.8, r * 1.2), CFrame.new())
+		piece(m, ("Seg%d_Magma"):format(i), nil, Vector3.new(r * 0.3, 0.3, r), CFrame.new(0, r * 0.4, 0))
+	end
+	piece(m, "Head_Cinder", Enum.PartType.Ball, Vector3.new(3, 1.6, 4), CFrame.new())
+	piece(m, "Head_Magma", nil, Vector3.new(2.4, 0.4, 0.4), CFrame.new(0, -0.3, -1.9))
+	for _, side in { -1, 1 } do
+		piece(m, "Head_Magma", Enum.PartType.Ball, Vector3.new(0.5, 0.5, 0.5), CFrame.new(side * 0.9, 0.6, -0.8))
+	end
+end
+function STANDIN.Ashwisp(m: Model)
+	-- a scrap of the dark between the breaths: a floating shadow with two pale points
+	piece(m, "Body_Wisp", Enum.PartType.Ball, Vector3.new(2.6, 3.4, 2.6), CFrame.new(0, 2.6, 0))
+	piece(m, "Body_Wisp", nil, Vector3.new(1.4, 1.6, 1.4), CFrame.new(0, 0.9, 0) * CFrame.Angles(0.3, 0.5, 0.2))
+	for _, side in { -1, 1 } do
+		piece(m, "Body_Ember", Enum.PartType.Ball, Vector3.new(0.3, 0.3, 0.3), CFrame.new(side * 0.45, 3, -1.2))
+	end
+end
+function STANDIN.TempleGuardian(m: Model)
+	-- a stone Keeper statue that wakes and reaches: a stone arm of segments and a gold-banded fist
+	for i = 1, 5 do
+		local r = 2.6 - i * 0.2
+		piece(m, ("Seg%d_Statue"):format(i), nil, Vector3.new(r, r, r * 1.2), CFrame.new())
+		piece(m, ("Seg%d_Gold"):format(i), nil, Vector3.new(r * 1.05, 0.4, r * 0.3), CFrame.new(0, 0, r * 0.4))
+	end
+	piece(m, "Head_Statue", nil, Vector3.new(3, 2.4, 3.4), CFrame.new())
+	piece(m, "Head_Gold", nil, Vector3.new(3.2, 0.5, 3.6), CFrame.new(0, 0.6, 0))
+	for k = -1, 1 do
+		piece(m, "Head_Statue", nil, Vector3.new(0.7, 0.7, 2), CFrame.new(k * 0.9, -0.8, -2))
 	end
 end
 function STANDIN.Hollow(m: Model)

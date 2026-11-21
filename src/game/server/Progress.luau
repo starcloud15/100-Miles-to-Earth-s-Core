@@ -38,8 +38,14 @@ local function bank(player: Player)
 		p.games += 1
 		p.stats.knocked += player:GetAttribute("Knocked") or 0
 		if state:GetAttribute("Phase") == "Complete" then
-			-- saved at the Waystation: the next run starts the next zone
-			p.save = { mile = Config.zoneStart(zone + 1), zone = zone + 1 }
+			if zone >= #Config.ZONES then
+				-- the Core: the descent is done; the next run starts from the top again
+				p.coreTimes += 1
+				p.save = nil
+			else
+				-- saved at the Waystation: the next run starts the next zone
+				p.save = { mile = Config.zoneStart(zone + 1), zone = zone + 1 }
+			end
 		end
 	end)
 end

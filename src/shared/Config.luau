@@ -61,6 +61,26 @@ local Config = {
 			{ mile = 53.2, name = "Rootfall Landing", kind = "landing" },
 			{ mile = 55.0, name = "Waystation 4", kind = "waystation" },
 		},
+		{
+			{ mile = 57.4, name = "Cinder Camp", kind = "camp" },
+			{ mile = 60.0, name = "Basalt Steps Landing", kind = "landing" },
+			{ mile = 62.8, name = "Geyser Camp", kind = "camp" },
+			{ mile = 66.0, name = "Ashfall Waystation", kind = "landing" }, -- (the mid-zone save; for now a landing)
+			{ mile = 69.0, name = "Glass Rift Landing", kind = "landing" },
+			{ mile = 71.6, name = "Ember Watch Camp", kind = "camp" },
+			{ mile = 74.3, name = "Redglass Camp", kind = "camp" },
+			{ mile = 77.0, name = "Waystation 5", kind = "waystation" },
+		},
+		{
+			{ mile = 79.4, name = "Gatehouse Camp", kind = "camp" },
+			{ mile = 82.0, name = "Statue Road Landing", kind = "landing" },
+			{ mile = 84.8, name = "Sunstone Camp", kind = "camp" },
+			{ mile = 88.0, name = "Heartstone Waystation", kind = "landing" }, -- (the mid-zone save; for now a landing)
+			{ mile = 90.8, name = "Lantern Gate Landing", kind = "landing" },
+			{ mile = 93.4, name = "Last Light Camp", kind = "camp" },
+			{ mile = 96.6, name = "Corelight Camp", kind = "camp" },
+			{ mile = 100.0, name = "The Core", kind = "waystation" },
+		},
 	},
 	ZONE_HALL = {
 		{ untilMile = 9.5, WIDTH = 380, FLOOR = 150, CEILING = 120, theme = "Hollow" },
@@ -69,6 +89,10 @@ local Config = {
 		{ untilMile = 34.5, WIDTH = 400, FLOOR = 160, CEILING = 170, theme = "Crystal", split = { mile = 28, theme = "Deepmine" } },
 		-- zone 4: the Fossil Sea, then the Sporewood Shores from mile 46
 		{ untilMile = 54.5, WIDTH = 600, FLOOR = 160, CEILING = 140, theme = "FossilSea", split = { mile = 46, theme = "Sporewood" } },
+		-- zone 5: Emberflow, then the Obsidian Rifts from mile 66
+		{ untilMile = 76.5, WIDTH = 420, FLOOR = 150, CEILING = 150, theme = "Emberflow", split = { mile = 66, theme = "Obsidian" } },
+		-- zone 6: the Heartstone Ruins, then the Core Approach from mile 90
+		{ untilMile = 99.5, WIDTH = 440, FLOOR = 160, CEILING = 160, theme = "Heartstone", split = { mile = 90, theme = "CoreApproach" } },
 	},
 	SURFACE_MILES = 0.9, -- open gorge before The Drop
 	DIG_IN = 700, -- studs of dig after The Drop before the zone's cavern (GDD 9.0)
@@ -170,6 +194,8 @@ local Config = {
 			{ board = "Puffcap", grab = "LanternEel" },
 			{ board = "Shardback", grab = "TunnelMole" },
 			{ board = "BoneCrab", grab = "Snapjaw" },
+			{ board = "CinderImp", grab = "MagmaSalamander" },
+			{ board = "Ashwisp", grab = "TempleGuardian" },
 		},
 	},
 }

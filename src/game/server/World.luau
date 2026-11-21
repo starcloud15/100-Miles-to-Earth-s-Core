@@ -1204,6 +1204,277 @@ local function buildSporewood(model: Model, cf: CFrame, len: number, w: number, 
 	end
 end
 
+-- zone 5, part 1: Emberflow (GDD 9.0): black basalt ledges over a river of lava, embers
+-- rising through the heat haze, fire geysers along the banks ------------------------------
+local LAVA = Color3.fromRGB(255, 110, 30)
+local LAVA_HOT = Color3.fromRGB(255, 200, 80)
+local BASALT = Color3.fromRGB(46, 40, 42)
+
+local function embers(model: Model, at: CFrame, width: number, len: number, rate: number)
+	local p = part({ Name = "Embers", Size = Vector3.new(width, 1, len), CFrame = at, Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	e.Color = ColorSequence.new(LAVA_HOT, LAVA)
+	e.LightEmission = 1
+	e.Size = NumberSequence.new(0.4, 0.1)
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(0.8, 0.3), NumberSequenceKeypoint.new(1, 1) })
+	e.EmissionDirection = Enum.NormalId.Top
+	e.Speed = NumberRange.new(6, 14)
+	e.SpreadAngle = Vector2.new(25, 25)
+	e.Acceleration = Vector3.new(1, 2, 0)
+	e.Lifetime = NumberRange.new(5, 9)
+	e.Rate = rate
+	e.Parent = p
+end
+
+local function lavaRiver(model: Model, ccf: CFrame, x: number, y: number, width: number, L: number, k: number)
+	-- terrain can't glow, so the molten river is neon under a crust of cracked lava
+	T:FillBlock(ccf * CFrame.new(x, y - 2, 0), Vector3.new(width + 20, 4, L), Enum.Material.CrackedLava)
+	local flow = part({ Name = "Lava", Size = Vector3.new(width, 1, L), CFrame = ccf * CFrame.new(x, y + 0.8, 0), Color = LAVA, Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+	part({ Name = "LavaCore", Size = Vector3.new(width * 0.4, 1, L), CFrame = ccf * CFrame.new(x, y + 1, 0), Color = LAVA_HOT, Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+	if k % 2 == 0 then
+		light(flow, LAVA, 60, 3)
+	end
+end
+
+local function geyser(model: Model, at: CFrame)
+	local vent = part({ Name = "Vent", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 10, 10), CFrame = at * CFrame.Angles(0, 0, math.rad(90)), Color = BASALT, Material = Enum.Material.Basalt, Parent = model })
+	local fire = Instance.new("Fire")
+	fire.Size = 14
+	fire.Heat = 25
+	fire.Color = LAVA
+	fire.SecondaryColor = LAVA_HOT
+	fire.Parent = vent
+	light(vent, LAVA, 40, 2)
+end
+
+local function buildEmberflow(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0) * 0.6
+	local fl, ce = hallFloor(s0) * 0.5, hallCeil(s0)
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Basalt)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Basalt)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Basalt)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), -fl * 0.2, 0), Vector3.new(12, 8, L), Enum.Material.CrackedLava)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.4, 0), Vector3.new(12, 14, L), Enum.Material.Slate)
+	end
+	if rng:NextNumber() < 0.5 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		T:FillBall((ccf * CFrame.new(side * (W / 2 - 6), rng:NextNumber(-fl, ce), 0)).Position, rng:NextNumber(14, 28), Enum.Material.Basalt)
+	end
+	local river = math.sin(s0 / 700) * W * 0.25
+	lavaRiver(model, ccf, river, -fl, W * 0.35, L, k)
+
+	-- the route: basalt ledges, hexagonal columns under them, a glow along the edges
+	local deckW = w + 16
+	part({ Name = "Ledge", Size = Vector3.new(deckW, 6, len + 2), CFrame = cf * CFrame.new(0, -3, 0), Color = BASALT, Material = Enum.Material.Basalt, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "Lip", Size = Vector3.new(3, 2.2, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 1.5), 1, 0), Color = Color3.fromRGB(66, 56, 56), Material = Enum.Material.Basalt, Parent = model })
+		part({ Name = "HotSeam", Size = Vector3.new(0.6, 0.6, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 + 0.2), -1.5, 0), Color = LAVA, Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 2 == 0 then
+		for i = 1, 3 do
+			local h = fl - 2 + rng:NextNumber(-6, 0)
+			part({ Name = "Column", Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 9, 9), CFrame = cf * CFrame.new((i - 2) * (deckW * 0.3), -6 - h / 2, rng:NextNumber(-6, 6)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(56 + i * 4, 48, 50), Material = Enum.Material.Basalt, Parent = model })
+		end
+	end
+	if k % 6 == 3 then
+		local x = river + (rng:NextNumber() < 0.5 and -1 or 1) * (W * 0.35 / 2 + 8)
+		geyser(model, ccf * CFrame.new(x, -fl + 1.5, rng:NextNumber(-8, 8)))
+	end
+	if k % 3 == 1 then
+		embers(model, ccf * CFrame.new(river, -fl + 2, 0), W * 0.3, L, 4)
+	end
+	if k % 2 == 1 then
+		local x = rng:NextNumber(-W / 2 + 20, W / 2 - 20)
+		if math.abs(x - off) > 40 then
+			prop("Stalagmite", ccf * CFrame.new(x, -fl, rng:NextNumber(-8, 8)), rng:NextNumber(0.8, 1.8), model, function() end)
+		end
+	end
+	if rng:NextNumber() < 0.35 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- zone 5, part 2: the Obsidian Rifts: narrow canyons of black volcanic glass, lit orange
+-- from far below, with the steepest chutes in the game ----------------------------------
+local function buildObsidian(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local fl, ce = hallFloor(s0) * 1.3, hallCeil(s0) * 1.2
+	local W = HALL.WIDTH * 0.45 -- a rift, not a hall
+	local ccf = cf
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Basalt)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Basalt)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Basalt)
+	end
+	-- glassy obsidian facets on the walls, catching the glow from below
+	for _, side in { -1, 1 } do
+		if (k + (side > 0 and 1 or 0)) % 2 == 0 then
+			part({ Name = "Obsidian", Size = Vector3.new(3, rng:NextNumber(30, 80), L + 6), CFrame = ccf * CFrame.new(side * (W / 2 - 1), rng:NextNumber(-fl * 0.6, ce * 0.4), 0) * CFrame.Angles(rng:NextNumber(-0.1, 0.1), 0, side * rng:NextNumber(0.05, 0.25)), Color = Color3.fromRGB(18, 14, 22), Material = Enum.Material.Glass, Reflectance = 0.25, Parent = model })
+		end
+	end
+	lavaRiver(model, ccf, 0, -fl, W * 0.6, L, k)
+	if k % 2 == 0 then
+		embers(model, ccf * CFrame.new(0, -fl + 2, 0), W * 0.5, L, 6)
+	end
+
+	-- the route: a black glass ledge cut along the rift
+	local deckW = w + 12
+	part({ Name = "GlassLedge", Size = Vector3.new(deckW, 5, len + 2), CFrame = cf * CFrame.new(0, -2.5, 0), Color = Color3.fromRGB(28, 22, 30), Material = Enum.Material.Basalt, Parent = model })
+	part({ Name = "GlassTop", Size = Vector3.new(deckW - 4, 0.4, len + 2), CFrame = cf * CFrame.new(0, 0.1, 0), Color = Color3.fromRGB(20, 16, 24), Material = Enum.Material.Glass, Reflectance = 0.2, CanCollide = false, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "HotSeam", Size = Vector3.new(0.6, 0.6, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 + 0.2), -1.5, 0), Color = LAVA, Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 4 == 0 then
+		local h = fl - 2
+		part({ Name = "Spur", Size = Vector3.new(12, h, 12), CFrame = cf * CFrame.new(0, -5 - h / 2, 0) * CFrame.Angles(0, 0.6, 0), Color = Color3.fromRGB(34, 28, 34), Material = Enum.Material.Basalt, Parent = model })
+	end
+	if k % 5 == 2 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		geode(model, ccf * CFrame.new(side * (W / 2 - 4), rng:NextNumber(-fl * 0.3, ce * 0.4), 0) * CFrame.Angles(0, 0, math.rad(side * 75)), rng:NextNumber(1.4, 2.2), GEODE[5], rng)
+	end
+	if rng:NextNumber() < 0.3 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- zone 6, part 1: the Heartstone Ruins: gold stone temples of the Keepers who carried
+-- the Core's light up to the world, built on bridges across the void; statues of Keepers
+-- line the road, their lanterns still lit --------------------------------------------------
+local GOLD = Color3.fromRGB(232, 186, 86)
+local STONE = Color3.fromRGB(214, 196, 160)
+local STONE_DARK = Color3.fromRGB(170, 150, 116)
+
+local function keeperStatue(model: Model, at: CFrame)
+	-- a robed Keeper holding a lit lantern up: the Hollow as he used to be
+	part({ Name = "Plinth", Size = Vector3.new(5, 2, 5), CFrame = at * CFrame.new(0, 1, 0), Color = STONE_DARK, Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "Robe", ClassName = "WedgePart", Size = Vector3.new(3.6, 9, 3.6), CFrame = at * CFrame.new(0, 6.5, 0), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "Hood", Shape = Enum.PartType.Ball, Size = Vector3.new(2.4, 2.8, 2.4), CFrame = at * CFrame.new(0, 12, -0.3), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "Arm", Size = Vector3.new(0.8, 0.8, 4), CFrame = at * CFrame.new(1.2, 10.5, -1.6) * CFrame.Angles(0.5, 0, 0), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+	local lamp = part({ Name = "StatueLantern", Size = Vector3.new(1.4, 1.8, 1.4), CFrame = at * CFrame.new(1.2, 12.2, -3.4), Color = Color3.fromRGB(255, 222, 140), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	light(lamp, Color3.fromRGB(255, 214, 130), 30, 1.8)
+end
+
+local function buildHeartstone(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local off = hallOffset(s0)
+	local fl, ce = hallFloor(s0) * 2.2, hallCeil(s0) * 1.4 -- a deep void below
+	local W = HALL.WIDTH
+	local ccf = cf * CFrame.new(-off, 0, 0)
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Sandstone)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Sandstone)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Sandstone)
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 4), ce * 0.3, 0), Vector3.new(12, 20, L), Enum.Material.Limestone)
+	end
+	-- the void glows gold far below
+	if k % 3 == 0 then
+		local glow = part({ Name = "VoidGlow", Size = Vector3.new(W * 0.8, 1, L), CFrame = ccf * CFrame.new(0, -fl + 4, 0), Color = Color3.fromRGB(255, 214, 120), Material = Enum.Material.Neon, Transparency = 0.5, CanCollide = false, CastShadow = false, Parent = model })
+		if k % 9 == 0 then
+			light(glow, Color3.fromRGB(255, 210, 120), 60, 1.6)
+		end
+	end
+
+	-- the route: a temple bridge of gold-trimmed stone with a balustrade
+	local deckW = w + 16
+	part({ Name = "TempleBridge", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "GoldInlay", Size = Vector3.new(4, 0.3, len + 2), CFrame = cf * CFrame.new(0, 0.05, 0), Color = GOLD, Material = Enum.Material.Metal, CanCollide = false, Parent = model })
+	part({ Name = "BridgeArch", Size = Vector3.new(deckW * 0.7, 8, len + 2), CFrame = cf * CFrame.new(0, -8, 0), Color = STONE_DARK, Material = Enum.Material.Limestone, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "Balustrade", Size = Vector3.new(1.6, 1, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.8), 3.4, 0), Color = GOLD, Material = Enum.Material.Metal, Parent = model })
+		part({ Name = "Baluster", Size = Vector3.new(1.4, 3, 1.4), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.8), 1.5, -len / 2 + 2), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 5 == 0 then
+		local side = k % 10 == 0 and -1 or 1
+		keeperStatue(model, cf * CFrame.new(side * (deckW / 2 - 4), 0, 0) * CFrame.Angles(0, side * math.rad(90), 0))
+	end
+	if k % 3 == 1 then
+		local h = fl - 6
+		part({ Name = "Pier", Size = Vector3.new(14, h, 14), CFrame = cf * CFrame.new(0, -12 - h / 2, 0), Color = STONE_DARK, Material = Enum.Material.Limestone, Parent = model })
+		part({ Name = "PierBand", Size = Vector3.new(15, 2, 15), CFrame = cf * CFrame.new(0, -14, 0), Color = GOLD, Material = Enum.Material.Metal, Parent = model })
+	end
+	-- temples on the far ledges: colonnades and stepped roofs
+	if k % 9 == 4 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		local at = ccf * CFrame.new(side * (W / 2 - 40), -20, 0)
+		part({ Name = "TempleBase", Size = Vector3.new(60, 6, 40), CFrame = at, Color = STONE_DARK, Material = Enum.Material.Limestone, Parent = model })
+		for i = -2, 2 do
+			part({ Name = "Column", Shape = Enum.PartType.Cylinder, Size = Vector3.new(26, 4, 4), CFrame = at * CFrame.new(i * 12, 16, -16) * CFrame.Angles(0, 0, math.rad(90)), Color = STONE, Material = Enum.Material.Limestone, Parent = model })
+		end
+		part({ Name = "Roof", ClassName = "WedgePart", Size = Vector3.new(64, 10, 22), CFrame = at * CFrame.new(0, 34, -10), Color = GOLD, Material = Enum.Material.Metal, Parent = model })
+		part({ Name = "Roof", ClassName = "WedgePart", Size = Vector3.new(64, 10, 22), CFrame = at * CFrame.new(0, 34, 10) * CFrame.Angles(0, math.pi, 0), Color = GOLD, Material = Enum.Material.Metal, Parent = model })
+		local fire = part({ Name = "TempleFire", Size = Vector3.new(4, 4, 4), CFrame = at * CFrame.new(0, 6, 0), Color = Color3.fromRGB(255, 220, 140), Material = Enum.Material.Neon, Parent = model })
+		light(fire, Color3.fromRGB(255, 210, 130), 60, 2)
+	end
+	if k % 4 == 2 then
+		glowWorms(model, ccf * CFrame.new(0, ce - 3, 0), W * 0.6, L)
+	end
+	if rng:NextNumber() < 0.35 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
+-- zone 6, part 2: the Core Approach: the rock turns to light. The route spirals down
+-- through stone that glows brighter and brighter, until it is all light -------------------
+local function buildCoreApproach(model: Model, cf: CFrame, len: number, w: number, s0: number, k: number, kind: string, rng: Random)
+	local mile = route.mileStart + s0 / Config.STUDS_PER_MILE
+	local t = math.clamp((mile - 90) / 10, 0, 1) -- 0 at mile 90, 1 at the Core
+	local fl, ce = hallFloor(s0), hallCeil(s0)
+	local W = HALL.WIDTH * (0.8 - t * 0.3)
+	local ccf = cf
+	local L = len + 10
+	T:FillBlock(ccf * CFrame.new(0, -fl - 12, 0), Vector3.new(W + 80, 24, L), Enum.Material.Salt)
+	T:FillBlock(ccf * CFrame.new(0, ce + 14, 0), Vector3.new(W + 80, 28, L), Enum.Material.Salt)
+	for _, side in { -1, 1 } do
+		T:FillBlock(ccf * CFrame.new(side * (W / 2 + 14), (ce - fl) / 2, 0), Vector3.new(28, ce + fl + 50, L), Enum.Material.Salt)
+	end
+	-- light seams in the walls, more and brighter towards the Core
+	local seams = 1 + math.floor(t * 4)
+	for i = 1, seams do
+		if rng:NextNumber() < 0.6 then
+			local side = rng:NextNumber() < 0.5 and -1 or 1
+			local seam = part({ Name = "LightSeam", Size = Vector3.new(1.5, rng:NextNumber(20, 60), rng:NextNumber(3, 8)), CFrame = ccf * CFrame.new(side * (W / 2 - 1), rng:NextNumber(-fl * 0.6, ce * 0.6), rng:NextNumber(-8, 8)) * CFrame.Angles(rng:NextNumber(-0.5, 0.5), 0, 0), Color = Color3.fromRGB(255, 236, 180), Material = Enum.Material.Neon, CanCollide = false, CastShadow = false, Parent = model })
+			if i == 1 then
+				light(seam, Color3.fromRGB(255, 230, 170), 40 + t * 30, 1 + t * 2)
+			end
+		end
+	end
+	-- the route: a bright stone road
+	local deckW = w + 16
+	part({ Name = "LightRoad", Size = Vector3.new(deckW, 4, len + 2), CFrame = cf * CFrame.new(0, -2, 0), Color = Color3.fromRGB(240, 226, 196):Lerp(Color3.fromRGB(255, 244, 210), t), Material = Enum.Material.Limestone, Parent = model })
+	part({ Name = "LightInlay", Size = Vector3.new(3, 0.3, len + 2), CFrame = cf * CFrame.new(0, 0.05, 0), Color = Color3.fromRGB(255, 226, 150), Material = Enum.Material.Neon, CanCollide = false, Parent = model })
+	for _, side in { -1, 1 } do
+		part({ Name = "Balustrade", Size = Vector3.new(1.6, 1, len + 2), CFrame = cf * CFrame.new(side * (deckW / 2 - 0.8), 3.4, 0), Color = GOLD, Material = Enum.Material.Metal, Parent = model })
+		barrier(model, cf, side * (deckW / 2 + 0.5), len)
+	end
+	if k % 6 == 0 then
+		keeperStatue(model, cf * CFrame.new((k % 12 == 0 and -1 or 1) * (deckW / 2 - 4), 0, 0) * CFrame.Angles(0, (k % 12 == 0 and -1 or 1) * math.rad(90), 0))
+	end
+	if k % 2 == 0 then
+		local p = part({ Name = "Motes", Size = Vector3.new(W * 0.6, 1, L), CFrame = ccf * CFrame.new(0, -fl * 0.5, 0), Transparency = 1, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false, Parent = model })
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+		e.Color = ColorSequence.new(Color3.fromRGB(255, 240, 200))
+		e.LightEmission = 1
+		e.Size = NumberSequence.new(0.5, 0.2)
+		e.EmissionDirection = Enum.NormalId.Top
+		e.Speed = NumberRange.new(2, 5)
+		e.Lifetime = NumberRange.new(10, 16)
+		e.Rate = 2 + t * 6
+		e.Parent = p
+	end
+	if rng:NextNumber() < 0.3 then
+		vein(model, ccf, W, ce, rng)
+	end
+end
+
 -- which cavern a distance is in (zones with two caverns switch theme part way)
 local function themeAt(s: number): string
 	local split = HALL.split
@@ -1229,6 +1500,18 @@ local function buildHall(model: Model, cf: CFrame, len: number, w: number, s0: n
 		return
 	elseif theme == "Sporewood" then
 		buildSporewood(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Emberflow" then
+		buildEmberflow(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Obsidian" then
+		buildObsidian(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "Heartstone" then
+		buildHeartstone(model, cf, len, w, s0, k, kind, rng)
+		return
+	elseif theme == "CoreApproach" then
+		buildCoreApproach(model, cf, len, w, s0, k, kind, rng)
 		return
 	end
 	local off = hallOffset(s0)
@@ -1378,7 +1661,7 @@ local function hallPlug(model: Model, s: number)
 	local cf = route:sample(s)
 	local off = hallOffset(s)
 	local fl, ce = hallFloor(s), hallCeil(s)
-	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), ({ Grotto = Enum.Material.Basalt, Crystal = Enum.Material.Glacier, Deepmine = Enum.Material.Rock, FossilSea = Enum.Material.Slate })[HALL.theme] or Enum.Material.Sandstone)
+	T:FillBlock(cf * CFrame.new(-off, (ce - fl) / 2, 6), Vector3.new(HALL.WIDTH + 60, ce + fl + 40, 16), ({ Grotto = Enum.Material.Basalt, Crystal = Enum.Material.Glacier, Deepmine = Enum.Material.Rock, FossilSea = Enum.Material.Slate, Emberflow = Enum.Material.Basalt, Heartstone = Enum.Material.Sandstone })[HALL.theme] or Enum.Material.Sandstone)
 	local _ = model
 end
 
@@ -1656,6 +1939,31 @@ function World.init(r)
 		T.WaterTransparency = 0.3
 		T.WaterWaveSize = 0.25
 		VEIN_COLOR = Color3.fromRGB(196, 232, 96) -- green-gold pockets inside the fossils (GDD 9.2)
+	elseif HALL.theme == "Emberflow" then
+		-- zone 5: black basalt and dark red rock, glowing cracks
+		for mat, rgb in {
+			[Enum.Material.Sandstone] = { 96, 52, 42 },
+			[Enum.Material.Rock] = { 74, 52, 50 },
+			[Enum.Material.Slate] = { 62, 50, 52 },
+			[Enum.Material.Basalt] = { 40, 34, 36 },
+			[Enum.Material.CrackedLava] = { 120, 60, 40 },
+		} do
+			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
+		end
+		VEIN_COLOR = Color3.fromRGB(255, 140, 40) -- orange-hot chunks in the basalt (GDD 9.2)
+	elseif HALL.theme == "Heartstone" then
+		-- zone 6: gold-cream temple stone, rock turning to light
+		for mat, rgb in {
+			[Enum.Material.Sandstone] = { 222, 190, 136 },
+			[Enum.Material.Rock] = { 186, 156, 116 },
+			[Enum.Material.Slate] = { 160, 136, 104 },
+			[Enum.Material.Basalt] = { 120, 100, 80 },
+			[Enum.Material.Limestone] = { 240, 226, 190 },
+			[Enum.Material.Salt] = { 255, 240, 204 },
+		} do
+			T:SetMaterialColor(mat, Color3.fromRGB(rgb[1], rgb[2], rgb[3]))
+		end
+		VEIN_COLOR = Color3.fromRGB(255, 214, 90) -- pure gold light set into the temple walls (GDD 9.2)
 	end
 	regions = {}
 	for _, p in route.pieces do
@@ -1713,6 +2021,12 @@ local SECTIONS = {
 	Stop = { amb = Color3.fromRGB(130, 104, 84), fog = Color3.fromRGB(200, 140, 90), density = 0.3, haze = 1.6, tint = Color3.fromRGB(255, 240, 220) },
 	-- zone 1's cavern, the Hollow Below: warm red haze, sunlight through the roof
 	-- zone 2's cavern: teal haze, violet shadows, glowing everywhere
+	-- zone 5: red heat over the lava, then the black glass rifts
+	Emberflow = { amb = Color3.fromRGB(160, 100, 78), fog = Color3.fromRGB(180, 82, 46), density = 0.26, haze = 2.2, tint = Color3.fromRGB(255, 232, 214), sat = 0.22 },
+	Obsidian = { amb = Color3.fromRGB(96, 54, 52), fog = Color3.fromRGB(124, 42, 30), density = 0.36, haze = 2.4, tint = Color3.fromRGB(255, 222, 202), sat = 0.2 },
+	-- zone 6: golden temples, then the rock turning to light
+	Heartstone = { amb = Color3.fromRGB(170, 150, 112), fog = Color3.fromRGB(220, 190, 130), density = 0.28, haze = 2.0, tint = Color3.fromRGB(255, 246, 226), sat = 0.15 },
+	CoreApproach = { amb = Color3.fromRGB(220, 200, 160), fog = Color3.fromRGB(255, 236, 190), density = 0.3, haze = 2.6, tint = Color3.fromRGB(255, 250, 236), sat = 0.08 },
 	-- zone 4: a cool sea under a geode moon, then a warm misty jungle
 	FossilSea = { amb = Color3.fromRGB(112, 132, 152), fog = Color3.fromRGB(92, 142, 172), density = 0.26, haze = 1.8, tint = Color3.fromRGB(236, 246, 255), sat = 0.15 },
 	Sporewood = { amb = Color3.fromRGB(140, 122, 92), fog = Color3.fromRGB(196, 170, 112), density = 0.34, haze = 2.0, tint = Color3.fromRGB(255, 246, 226), sat = 0.25 },
