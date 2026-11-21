@@ -44,6 +44,9 @@ function Rewards.init()
 					for id in q.pages do
 						q.claimed.pages[id] = true
 					end
+					for id in q.delveLog do
+						q.claimed.delveLog[id] = true
+					end
 				end)
 				pay(player, amount)
 			end

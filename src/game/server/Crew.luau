@@ -466,6 +466,15 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 				local f = Finds.roll(state:GetAttribute("Zone") or 1, Random.new())
 				Items.give(player, f.id)
 				player:SetAttribute("RunFinds", (player:GetAttribute("RunFinds") or 0) + 1)
+				local prof = Data.get(player)
+				if prof and not prof.delveLog[f.id] then
+					Data.update(player, function(q)
+						q.delveLog[f.id] = true
+					end)
+					task.delay(1.6, function()
+						notify(player, "Toast", "NEW in your Delve Log: " .. f.name .. "!")
+					end)
+				end
 				local at = player:GetAttribute("HookAt")
 				if typeof(at) == "Vector3" and player:GetAttribute("HookRig") then
 					at = rig.deck.CFrame:PointToWorldSpace(at)

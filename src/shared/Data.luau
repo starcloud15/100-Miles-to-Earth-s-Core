@@ -35,7 +35,8 @@ local function default()
 		flags = {},
 		notes = {},
 		pages = {},
-		claimed = { notes = {}, pages = {}, badges = {} },
+		claimed = { notes = {}, pages = {}, badges = {}, delveLog = {} },
+		delveLog = {}, -- find id -> true, every find you've ever reeled up
 		classes = {},
 		class = "",
 		reviveFlares = 0,

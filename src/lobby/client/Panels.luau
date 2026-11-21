@@ -22,6 +22,7 @@ local gui: ScreenGui
 local open: Frame? = nil
 local profile = nil
 local views = {}
+local refreshDelveLog: () -> () -- (the Delve Log page, below the Journal)
 
 local function show(root: Frame?)
 	if open and open ~= root then
@@ -312,7 +313,64 @@ local function buildJournal()
 	claim.Activated:Connect(function()
 		Net.Claim:FireServer("journal")
 	end)
+	local delve = Ui.button({ Parent = root, Text = "Delve Log", Color = Color3.fromRGB(70, 140, 70), Size = UDim2.fromOffset(190, 58), AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromOffset(14, 2) })
+	delve.ZIndex = 5
+	delve.Activated:Connect(function()
+		refreshDelveLog()
+		show(views.delveLog)
+	end)
 	views.journal = root
+end
+
+-- the Delve Log: every find, zone by zone; found ones show their icon and name
+-- in their rarity colour, the rest a dark silhouette
+local Finds = require(Shared.Finds)
+local Art = require(Shared.Art)
+
+local function buildDelveLog()
+	local root, body, close = Ui.panel(gui, "Delve Log", UDim2.fromOffset(900, 560))
+	close.Activated:Connect(function()
+		show(views.journal)
+	end)
+	views.delveCount = italic({ Parent = body, Text = "", Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 0, 40), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 3 })
+	local grid = Ui.new("Frame", { BackgroundTransparency = 1, Position = UDim2.fromOffset(10, 48), Size = UDim2.new(1, -20, 1, -56), Parent = body })
+	Ui.new("UIGridLayout", { CellSize = UDim2.fromOffset(116, 108), CellPadding = UDim2.fromOffset(9, 9), SortOrder = Enum.SortOrder.LayoutOrder, Parent = grid })
+	views.delveTiles = {}
+	for i, f in Finds.LIST do
+		if not f.cooked then
+			local tile = Ui.new("Frame", { BackgroundColor3 = Ui.INSET, LayoutOrder = i, Parent = grid }, { Ui.corner(UDim.new(0, 10)) })
+			local stroke = Ui.stroke(3, Color3.new(0, 0, 0), true)
+			stroke.Parent = tile
+			local icon = Ui.new("ImageLabel", { BackgroundTransparency = 1, Image = Art.icon(f.id) or "", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.04), Size = UDim2.fromScale(0.62, 0.62), ScaleType = Enum.ScaleType.Fit, Parent = tile })
+			local name = Ui.text({ Parent = tile, Text = "", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -4), Size = UDim2.new(1, -8, 0, 26), Stroke = 2 })
+			local pill = Ui.new("Frame", { BackgroundColor3 = Ui.GOLD, AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -4, 0, 4), Size = UDim2.fromOffset(44, 24), Visible = false, Parent = tile }, { Ui.corner(UDim.new(0.5, 0)), Ui.stroke(2, Color3.new(0, 0, 0), true) })
+			italic({ Parent = pill, Text = "+" .. Content.DELVE_REWARD, Size = UDim2.new(1, -6, 1, -4), Position = UDim2.fromOffset(3, 2) })
+			views.delveTiles[f.id] = { icon = icon, name = name, stroke = stroke, pill = pill, find = f }
+		end
+	end
+	views.delveLog = root
+end
+
+function refreshDelveLog()
+	if not views.delveLog or not profile then
+		return
+	end
+	local log = profile.delveLog or {}
+	local n, total = 0, 0
+	for id, t in views.delveTiles do
+		total += 1
+		local has = log[id] == true
+		if has then
+			n += 1
+		end
+		t.icon.ImageColor3 = has and Color3.new(1, 1, 1) or Color3.new(0, 0, 0)
+		t.icon.ImageTransparency = has and 0 or 0.45
+		t.name.Text = has and t.find.name or ("? Zone " .. t.find.zone)
+		t.name.TextColor3 = has and (Finds.RARITY[t.find.rarity] or Color3.new(1, 1, 1)) or Color3.fromRGB(150, 150, 150)
+		t.stroke.Color = has and (Finds.RARITY[t.find.rarity] or Color3.new(0, 0, 0)) or Color3.new(0, 0, 0)
+		t.pill.Visible = has and not ((profile.claimed.delveLog or {})[id])
+	end
+	views.delveCount.Text = "Finds delved    " .. n .. " / " .. total .. "      (claim new ones in the Journal)"
 end
 
 local function refreshJournal()
@@ -530,6 +588,7 @@ function Panels.refresh()
 	refreshRevive()
 	refreshClasses()
 	refreshJournal()
+	refreshDelveLog()
 	refreshBadges()
 	refreshStats()
 end
@@ -565,6 +624,7 @@ function Panels.init(screen: ScreenGui)
 	buildClasses()
 	buildClassCard()
 	buildJournal()
+	buildDelveLog()
 	buildBadges()
 	buildStats()
 end

@@ -43,6 +43,7 @@ Content.TOTAL_NOTES = 6 * #Config.ZONES
 Content.TOTAL_PAGES = 2 * #Config.ZONES + 1
 Content.NOTE_REWARD = 10
 Content.PAGE_REWARD = 25
+Content.DELVE_REWARD = 5 -- each new find in the Delve Log
 -- the expeditions who left the notes (their text is in Story.luau; docs/story.md)
 Content.NOTE_AUTHORS = { "the Quarrymen", "the Lamp Keepers", "the Ice Survey", "the Deep Fleet", "the Ember Watch", "the Heart Keepers" }
 
@@ -106,6 +107,11 @@ function Content.pendingJournal(p): number
 	for id in p.pages do
 		if not p.claimed.pages[id] then
 			n += Content.PAGE_REWARD
+		end
+	end
+	for id in p.delveLog or {} do
+		if not (p.claimed.delveLog or {})[id] then
+			n += Content.DELVE_REWARD
 		end
 	end
 	return n
