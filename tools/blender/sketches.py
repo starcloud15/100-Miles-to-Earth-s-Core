@@ -498,8 +498,402 @@ def z3p2():
     render("z3p2")
 
 
+# --- zones 4-6: shared bits ------------------------------------------------------------------
+
+
+def sea(z=-0.5, value=0.28):
+    w = prim("plane", (0, 60, z), size=600)
+    plain(w, value)
+    return w
+
+
+def causeway(y0=-10, y1=80, width=8, z=0.5):
+    c = prim("cube", (0, (y0 + y1) / 2, z), scale=(width / 2, (y1 - y0) / 2, 0.6))
+    plain(c, 0.85)
+    return c
+
+
+def rib(y, r=16, value=0.9):
+    t = prim("torus", (0, y, 0), (math.radians(90), 0, math.radians(90)), major_radius=r, minor_radius=1.1, major_segments=24, minor_segments=6)
+    plain(t, value)
+    return t
+
+
+def keeper(loc, lit=True):
+    x, y, z = loc
+    robe = prim("cone", (x, y, z + 3), scale=(1.4, 1.4, 3), vertices=8, radius1=1, radius2=0.35, depth=2)
+    plain(robe, 0.8)
+    hood = prim("uv_sphere", (x, y, z + 6.4), scale=(0.9, 0.9, 1.1), segments=10, ring_count=6)
+    plain(hood, 0.8)
+    lamp = prim("cube", (x + 1.2, y - 1.2, z + 6.8), scale=(0.45, 0.45, 0.6))
+    plain(lamp, 1.0 if lit else 0.1)
+
+
+def temple(loc, w=24):
+    x, y, z = loc
+    base = prim("cube", (x, y, z + 1), scale=(w / 2, 8, 1))
+    plain(base, 0.75)
+    for i in range(5):
+        prim("cylinder", (x - w / 2 + 2 + i * (w - 4) / 4, y - 6, z + 8), scale=(0.9, 0.9, 6), vertices=10)
+    roof = prim("cone", (x, y, z + 17), scale=(w / 2 + 2, 9, 3), vertices=4, radius1=1, radius2=0, depth=2)
+    plain(roof, 0.55)
+
+
+def lava(y=60, width=30, z=0.06):
+    l = prim("cube", (0, y, z), scale=(width / 2, 200, 0.2))
+    plain(l, 1.0)
+
+
+def beacon(loc=(0, 0, 0)):
+    load("props/BeaconRing.fbx", loc)
+    x, y, z = loc
+    prim("cone", (x, y, z + 3.2), (0.2, 0.1, 0.3), scale=(1.6, 1.6, 2.6), vertices=6, radius1=1, radius2=0, depth=2)
+
+
+# --- zone 4: the Deep Fleet -----------------------------------------------------------------
+
+
+def z4n1():
+    # "A sea. Under the world. With a horizon."
+    fresh()
+    sea()
+    causeway()
+    for x, y in ((-1.5, 2), (1.5, 4)):
+        figure((x, y, 1.1))
+    camera((0, -16, 7), (0, 60, 2), 30)
+    render("z4n1")
+
+
+def z4n2():
+    # "Something enormous died here once. We sail between its ribs."
+    fresh()
+    sea()
+    causeway()
+    for y in (14, 24, 34, 44, 54):
+        rib(y, 15 - (y - 14) * 0.08)
+    load("rig/DrillRig.fbx", (0, 6, 1.2), (0, 0, math.radians(180)), 0.3)
+    camera((8, -22, 12), (0, 30, 8), 30)
+    render("z4n2")
+
+
+def z4n3():
+    # "The geode overhead glows like a moon"
+    fresh()
+    sea()
+    causeway()
+    moon = prim("uv_sphere", (-10, 90, 34), scale=(9, 9, 9), segments=16, ring_count=10)
+    plain(moon, 1.0)
+    ring = prim("uv_sphere", (-10, 90, 34), scale=(10, 10, 10), segments=16, ring_count=10)
+    plain(ring, 0.55)
+    figure((0, 4, 1.1))
+    camera((2, -14, 6), (-4, 60, 16), 30)
+    render("z4n3")
+
+
+def z4n4():
+    # "Keep to the middle of the causeway. The edges remember the sea"
+    fresh()
+    sea()
+    causeway(width=10)
+    import random
+    rnd = random.Random(9)
+    for i in range(10):
+        side = -1 if i % 2 else 1
+        b = prim("cube", (side * rnd.uniform(5.5, 7), rnd.uniform(0, 40), 0), (rnd.uniform(-0.4, 0.4), rnd.uniform(-0.4, 0.4), 0), scale=(rnd.uniform(0.6, 1.4),) * 3)
+        plain(b, 0.6)
+    figure((0, 6, 1.1))
+    camera((0, -12, 9), (0, 24, 0), 32)
+    render("z4n4")
+
+
+def z4n5():
+    # "The jungle on the far shore breathes spores"
+    fresh()
+    ground()
+    for x, y, h, r in ((-14, 34, 40, 0), (10, 40, 52, 1), (26, 60, 36, 2), (-28, 60, 30, 0.5)):
+        objs = load("props/GiantMushroom.fbx", (x, y, 0), (0, 0, r), h / 60)
+    import random
+    rnd = random.Random(4)
+    for _ in range(30):
+        prim("uv_sphere", (rnd.uniform(-24, 24), rnd.uniform(4, 40), rnd.uniform(2, 24)), scale=(0.3,) * 3, segments=6, ring_count=4)
+    for x in (-3, 0, 3):
+        figure((x, 6 + abs(x), 0))
+    camera((0, -14, 7), (0, 30, 12), 32)
+    render("z4n5")
+
+
+def z4n6():
+    # "Saw the Hollow walk across the water toward us. It stopped where our lantern light began."
+    fresh()
+    sea()
+    causeway(-10, 10)
+    load("creatures/Hollow.fbx", (2, 40, 0), (0, 0, math.radians(200)), 0.8)
+    load("props/LanternPost.fbx", (-3, 4, 1.1), (0, 0, math.radians(90)))
+    figure((1, 2, 1.1))
+    camera((-4, -14, 6), (2, 34, 12), 32)
+    render("z4n6")
+
+
+def z4p1():
+    # Captain Reyes: the island shrine, a cold stone lantern and a kneeling keeper
+    fresh()
+    sea()
+    isle = prim("uv_sphere", (0, 26, -3), scale=(14, 10, 5), segments=14, ring_count=8)
+    plain(isle, 0.6)
+    keeper((0, 26, 1.5), lit=False)
+    k = prim("cone", (-3, 24, 2.6), scale=(1.1, 1.1, 1.6), vertices=8, radius1=1, radius2=0.4, depth=2)
+    plain(k, 0.8)
+    camera((-6, -6, 7), (0, 26, 4), 34)
+    render("z4p1")
+
+
+def z4p2():
+    # "The Hollow followed our wakes all night"
+    fresh()
+    sea()
+    causeway(0, 80)
+    load("rig/DrillRig.fbx", (0, 10, 1.2), (0, 0, math.radians(180)), 0.5)
+    load("creatures/Hollow.fbx", (-14, 50, -1), (0, 0, math.radians(180)), 0.7)
+    camera((10, -12, 10), (-2, 36, 6), 32)
+    render("z4p2")
+
+
+# --- zone 5: the Ember Watch ----------------------------------------------------------------
+
+
+def z5n1():
+    # "The rock runs like honey down here, red and slow."
+    fresh()
+    ground()
+    lava(60, 26)
+    for x in (-18, 18):
+        for i in range(4):
+            c = prim("cylinder", (x + (i % 2) * 3, 20 + i * 14, 4 + i % 2 * 2), scale=(2.4, 2.4, 4 + i % 2 * 2), vertices=6)
+            plain(c, 0.3)
+    figure((-16, 6, 0))
+    camera((-14, -14, 10), (0, 40, 0), 32)
+    render("z5n1")
+
+
+def z5n2():
+    # "Heat climbs fast away from cool stone. Eat the frost-fruit, drink the cold water"
+    fresh()
+    ground()
+    load("props/Crate.fbx", (2, 6, 0))
+    for i in range(4):
+        prim("uv_sphere", (1.6 + i * 0.5, 5.4, 2.9 + (i % 2) * 0.3), scale=(0.35,) * 3, segments=8, ring_count=5)
+    figure((-2, 6, 0))
+    lava(40, 20)
+    camera((-4, -10, 5), (0, 10, 3), 36)
+    render("z5n2")
+
+
+def z5n3():
+    # "Obsidian walls, glass-smooth. You see yourself in them. Sometimes you see someone behind you."
+    fresh()
+    ground()
+    for x in (-8, 8):
+        w = prim("cube", (x, 20, 12), (0, 0, math.radians(8 if x < 0 else -8)), scale=(0.6, 16, 12))
+        plain(w, 0.08)
+    figure((0, 8, 0))
+    load("creatures/Hollow.fbx", (1, 26, 0), (0, 0, math.radians(200)), 0.5)
+    camera((0, -10, 6), (0, 20, 6), 34)
+    render("z5n3")
+
+
+def z5n4():
+    # "The Hollow hunts faster here."
+    fresh()
+    ground()
+    beacon((10, 26, 0))
+    load("creatures/Hollow.fbx", (-14, 18, 0), (0.2, 0, math.radians(250)), 0.8)
+    figure((2, 14, 0))
+    camera((-2, -14, 8), (0, 18, 8), 32)
+    render("z5n4")
+
+
+def z5n5():
+    # "A Keeper's lantern melted into the glass. Still warm."
+    fresh()
+    ground()
+    slab = prim("cube", (0, 10, 2), scale=(8, 4, 2))
+    plain(slab, 0.1)
+    for o in load("props/LanternPost.fbx", (1, 9, 1), (math.radians(60), 0, 0.3), 0.7):
+        pass
+    figure((-6, 4, 0))
+    camera((-4, -8, 6), (0, 10, 2), 36)
+    render("z5n5")
+
+
+def z5n6():
+    # "Don't run from it. Run to the light."
+    fresh()
+    ground()
+    beacon((0, 20, 0))
+    for x, y in ((-6, 8), (-2, 4), (4, 6)):
+        figure((x, y, 0))
+    load("creatures/Hollow.fbx", (-22, -6, 0), (0, 0, math.radians(120)), 0.7)
+    camera((14, -12, 10), (0, 12, 4), 32)
+    render("z5n6")
+
+
+def z5p1():
+    # Sefa Okoro: the melted lantern's words, and the scratch under them
+    fresh()
+    ground()
+    slab = prim("cube", (0, 10, 6), scale=(9, 0.8, 6))
+    plain(slab, 0.15)
+    for i in range(5):
+        ln = prim("cube", (-2 + (i % 2) * 0.5, 9, 9 - i * 1.4), scale=(5 - i * 0.4, 0.1, 0.15))
+        plain(ln, 0.9)
+    load("props/LanternPost.fbx", (5, 9, 2), (math.radians(50), 0, 0.5), 0.6)
+    camera((-2, -8, 6), (0, 10, 6), 36)
+    render("z5p1")
+
+
+def z5p2():
+    # "He took Jonah tonight."
+    fresh()
+    ground()
+    load("props/Tent.fbx", (0, 14, 0), (0, 0, math.radians(15)))
+    load("props/LanternPost.fbx", (-6, 10, 0), (0.3, 0, 0.4))
+    load("creatures/Hollow.fbx", (12, 40, 0), (0, 0, math.radians(160)), 0.8)
+    camera((-6, -10, 6), (2, 20, 8), 34)
+    render("z5p2")
+
+
+# --- zone 6: the Heart Keepers --------------------------------------------------------------
+
+
+def z6n1():
+    # "Temples of gold stone, built by people who carried light for a living."
+    fresh()
+    ground()
+    temple((0, 40, 0), 30)
+    temple((-34, 60, 0), 20)
+    figure((-2, 10, 0))
+    load("props/LanternPost.fbx", (2, 10, 0), (0, 0, math.radians(-90)))
+    camera((-4, -18, 8), (0, 40, 10), 32)
+    render("z6n1")
+
+
+def z6n2():
+    # "Statues of Keepers line the road. Their lanterns are lit."
+    fresh()
+    ground()
+    for i in range(5):
+        for x in (-7, 7):
+            keeper((x, 8 + i * 10, 0))
+    road = prim("cube", (0, 30, 0.05), scale=(4, 40, 0.05))
+    plain(road, 0.75)
+    camera((0, -12, 9), (0, 36, 4), 32)
+    render("z6n2")
+
+
+def z6n3():
+    # "The light comes in beats now. Move between them."
+    fresh()
+    ground()
+    for y in (18, 34):
+        beam = prim("cylinder", (0, y, 20), scale=(4, 4, 20), vertices=16)
+        plain(beam, 1.0)
+    figure((0, 26, 0))
+    figure((-3, 8, 0))
+    camera((-6, -12, 8), (0, 26, 8), 32)
+    render("z6n3")
+
+
+def z6n4():
+    # "Carved at every gate: 'Carry it up. Give it all. Keep nothing.'"
+    fresh()
+    ground()
+    for x in (-7, 7):
+        prim("cube", (x, 16, 9), scale=(1.6, 1.6, 9))
+    top = prim("cube", (0, 16, 19), scale=(10, 2, 1.6))
+    plain(top, 0.7)
+    for i in range(3):
+        ln = prim("cube", (0, 13.9, 19.6 - i * 0.7), scale=(6 - i, 0.05, 0.12))
+        plain(ln, 0.15)
+    figure((0, 4, 0))
+    camera((0, -10, 8), (0, 16, 12), 34)
+    render("z6n4")
+
+
+def z6n5():
+    # "The rock is turning to light. My hands glow when I touch the walls."
+    fresh()
+    ground()
+    wall = prim("cube", (0, 12, 10), scale=(14, 1, 10))
+    plain(wall, 0.85)
+    for i in range(7):
+        seam = prim("cube", (-10 + i * 3.4, 10.9, 6 + (i % 3) * 3), (0, math.radians(20 + i * 15), 0), scale=(0.3, 0.1, 4))
+        plain(seam, 1.0)
+    figure((1, 9, 0))
+    camera((-4, -6, 6), (0, 12, 7), 36)
+    render("z6n5")
+
+
+def z6n6():
+    # "The Core Beacon stands cold at the bottom. It's waiting for someone to light it."
+    fresh()
+    ground()
+    ring = prim("torus", (0, 24, 0.6), major_radius=10, minor_radius=1.2, major_segments=28, minor_segments=6)
+    plain(ring, 0.6)
+    bowl = prim("cone", (0, 24, 6), scale=(5, 5, 3), vertices=16, radius1=0.4, radius2=1, depth=2)
+    plain(bowl, 0.3)
+    stem = prim("cylinder", (0, 24, 2), scale=(1.2, 1.2, 2), vertices=10)
+    plain(stem, 0.3)
+    for x in (-4, 0, 4):
+        figure((x, 6, 0))
+    camera((0, -12, 8), (0, 24, 5), 32)
+    render("z6n6")
+
+
+def z6p1():
+    # Keeper Ashavel: "Each day we carry the Core's breath up through the stone"
+    fresh()
+    ground()
+    for i in range(6):
+        st = prim("cube", (0, 10 + i * 4, i * 1.5 + 0.75), scale=(8, 2, 0.75 + i * 0.75))
+        plain(st, 0.75)
+    for i in range(3):
+        keeper((-3 + i * 3, 12 + i * 5, 1.5 + i * 2.2))
+    camera((-14, -8, 10), (0, 20, 6), 32)
+    render("z6p1")
+
+
+def z6p2():
+    # "He put out his lantern and went into the dark between the breaths"
+    fresh()
+    ground()
+    keeper((-8, 20, 0))
+    keeper((8, 22, 0))
+    load("creatures/Hollow.fbx", (0, 36, 0), (0, 0, math.radians(20)), 0.6)
+    camera((0, -10, 7), (0, 28, 8), 34)
+    render("z6p2")
+
+
+def z6p3():
+    # "We lit the Beacon... the tall shadow on the ledge lifted its lantern, full at last"
+    fresh()
+    ground()
+    ring = prim("torus", (0, 24, 0.6), major_radius=10, minor_radius=1.2, major_segments=28, minor_segments=6)
+    plain(ring, 0.6)
+    beam = prim("cylinder", (0, 24, 40), scale=(6, 6, 40), vertices=16)
+    plain(beam, 1.0)
+    for x in (-4, 0, 4):
+        figure((x, 6, 0))
+    load("creatures/Hollow.fbx", (24, 46, 8), (0, 0, math.radians(220)), 0.5)
+    cliff = prim("cube", (24, 46, 3.5), scale=(5, 5, 4))
+    plain(cliff, 0.5)
+    camera((-6, -14, 8), (4, 26, 14), 30)
+    render("z6p3")
+
+
 os.makedirs(OUT, exist_ok=True)
-ALL = (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2, z2n1, z2n2, z2n3, z2n4, z2n5, z2n6, z2p1, z2p2, z3n1, z3n2, z3n3, z3n4, z3n5, z3n6, z3p1, z3p2)
+ALL = (z1n1, z1n2, z1n3, z1n4, z1n5, z1n6, z1p1, z1p2, z2n1, z2n2, z2n3, z2n4, z2n5, z2n6, z2p1, z2p2, z3n1, z3n2, z3n3, z3n4, z3n5, z3n6, z3p1, z3p2,
+       z4n1, z4n2, z4n3, z4n4, z4n5, z4n6, z4p1, z4p2, z5n1, z5n2, z5n3, z5n4, z5n5, z5n6, z5p1, z5p2,
+       z6n1, z6n2, z6n3, z6n4, z6n5, z6n6, z6p1, z6p2, z6p3)
 # ONLY=z2 (a prefix) renders just those scenes
 ONLY = os.environ.get("ONLY", "")
 for fn in ALL:
