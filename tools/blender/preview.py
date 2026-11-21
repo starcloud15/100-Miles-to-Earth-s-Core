@@ -20,10 +20,12 @@ TINT = {
     "Stem": (0.87, 0.84, 0.78), "Cap": (0.24, 0.84, 0.78), "Gills": (0.27, 0.18, 0.41), "Spots": (0.9, 1, 0.98),
     "Flesh": (0.81, 0.7, 0.65), "Plate": (0.46, 0.35, 0.31), "Bone": (0.95, 0.91, 0.83), "Maw": (0.35, 0.08, 0.09),
     "Eye": (1, 0.27, 0.2), "Shell": (0.46, 0.25, 0.19), "Belly": (0.81, 0.61, 0.44), "Legs": (0.29, 0.18, 0.15),
-    "Stalk": (0.91, 0.88, 0.82), "CapViolet": (0.59, 0.41, 0.95), "CapTeal": (0.24, 0.84, 0.78), "Spot": (0.9, 1, 0.98),
+    "Stalk": (0.84, 0.72, 0.59), "CapViolet": (0.59, 0.41, 0.95), "CapTeal": (0.24, 0.84, 0.78), "Spot": (0.9, 1, 0.98),
     "EelSkin": (0.16, 0.2, 0.38), "EelBelly": (0.43, 0.59, 0.75), "Lure": (0.47, 1, 0.9), "Fin": (0.35, 0.78, 0.9),
     "Stone": (0.23, 0.2, 0.23), "Shadow": (0.08, 0.06, 0.1), "Void": (0, 0, 0), "Iron": (0.18, 0.16, 0.18),
     "Shard": (0.3, 0.27, 0.36), "Ember": (1, 0.93, 0.84), "Ice": (0.7, 0.88, 1), "Frost": (0.86, 0.95, 1),
+    "Sclera": (0.96, 0.95, 0.92), "Pupil": (0.05, 0.05, 0.07), "Carapace": (0.2, 0.24, 0.33), "Crystal": (0.63, 0.86, 1),
+    "Fur": (0.38, 0.3, 0.26), "Claw": (0.89, 0.84, 0.77), "CrabShell": (0.78, 0.35, 0.24),
 }
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -70,8 +72,8 @@ cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam"))
 scene.collection.objects.link(cam)
 cam.data.type = "ORTHO"
 cam.data.ortho_scale = max(x, hmax * 2.2) * 1.05
-cam.location = (x / 2, -200, hmax * 0.5 + 60)
-cam.rotation_euler = (math.radians(73), 0, 0)
+cam.location = (x / 2, 200, hmax * 0.5 + 60)
+cam.rotation_euler = (math.radians(73), 0, math.radians(180))
 scene.camera = cam
 sun = bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN"))
 sun.data.energy = 4

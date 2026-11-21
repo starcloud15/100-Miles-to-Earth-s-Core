@@ -40,7 +40,7 @@ PAINT = {
     "Shard": (76, 70, 92),
     "Ember": (255, 238, 214),
     # zone 2
-    "Stalk": (232, 224, 208),
+    "Stalk": (214, 184, 150),
     "CapViolet": (150, 104, 242),
     "Spot": (230, 255, 250),
     "Lure": (120, 255, 230),
@@ -63,6 +63,9 @@ PAINT = {
     "Wisp": (30, 24, 40),
     "Statue": (214, 196, 160),
     "Gold": (232, 186, 86),
+    # big cartoon eyes (the reference's critters read by their eyes)
+    "Sclera": (246, 244, 236),
+    "Pupil": (18, 16, 22),
 }
 MATS = {}
 PARTS = []  # (group, paint, object)
@@ -161,6 +164,15 @@ def spike(base, tip, r, sides=5):
 # --- zone 1: Sunfall Gorge / the Hollow Below ------------------------------------------------
 
 
+def big_eye(g, pos, r, look=(0, 1, 0.15)):
+    """A cartoon eye: a white eyeball and a dark pupil looking along `look`."""
+    pos, look = Vector(pos), Vector(look).normalized()
+    emit(ball(r, 8, 6), g, "Sclera", at(*pos))
+    # (a flattened disc sitting on the eyeball's surface, facing out: a clean round pupil)
+    q = look.to_track_quat("Y", "Z").to_euler()
+    emit(ball(r * 0.52, 8, 5), g, "Pupil", at(*(pos + look * r * 0.86), rx=q.x, ry=q.y, rz=q.z, sx=1, sy=0.3, sz=1))
+
+
 def cragskitter():
     """A rock crawler about 4.5 wide: a rough banded carapace like the walls it
     clings to, a pale belly, six jointed legs and two pincers, four amber eyes.
@@ -191,8 +203,9 @@ def cragskitter():
         emit(ball(0.45, 8, 5), g, "Shell", at(*wr, sx=0.9, sy=1.3, sz=0.8))
         emit(spike(wr + Vector((0, 0.3, 0.15)), wr + Vector((-side * 0.35, 1.05, 0.2)), 0.18), g, "Belly")
         emit(spike(wr + Vector((0, 0.3, -0.15)), wr + Vector((-side * 0.2, 0.9, -0.25)), 0.15), g, "Belly")
-    for x, z, r in ((-0.45, 1.75, 0.2), (0.45, 1.75, 0.2), (-0.85, 1.55, 0.14), (0.85, 1.55, 0.14)):
-        emit(ball(r, 8, 4), g, "Glow", at(x, 1.85, z))
+    for side in (-1, 1):
+        big_eye(g, (side * 0.5, 1.95, 1.85), 0.38, (side * 0.15, 1, 0.1))
+        emit(ball(0.13, 8, 4), g, "Glow", at(side * 0.95, 1.6, 1.6))
 
 
 def burrowmaw(n=7):
@@ -381,7 +394,7 @@ def puffcap():
     for side in (-1, 1):
         emit(ball(0.55, 8, 5), g, "Stalk", at(side * 0.7, 0.25, 0.3, sx=0.9, sy=1.3, sz=0.55))  # feet
         emit(taper((side * 1.15, 0.1, 2.0), (side * 1.9, 0.5, 1.2), 0.32, 0.24, 6), g, "Stalk")  # arms
-        emit(ball(0.2, 6, 4), g, "Spot", at(side * 0.45, 1.2, 2.55))  # eyes
+        big_eye(g, (side * 0.5, 1.62, 2.0), 0.44, (side * 0.1, 1, 0.05))  # eyes
     emit(mushroom_cap(2.5, 1.5, seed=3), g, "CapViolet", at(0, 0, 2.75))
     rnd = random.Random(4)
     for i in range(7):
@@ -418,7 +431,7 @@ def lantern_eel(n=7):
     emit(taper((0, 1.6, 2.8), (0, 2.6, 2.6), 0.08, 0.06, 5), g, "EelSkin")
     emit(ball(0.42, 8, 5), g, "Lure", at(0, 2.75, 2.45))
     for side in (-1, 1):
-        emit(ball(0.24, 6, 4), g, "Lure", at(side * 1.05, 1.35, 0.55))
+        big_eye(g, (side * 1.0, 1.3, 0.6), 0.42, (side * 0.4, 1, 0.1))
         emit(spike((side * 1.4, -0.4, 0.2), (side * 2.6, -1.2, 0.6), 0.35, 4), g, "Fin")  # gill frills
 
 
@@ -435,7 +448,7 @@ def shardback():
     for side in (-1, 1):
         emit(dome(1.3, 10, 3, seed=33 + side, rough=0.04), g, "Carapace", at(side * 0.62, -0.4, 1.35, sx=0.55, sy=1.4, sz=0.6))  # wing cases
         emit(spike((side * 0.45, 2.4, 0.8), (-side * 0.1, 3.3, 0.7), 0.2, 4), g, "Claw")  # mandibles
-        emit(ball(0.17, 6, 4), g, "Glow", at(side * 0.5, 2.35, 1.15))
+        big_eye(g, (side * 0.48, 2.3, 1.2), 0.3, (side * 0.15, 1, 0.1))
         for k, y in enumerate((0.9, -0.2, -1.3)):
             hip = Vector((side * 1.2, y, 0.8))
             knee = Vector((side * 2.2, y + (k - 1) * 0.4, 1.4))
@@ -466,7 +479,7 @@ def tunnel_mole(n=5):
         a = k / 11 * math.tau
         emit(spike((0, 3.3, -0.1), (math.cos(a) * 0.9, 3.55, -0.1 + math.sin(a) * 0.9), 0.16, 4), g, "Snout")  # the star
     for side in (-1, 1):
-        emit(ball(0.13, 6, 4), g, "Eye", at(side * 0.75, 2.1, 0.75))
+        big_eye(g, (side * 0.75, 2.15, 0.75), 0.24, (side * 0.1, 1, 0.1))
         wrist = Vector((side * 2.1, 1.6, -1.2))
         emit(taper((side * 1.4, 0.6, -0.6), wrist, 0.55, 0.45, 6), g, "Fur")
         emit(ball(0.7, 8, 5), g, "Snout", at(*wrist, sx=1.2, sy=0.8, sz=0.5))  # palm

@@ -34,6 +34,8 @@ local PAINT = {
 	Bone = { Color3.fromRGB(242, 232, 212), Enum.Material.SmoothPlastic },
 	Glow = { Color3.fromRGB(255, 214, 130), Enum.Material.Neon },
 	Eye = { Color3.fromRGB(255, 70, 50), Enum.Material.Neon },
+	Sclera = { Color3.fromRGB(246, 244, 236), Enum.Material.SmoothPlastic },
+	Pupil = { Color3.fromRGB(18, 16, 22), Enum.Material.SmoothPlastic },
 	-- the Hollow
 	Stone = { Color3.fromRGB(58, 50, 58), Enum.Material.Slate },
 	Shadow = { Color3.fromRGB(20, 16, 26), Enum.Material.Fabric },
@@ -44,7 +46,7 @@ local PAINT = {
 	-- zone 2
 	CapTeal = { Color3.fromRGB(60, 214, 200), Enum.Material.SmoothPlastic },
 	CapViolet = { Color3.fromRGB(150, 104, 242), Enum.Material.SmoothPlastic },
-	Stalk = { Color3.fromRGB(232, 224, 208), Enum.Material.SmoothPlastic },
+	Stalk = { Color3.fromRGB(214, 184, 150), Enum.Material.SmoothPlastic },
 	Spot = { Color3.fromRGB(230, 255, 250), Enum.Material.Neon },
 	EelSkin = { Color3.fromRGB(40, 52, 96), Enum.Material.SmoothPlastic },
 	EelBelly = { Color3.fromRGB(110, 150, 190), Enum.Material.SmoothPlastic },
