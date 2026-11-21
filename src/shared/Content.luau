@@ -29,9 +29,9 @@ Content.BADGES = {
 
 -- Classes (GDD 14.3): the reference's price ladder, our own roles
 Content.CLASSES = {
-	{ id = "Prospector", name = "Prospector", icon = "Pickaxe", deepstones = 150, robux = 49, perk = "Starts with an Iron Pickaxe, +1 glowstone per vein" },
-	{ id = "Delver", name = "Delver", icon = "DelversHook", deepstones = 750, robux = 149, perk = "Starts with an Iron Hook; bites come 20% faster and food fills 15% more" },
-	{ id = "Lamplighter", name = "Lamplighter", icon = "Lantern", deepstones = 1500, robux = 299, perk = "Starts with a Hand Lantern; the Beacon burns glowstone 15% slower" },
+	{ id = "Prospector", name = "Prospector", icon = "Pickaxe", deepstones = 150, robux = 49, perk = "+1 glowstone with every swing at a vein" },
+	{ id = "Delver", name = "Delver", icon = "DelversHook", deepstones = 750, robux = 149, perk = "Bites come 20% faster when delving, and food fills you 15% more" },
+	{ id = "Lamplighter", name = "Lamplighter", icon = "Lantern", deepstones = 1500, robux = 299, perk = "Carries a hand lantern, and the Beacon burns 15% slower with you in the crew" },
 }
 -- developer product ids for buying a class with Robux (0 = not on sale yet)
 Content.CLASS_PRODUCTS = { Prospector = 0, Delver = 0, Lamplighter = 0 }

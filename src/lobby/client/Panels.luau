@@ -219,8 +219,10 @@ local function buildClasses()
 	for i, c in Content.CLASSES do
 		local row = Ui.new("TextButton", { Text = "", AutoButtonColor = true, BackgroundColor3 = Ui.INSET, Size = UDim2.new(1, -20, 0, 104), Position = UDim2.fromOffset(10, 6 + (i - 1) * 118), Parent = body }, { Ui.stroke(3, Color3.new(0, 0, 0), true) })
 		Ui.icon(c.icon, { Parent = row, Size = UDim2.fromOffset(80, 80), Position = UDim2.fromOffset(14, 12) })
-		Ui.text({ Parent = row, Text = c.name, Size = UDim2.fromOffset(300, 56), Position = UDim2.fromOffset(108, 24), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 4 })
-		local cost = deepstoneAmount(row, tostring(c.deepstones), 60, UDim2.new(1, -250, 0, 22))
+		-- (the name ends where the price starts, so long names never run under it)
+		Ui.text({ Parent = row, Text = c.name, Size = UDim2.new(1, -330, 0, 52), Position = UDim2.fromOffset(108, 26), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 4 })
+		local cost = deepstoneAmount(row, tostring(c.deepstones), 60, UDim2.new(1, -210, 0, 22))
+		cost.Size = UDim2.fromOffset(200, 60)
 		row.Activated:Connect(function()
 			views.classCard.class = c
 			refreshClassCard()

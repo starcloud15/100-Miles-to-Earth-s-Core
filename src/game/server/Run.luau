@@ -258,7 +258,14 @@ function Run.step(dt: number)
 		end
 	elseif p == "Night" then
 		-- the night bar: faster with everyone in the ring and the Beacon fed
-		fuel = math.max(0, fuel - dt)
+		-- Lamplighter: the Beacon burns 15% slower with one in the crew
+		local slow = 1
+		for _, pl in crew() do
+			if pl:GetAttribute("Class") == "Lamplighter" then
+				slow = 0.85
+			end
+		end
+		fuel = math.max(0, fuel - dt * slow)
 		local inRing, n = 0, 0
 		local beacon = World.beacons[state:GetAttribute("StopName")]
 		for _, pl in crew() do

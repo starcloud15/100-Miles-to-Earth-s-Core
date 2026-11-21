@@ -155,6 +155,23 @@ local function giveTools(player: Player)
 	Items.sync(player)
 end
 
+-- the Lamplighter's hand lantern: a warm light that goes everywhere with them
+function Crew.classLook(player: Player, char: Model)
+	local root = char:FindFirstChild("HumanoidRootPart")
+	local old = root and root:FindFirstChild("HandLantern")
+	if old then
+		old:Destroy()
+	end
+	if root and player:GetAttribute("Class") == "Lamplighter" then
+		local l = Instance.new("PointLight")
+		l.Name = "HandLantern"
+		l.Color = Color3.fromRGB(255, 196, 110)
+		l.Range = 22
+		l.Brightness = 1.6
+		l.Parent = root
+	end
+end
+
 local function onCharacter(player: Player, char: Model)
 	local hum = char:WaitForChild("Humanoid") :: Humanoid
 	char:WaitForChild("HumanoidRootPart")
@@ -172,6 +189,7 @@ local function onCharacter(player: Player, char: Model)
 	hum.MaxHealth = 100
 	hum.Health = 100
 	giveTools(player)
+	task.defer(Crew.classLook, player, char)
 	local i = info[player]
 	if i then
 		i.off = false
@@ -236,6 +254,16 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 	Net.Drop.OnServerEvent:Connect(function(player)
 		Items.drop(player)
 	end)
+	-- the class each player equipped at camp (their save), for its perks
+	local Data = require(Shared.Data)
+	Data.Changed:Connect(function(player, p)
+		if player:GetAttribute("Class") ~= (p.class or "") then
+			player:SetAttribute("Class", p.class or "")
+			if player.Character then
+				Crew.classLook(player, player.Character)
+			end
+		end
+	end)
 
 	local function added(player: Player)
 		info[player] = { off = false, s = rig.s, lastCrank = 0, lastMine = 0, pushedAt = -10, cast = nil }
@@ -290,8 +318,10 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		end
 		i.lastMine = now
 		local hp = (vein:GetAttribute("HP") or 12) - 2
-		player:SetAttribute("Glowstone", (player:GetAttribute("Glowstone") or 0) + 2)
-		notify(player, "Mined", { n = 2, at = pp.Position })
+		-- Prospector: +1 glowstone per hit
+		local n = player:GetAttribute("Class") == "Prospector" and 3 or 2
+		player:SetAttribute("Glowstone", (player:GetAttribute("Glowstone") or 0) + n)
+		notify(player, "Mined", { n = n, at = pp.Position })
 		if hp <= 0 then
 			World.removeVein(vein)
 		else
@@ -311,7 +341,8 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 			if not root then
 				return
 			end
-			local bite = now + math.random(20, 60) / 10
+			-- Delver: bites come 20% faster
+			local bite = now + math.random(20, 60) / 10 * (player:GetAttribute("Class") == "Delver" and 0.8 or 1)
 			local c = { bite = bite }
 			i.cast = c
 			-- the hook really flies out: it lands on the ground about 16 studs in front
@@ -384,9 +415,11 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 	Net.Eat.OnServerEvent:Connect(function(player)
 		local f = Items.held(player)
 		if f and Items.take(player, f.id) then
-			addHunger(player, f.hunger)
+			-- Delver: food fills 15% more
+			local fill = math.floor(f.hunger * (player:GetAttribute("Class") == "Delver" and 1.15 or 1) + 0.5)
+			addHunger(player, fill)
 			player:SetAttribute("Exposure", math.max(0, (player:GetAttribute("Exposure") or 0) - Config.Temperature.EAT))
-			notify(player, "Ate", { hunger = f.hunger, find = f.id })
+			notify(player, "Ate", { hunger = fill, find = f.id })
 		elseif Items.total(player) == 0 then
 			notify(player, "Toast", "No food! Cast your Delver's Hook into the rock")
 		end
