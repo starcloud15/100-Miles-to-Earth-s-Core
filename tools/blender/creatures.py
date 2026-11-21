@@ -53,6 +53,16 @@ PAINT = {
     "Fur": (96, 76, 66),
     "Claw": (226, 214, 196),
     "Snout": (232, 150, 150),
+    # zones 4-6
+    "Skull": (232, 222, 198),
+    "CrabShell": (200, 90, 60),
+    "Scale": (70, 110, 66),
+    "ScaleBelly": (196, 190, 140),
+    "Cinder": (52, 40, 40),
+    "Magma": (255, 110, 30),
+    "Wisp": (30, 24, 40),
+    "Statue": (214, 196, 160),
+    "Gold": (232, 186, 86),
 }
 MATS = {}
 PARTS = []  # (group, paint, object)
@@ -66,7 +76,7 @@ def mat(paint):
         rgb = [(c / 255) ** 2.2 for c in PAINT[paint]]
         b.inputs["Base Color"].default_value = (*rgb, 1)
         b.inputs["Roughness"].default_value = 0.7
-        if paint in ("Glow", "Eye", "Ember", "Spot", "Lure"):
+        if paint in ("Glow", "Eye", "Ember", "Spot", "Lure", "Magma"):
             b.inputs["Emission Color"].default_value = (*rgb, 1)
             b.inputs["Emission Strength"].default_value = 5
         MATS[paint] = m
@@ -465,7 +475,156 @@ def tunnel_mole(n=5):
             emit(spike(wrist + Vector((x, 0.4, 0)), wrist + Vector((x * 1.4, 2.0, -0.4)), 0.2, 4), g, "Claw")
 
 
-CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow, "Puffcap": puffcap, "LanternEel": lantern_eel, "Shardback": shardback, "TunnelMole": tunnel_mole}
+def cyl(r, h, sides=8):
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, segments=sides, radius1=r, radius2=r, depth=h)
+    return bm
+
+
+# --- zone 4: the Fossil Sea and the Sporewood Shores (the Deep Fleet) -----------------------
+
+
+def bone_crab():
+    """A hermit crab about 5 across living in an old fossil skull: red legs and a
+    big and a small claw out from under the bone dome, eye-stalks peeking through
+    the skull's eye holes. It scuttles up out of the sea onto the deck (boarder)."""
+    g = "Body"
+    emit(ball(2.1, 12, 8, seed=61, rough=0.05), g, "Skull", at(0, 0.3, 1.9, sx=1.0, sy=1.15, sz=0.8))
+    for side in (-1, 1):
+        emit(ball(0.55, 8, 5), g, "Void", at(side * 0.8, 1.9, 2.4))  # the skull's eye holes
+        emit(taper((side * 0.4, 1.7, 1.3), (side * 0.5, 2.3, 2.4), 0.12, 0.1, 5), g, "CrabShell")  # eye stalk
+        emit(ball(0.2, 6, 4), g, "Eye", at(side * 0.5, 2.35, 2.5))
+        for k, y in enumerate((0.9, 0.0, -0.9)):
+            hip = Vector((side * 1.3, y, 1.0))
+            knee = Vector((side * 2.4, y + (k - 1) * 0.5, 1.6))
+            foot = Vector((side * 2.9, y + (k - 1) * 0.9, 0.05))
+            emit(taper(hip, knee, 0.24, 0.18), g, "CrabShell")
+            emit(taper(knee, foot, 0.18, 0.06), g, "CrabShell")
+    big = Vector((1.2, 2.6, 1.0))
+    emit(ball(0.85, 8, 5), g, "CrabShell", at(*big, sx=1.0, sy=1.4, sz=0.8))
+    emit(spike(big + Vector((0.2, 0.9, 0.25)), big + Vector((0.1, 2.0, 0.3)), 0.35, 5), g, "CrabShell")
+    emit(spike(big + Vector((0.2, 0.9, -0.25)), big + Vector((0.4, 1.8, -0.2)), 0.25, 5), g, "CrabShell")
+    emit(ball(0.5, 8, 5), g, "CrabShell", at(-1.1, 2.5, 0.9, sy=1.3))
+
+
+def snapjaw(n=6):
+    """A Snapjaw: a long-jawed shore lizard about 18 long with a scaled green back,
+    a pale belly and a jaw full of teeth. It lunges from the shallows and drags
+    one of the crew off the causeway (grabber). Segments along -Y behind the head."""
+    for i in range(1, n + 1):
+        r = 1.6 - i * 0.16
+        y = -2.4 * i
+        g = "Seg%d" % i
+        emit(ball(r, 10, 6, seed=70 + i), g, "Scale", at(0, y, 0, sx=1.25, sy=1.1, sz=0.75))
+        emit(ball(r * 0.9, 10, 4), g, "ScaleBelly", at(0, y, -r * 0.3, sx=1.15, sy=1.05, sz=0.45))
+        for side in (-1, 1):
+            emit(spike((side * r * 0.3, y, r * 0.6), (side * r * 0.3, y - 0.4, r * 1.05), 0.25, 4), g, "Scale")
+    g = "Head"
+    emit(ball(1.4, 12, 7, seed=79), g, "Scale", at(0, 0.6, 0.2, sx=1.0, sy=1.3, sz=0.6))
+    emit(ball(1.0, 10, 6), g, "Scale", at(0, 2.7, 0.15, sx=0.85, sy=1.8, sz=0.35))  # the upper jaw
+    emit(ball(0.95, 10, 6), g, "ScaleBelly", at(0, 2.6, -0.45, sx=0.8, sy=1.7, sz=0.3))  # the lower jaw
+    for k in range(7):
+        y = 1.6 + k * 0.45
+        for side in (-1, 1):
+            emit(spike((side * 0.6, y, -0.1), (side * 0.62, y, -0.55), 0.09, 4), g, "Bone")
+    for side in (-1, 1):
+        emit(ball(0.28, 6, 4), g, "Eye", at(side * 0.7, 0.9, 0.85))
+
+
+# --- zone 5: Emberflow and the Obsidian Rifts (the Ember Watch) ------------------------------
+
+
+def cinder_imp():
+    """A Cinder Imp about 4 tall: a lump of cooled lava with a black crust cracked
+    over glowing magma, stubby horns, long arms and a grin of fire. It hops up
+    off the lava onto the deck (boarder)."""
+    g = "Body"
+    emit(ball(1.3, 10, 7, seed=81, rough=0.12), g, "Cinder", at(0, 0, 1.7, sz=1.25))
+    emit(ball(0.95, 10, 6, seed=82), g, "Magma", at(0, 0.45, 1.5, sx=0.8, sy=0.6, sz=0.9))  # the glowing belly
+    for side in (-1, 1):
+        emit(spike((side * 0.55, 0.1, 3.0), (side * 1.0, -0.2, 4.2), 0.32, 5), g, "Cinder")  # horns
+        emit(ball(0.2, 6, 4), g, "Magma", at(side * 0.45, 1.1, 2.4))  # eyes
+        emit(taper((side * 1.1, 0.2, 2.2), (side * 1.9, 0.9, 0.8), 0.3, 0.2, 5), g, "Cinder")  # arms
+        emit(taper((side * 0.6, 0, 0.8), (side * 0.75, 0.3, 0.05), 0.38, 0.3, 5), g, "Cinder")  # legs
+    emit(ball(0.55, 8, 4), g, "Magma", at(0, 1.2, 1.9, sx=1.2, sy=0.3, sz=0.35))  # the grin
+
+
+def magma_salamander(n=7):
+    """A Magma Salamander about 20 long: a black-crusted body split along the back
+    by a seam of glowing magma, splayed legs, a flat head with ember eyes. It
+    crawls out of the lava and seizes one of the crew (grabber)."""
+    for i in range(1, n + 1):
+        r = 1.5 - i * 0.13
+        y = -2.4 * i
+        g = "Seg%d" % i
+        emit(ball(r, 10, 6, seed=90 + i, rough=0.08), g, "Cinder", at(0, y, 0, sx=1.25, sy=1.1, sz=0.7))
+        emit(ball(r * 0.4, 8, 4), g, "Magma", at(0, y, r * 0.5, sx=0.6, sy=2.4, sz=0.5))
+        if i in (1, 4):
+            for side in (-1, 1):
+                emit(taper((side * r, y, -0.2), (side * (r + 1.6), y + 0.6, -r), 0.35, 0.25, 5), g, "Cinder")
+    g = "Head"
+    emit(ball(1.5, 12, 7, seed=99, rough=0.06), g, "Cinder", at(0, 0.8, 0, sx=1.1, sy=1.4, sz=0.6))
+    emit(ball(0.8, 8, 4), g, "Magma", at(0, 2.4, -0.25, sx=1.2, sy=0.6, sz=0.25))  # a glowing mouth
+    for side in (-1, 1):
+        emit(ball(0.3, 6, 4), g, "Magma", at(side * 0.8, 1.2, 0.7))
+
+
+# --- zone 6: the Heartstone Ruins and the Core Approach (the Heart Keepers) -------------------
+
+
+def ashwisp():
+    """An Ashwisp about 4 tall: a scrap of the dark between the Core's breaths,
+    shed by the Hollow. A hooded wisp of shadow trailing off into tatters, two
+    pale points for eyes. It drifts down onto the deck and drinks the light
+    (boarder)."""
+    g = "Body"
+    emit(ball(1.2, 12, 8, seed=111, rough=0.05), g, "Wisp", at(0, 0, 3.0, sz=1.15))
+    bm = bmesh.new()
+    rnd = random.Random(112)
+    sides, rows = 10, 4
+    rings = []
+    for i in range(rows + 1):
+        t = i / rows
+        r = 1.15 + t * 0.5
+        z = 2.6 - t * 2.4
+        ring = []
+        for j in range(sides):
+            a = j / sides * math.tau
+            zz = z + (rnd.uniform(0.2, 0.8) if (i == rows and j % 2 == 0) else 0)
+            ring.append(bm.verts.new((math.cos(a) * r, math.sin(a) * r, zz)))
+        rings.append(ring)
+    for i in range(rows):
+        for j in range(sides):
+            bm.faces.new((rings[i][j], rings[i][(j + 1) % sides], rings[i + 1][(j + 1) % sides], rings[i + 1][j]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.1)
+    emit(bm, g, "Wisp")
+    for side in (-1, 1):
+        emit(ball(0.16, 6, 4), g, "Ember", at(side * 0.4, 1.05, 3.1))
+
+
+def temple_guardian(n=5):
+    """A Temple Guardian: a stone Keeper statue that wakes and reaches for the
+    crew. Its great stone arm unfolds in gold-banded segments from the temple
+    wall; the hand is a three-fingered stone fist (grabber)."""
+    for i in range(1, n + 1):
+        r = 1.5 - i * 0.12
+        y = -2.6 * i
+        g = "Seg%d" % i
+        bm = cyl(r, 2.3, 8)
+        emit(bm, g, "Statue", at(0, y, 0, rx=math.pi / 2))
+        emit(cyl(r * 1.08, 0.4, 8), g, "Gold", at(0, y + 1.0, 0, rx=math.pi / 2))
+    g = "Head"
+    emit(ball(1.4, 10, 6), g, "Statue", at(0, 0.6, 0, sx=1.2, sy=1.1, sz=0.9))  # the palm
+    emit(cyl(1.5, 0.4, 8), g, "Gold", at(0, -0.4, 0, rx=math.pi / 2))
+    for k in (-1, 0, 1):
+        base = Vector((k * 0.75, 1.6, 0.2))
+        emit(taper(base, base + Vector((k * 0.15, 1.5, -0.6)), 0.38, 0.3, 6), g, "Statue")
+        emit(taper(base + Vector((k * 0.15, 1.5, -0.6)), base + Vector((k * 0.2, 2.1, -1.7)), 0.3, 0.24, 6), g, "Statue")
+    emit(taper((1.3, 0.8, 0.1), (1.9, 1.9, -0.6), 0.36, 0.28, 6), g, "Statue")  # the thumb
+
+
+CREATURES = {"Cragskitter": cragskitter, "Burrowmaw": burrowmaw, "Hollow": hollow, "Puffcap": puffcap, "LanternEel": lantern_eel, "Shardback": shardback, "TunnelMole": tunnel_mole, "BoneCrab": bone_crab, "Snapjaw": snapjaw, "CinderImp": cinder_imp, "MagmaSalamander": magma_salamander, "Ashwisp": ashwisp, "TempleGuardian": temple_guardian}
 BUDGET = 2000  # one grabber at a time on screen
 
 
