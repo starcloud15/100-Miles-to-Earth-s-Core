@@ -29,6 +29,31 @@ function Art.icon(name: string): string?
 	return id
 end
 
+function Art.music(name: string): string?
+	local id = Art.get("music", name)
+	if not id and game:GetService("RunService"):IsStudio() then
+		return "rbxasset://mcpsync/music/" .. name .. ".ogg"
+	end
+	return id
+end
+
+-- a looping music track for this player, faded in; returns it to fade or swap
+function Art.playMusic(name: string, volume: number?): Sound?
+	local id = Art.music(name)
+	if not id then
+		return nil
+	end
+	local s = Instance.new("Sound")
+	s.Name = "Music_" .. name
+	s.SoundId = id
+	s.Looped = true
+	s.Volume = 0
+	s.Parent = game:GetService("SoundService")
+	s:Play()
+	game:GetService("TweenService"):Create(s, TweenInfo.new(2), { Volume = volume or 0.35 }):Play()
+	return s
+end
+
 function Art.sound(name: string): string?
 	local id = Art.get("sounds", name)
 	if not id and game:GetService("RunService"):IsStudio() then

@@ -20,4 +20,6 @@ mkdir -p "$studio/content/mcpsync/icons"
 cp assets/ui/icons/*.png "$studio/content/mcpsync/icons/"
 mkdir -p "$studio/content/mcpsync/sfx"
 cp assets/audio/sfx/*.ogg "$studio/content/mcpsync/sfx/" 2>/dev/null || true
+mkdir -p "$studio/content/mcpsync/music"
+cp assets/audio/music/*.ogg "$studio/content/mcpsync/music/" 2>/dev/null || true
 echo "synced to $studio/content/mcpsync"

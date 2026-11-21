@@ -770,6 +770,11 @@ do
 	local drillSound: Sound? = nil
 	local cave = Sfx.loop("Cave", workspace.CurrentCamera, 0.25)
 	local lastPhase = state:GetAttribute("Phase")
+	-- music: the descent theme, crossfading to the night theme at camp
+	local Art = require(Shared.Art)
+	local TweenService = game:GetService("TweenService")
+	local dayMusic = Art.playMusic("Descent", 0.3)
+	local nightMusic: Sound? = nil
 	RunService.Heartbeat:Connect(function()
 		local d = deck()
 		if d and not drillSound then
@@ -791,6 +796,17 @@ do
 		if phase ~= lastPhase then
 			if phase == "Night" then
 				Sfx.play("Night", 0.7)
+				nightMusic = nightMusic or Art.playMusic("Night", 0.35)
+				if dayMusic then
+					TweenService:Create(dayMusic, TweenInfo.new(2.5), { Volume = 0 }):Play()
+				end
+			elseif lastPhase == "Night" then
+				if nightMusic then
+					TweenService:Create(nightMusic, TweenInfo.new(2.5), { Volume = 0 }):Play()
+				end
+				if dayMusic then
+					TweenService:Create(dayMusic, TweenInfo.new(2.5), { Volume = 0.3 }):Play()
+				end
 			end
 			lastPhase = phase
 		end

@@ -75,6 +75,9 @@ local toast = Ui.text({ Parent = gui, Text = "", AnchorPoint = Vector2.new(0.5, 
 
 Panels.init(gui)
 
+-- Topside Camp's theme
+require(Shared.Art).playMusic("Camp", 0.35)
+
 -- profile ----------------------------------------------------------------------
 local profile
 local function apply(p)
