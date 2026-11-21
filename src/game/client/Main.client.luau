@@ -192,9 +192,15 @@ local function promptFor(p: Player): BillboardGui?
 	return bb
 end
 
+-- Push Off is a paid product: until it has a product id it only works in Studio
+local pushOffSold = Config.PushOff.PRODUCT_ID ~= 0 or RunService:IsStudio()
+
 local function updatePushPrompts()
 	local r = root()
 	pushTarget = nil
+	if not pushOffSold then
+		return
+	end
 	local look = camera.CFrame.LookVector
 	local bestScore = 0.4
 	for _, p in Players:GetPlayers() do
@@ -290,7 +296,16 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 		shake(1)
 		Hud.toast("BREAKTHROUGH!", Color3.fromRGB(255, 214, 40), 1.2)
 	elseif kind == "ZoneComplete" then
-		Hud.stopName("ZONE COMPLETE!")
+		if (state:GetAttribute("Zone") or 1) >= #Config.ZONES then
+			-- the finale: 100 miles down
+			Hud.stopName("YOU REACHED THE CORE!")
+			shake(1.5)
+			task.delay(3, function()
+				Hud.toast("100 miles down! Your next descent starts from the surface.", Color3.fromRGB(255, 214, 40), 5)
+			end)
+		else
+			Hud.stopName("ZONE COMPLETE!")
+		end
 	elseif kind == "PushOffDone" then
 		if data.target ~= player.DisplayName then
 			Hud.toast(data.by .. " pushed " .. data.target .. " off!", Ui.PURPLE, 2)

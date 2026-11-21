@@ -42,8 +42,9 @@ local function bank(player: Player)
 				-- the Core: the descent is done; the next run starts from the top again
 				p.coreTimes += 1
 				p.save = nil
-			else
+			elseif not p.save or (tonumber(p.save.zone) or 0) <= zone then
 				-- saved at the Waystation: the next run starts the next zone
+				-- (never moving a deeper save backwards)
 				p.save = { mile = Config.zoneStart(zone + 1), zone = zone + 1 }
 			end
 		end
@@ -96,7 +97,12 @@ function Progress.init(theRig, theState, theWorld)
 		local zone = state:GetAttribute("Zone") or 1
 		for _, player in Players:GetPlayers() do
 			Data.update(player, function(p)
-				p.save = { mile = math.floor(mile * 10 + 0.5) / 10, zone = zone }
+				-- (a mid-zone save never moves a deeper one backwards)
+				local cur = p.save
+				local cz, cm = cur and tonumber(cur.zone) or 0, cur and tonumber(cur.mile) or 0
+				if cz < zone or (cz == zone and cm <= mile) then
+					p.save = { mile = math.floor(mile * 10 + 0.5) / 10, zone = zone }
+				end
 			end)
 			task.spawn(Data.save, player)
 		end

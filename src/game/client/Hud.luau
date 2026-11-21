@@ -155,7 +155,9 @@ local function build()
 	pos, size, anchor = at(0.955, 0.962, 0.071, 0.04)
 	local hint = Ui.new("Frame", { Name = "Hint", BackgroundColor3 = Color3.fromRGB(20, 20, 22), BackgroundTransparency = 0.25, Position = pos, Size = size, AnchorPoint = anchor, Parent = gui }, { Ui.corner(UDim.new(0.2, 0)) })
 	local cap = Ui.new("Frame", { BackgroundColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.05, 0.12), Size = UDim2.fromScale(0.38, 0.76), Parent = hint }, { Ui.corner(UDim.new(0.25, 0)) })
-	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Click", FontFace = Ui.FONT, TextScaled = true, TextColor3 = BLACK, Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Parent = cap })
+	local UIS = game:GetService("UserInputService")
+	local touch = UIS.TouchEnabled and not UIS.KeyboardEnabled
+	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = touch and "Tap" or "Click", FontFace = Ui.FONT, TextScaled = true, TextColor3 = BLACK, Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Parent = cap })
 	el.hintVerb = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Crank", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.47, 0.12), Size = UDim2.fromScale(0.5, 0.76), Parent = hint })
 	el.hint = hint
 
@@ -427,7 +429,8 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 
 	-- speedometer: only while aboard and moving
 	el.speedo.Visible = riding
-	el.turbo.Visible = riding
+	-- (TURBO is a paid boost that isn't for sale yet: hidden until it is)
+	el.turbo.Visible = false
 	local mph = (state:GetAttribute("Speed") or 0) * Config.MPH_PER_STUD
 	el.mph.Text = tostring(math.floor(mph + 0.5))
 	local litTicks = math.floor(math.clamp(mph / 60, 0, 1) * #el.ticks + 0.5)

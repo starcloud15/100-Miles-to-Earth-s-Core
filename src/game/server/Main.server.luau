@@ -104,6 +104,15 @@ if not RunService:IsStudio() then
 		end
 		task.wait(attempt)
 	end
+	if type(data) ~= "table" then
+		-- (the run settings didn't come through: carry on from the first player's
+		-- own save rather than throwing them back to zone 1)
+		local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+		local prof = require(ReplicatedStorage.Shared.Data).load(first)
+		if prof and prof.save then
+			data = { zone = prof.save.zone, mile = prof.save.mile }
+		end
+	end
 else
 	local first = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 	data = first:GetJoinData().TeleportData
