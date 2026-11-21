@@ -260,7 +260,10 @@ end
 local function vein(model: Model, cf: CFrame, w: number, h: number, rng: Random, big: boolean?): Model
 	-- a glowstone vein: amber crystals bursting out of a wall
 	local side = rng:NextNumber() < 0.5 and -1 or 1
-	local base = cf * CFrame.new(side * (w / 2 - 0.5), rng:NextNumber(3, h * 0.6), rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(side * 70))
+	-- (the big ones at stops are the ones you mine: chest height, so nobody has to
+	-- jump for them (owner); the small glints along tunnels can sit higher)
+	local y = big and rng:NextNumber(1.5, 4.5) or rng:NextNumber(3, h * 0.6)
+	local base = cf * CFrame.new(side * (w / 2 - 0.5), y, rng:NextNumber(-8, 8)) * CFrame.Angles(0, 0, math.rad(side * 70))
 	return glowVein(model, base, rng, big and 1.2 or 0.75, big and 24 or 18, big and "Vein" or "Glow")
 end
 

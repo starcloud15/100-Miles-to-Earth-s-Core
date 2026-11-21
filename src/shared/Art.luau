@@ -20,7 +20,13 @@ function Art.get(group: string, name: string): string?
 end
 
 function Art.icon(name: string): string?
-	return Art.get("icons", name)
+	local id = Art.get("icons", name)
+	if not id and game:GetService("RunService"):IsStudio() then
+		-- (Studio, before Starport has uploaded it: the local file, which
+		-- tools/sync/build.sh copies into Studio's content folder)
+		return "rbxasset://mcpsync/icons/" .. name .. ".png"
+	end
+	return id
 end
 
 function Art.sound(name: string): string?

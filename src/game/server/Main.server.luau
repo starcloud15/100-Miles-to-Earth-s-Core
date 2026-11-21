@@ -239,6 +239,23 @@ if RunService:IsStudio() then
 	end)
 end
 
+-- Streaming: the world is carved as the rig goes, and Roblox streams newly made
+-- terrain to players too slowly on its own: the rig looked like it was floating
+-- (owner). Keep asking for the ground at the rig and just ahead of it.
+local streamAcc = 0
+local function streamAhead()
+	local at = { rig.deck.Position, route:sample(rig.s + 150).Position }
+	for _, player in Players:GetPlayers() do
+		task.spawn(function()
+			for _, pos in at do
+				pcall(function()
+					player:RequestStreamAroundAsync(pos, 2)
+				end)
+			end
+		end)
+	end
+end
+
 local acc, lightAcc = 0, 0
 local wasMoving = false
 RunService.Heartbeat:Connect(function(dt)
@@ -267,6 +284,11 @@ RunService.Heartbeat:Connect(function(dt)
 		publish()
 		hookBeacons()
 		Progress.step()
+	end
+	streamAcc += dt
+	if streamAcc > 1 then
+		streamAcc = 0
+		streamAhead()
 	end
 	lightAcc += dt
 	if lightAcc > 0.15 then

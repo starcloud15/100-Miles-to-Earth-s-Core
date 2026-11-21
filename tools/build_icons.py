@@ -28,18 +28,15 @@ OUT = os.path.join(ROOT, "assets", "ui", "icons")
 T = "Totally/"
 # slot -> (file in the pack, effect, effect args)
 PACK_ICONS = {
-    "Glowstone": (T + "Png - 2023-11-07T192311.035.png", "glow", (255, 200, 60)),
     "GlowstoneVein": ("Rhos/Materials/Ore/Ore Topaz Outline 256.png", None, None),
     "Rock": ("Rhos/Materials/Rock/Rock Outline 256.png", None, None),
     "Deepstone": (T + "Png (58).png", None, None),
-    "Pickaxe": (T + "Png - 2023-11-07T192257.371.png", None, None),
     "Journal": (T + "Png (48).png", None, None),
     "Invite": (T + "Png (31).png", None, None),
     "Badges": (T + "Png - 2023-11-07T192029.906.png", "redto", 212),
     "Turbo": (T + "Png - 2023-11-07T191818.699.png", "whiteto", 22),
     "Day": (T + "Png (12).png", None, None),
     "Night": ("Rhos/Nature/Moon/Moon Outline 256.png", None, None),
-    "Bag": (T + "Png (96).png", None, None),
     "Health": (T + "Png (16).png", None, None),
     "Hunger": (T + "Png - 2023-11-07T191224.548.png", None, None),
     "BoostCrystal": (T + "Png - 2023-11-07T191930.223.png", None, None),
@@ -51,7 +48,12 @@ PACK_ICONS = {
     "CaveStew": ("Rhos/Holiday/Cauldron/Cauldron Outline 256.png", "greento", 28),
     "Revive": ("Rhos/Items/Medpack/Medpack Outline 256.png", None, None),
 }
-OWN_ICONS = ["DelversHook", "Crank", "GlowMole"]
+OWN_ICONS = ["GlowMole"]
+# item icons (finds, Glowstone, Bag, the hand tools) are 3D renders in the
+# reference's style: tools/build_item_icons.py owns those
+from build_item_icons import ITEM_ICONS  # noqa: E402
+# ONLY=Name1,Name2 rebuilds just those (so unchanged icons aren't uploaded again)
+ONLY = set(filter(None, os.environ.get("ONLY", "").split(",")))
 
 BROWSERS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -145,30 +147,41 @@ def browser():
 def build_own(exe, name, tmp, size=256):
     with open(os.path.join(OWN_DIR, name + ".svg"), encoding="utf-8") as f:
         svg = f.read()
-    html = os.path.join(tmp, "icon.html")
+    html = os.path.join(tmp, name + ".html")  # (one each: Chrome may read it after we've moved on)
     with open(html, "w", encoding="utf-8") as f:
         f.write('<!doctype html><html><head><style>html,body{margin:0;background:transparent}'
                 'svg{display:block;width:%dpx;height:%dpx}</style></head><body>%s</body></html>' % (size, size, svg))
     subprocess.run([exe, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
                     "--default-background-color=00000000", "--window-size=%d,%d" % (size, size),
-                    "--user-data-dir=" + os.path.join(tmp, "profile"),
+                    "--user-data-dir=" + os.path.join(tmp, "profile_" + name),  # (one each: Chrome keeps a profile locked a moment after it exits)
                     "--screenshot=" + os.path.join(OUT, name + ".png"), "file:///" + html.replace("\\", "/")],
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
+    # (Chrome can hand the screenshot off and return before it's on disk)
+    import time
+    for _ in range(100):
+        if os.path.isfile(os.path.join(OUT, name + ".png")):
+            return
+        time.sleep(0.1)
+    raise RuntimeError("Chrome didn't write " + name)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    keep = set(PACK_ICONS) | set(OWN_ICONS)
+    keep = set(PACK_ICONS) | set(OWN_ICONS) | set(ITEM_ICONS)
     for f in os.listdir(OUT):
         if f.endswith(".png") and os.path.splitext(f)[0] not in keep:
             os.remove(os.path.join(OUT, f))
             print("removed", f)
     for name, (rel, effect, arg) in PACK_ICONS.items():
+        if ONLY and name not in ONLY:
+            continue
         build_pack(name, rel, effect, arg)
         print("pack", name)
     exe = browser()
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         for name in OWN_ICONS:
+            if ONLY and name not in ONLY:
+                continue
             build_own(exe, name, tmp)
             print("own ", name)
 

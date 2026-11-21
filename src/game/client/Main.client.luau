@@ -56,6 +56,12 @@ end
 -- tools ------------------------------------------------------------------------------
 local delving = nil -- { bite = time } while the hook is in the rock
 local held: string? = nil
+local heldTool: Tool? = nil
+local Finds = require(Shared.Finds)
+local Hotbar = require(script.Parent:WaitForChild("Hotbar"))
+local Pops = require(script.Parent:WaitForChild("Pops"))
+Hotbar.init()
+Pops.init()
 
 local function nearestVein(): Model?
 	local r = root()
@@ -68,7 +74,7 @@ local function nearestVein(): Model?
 	if m and m.Name == "Vein" then
 		return m
 	end
-	local best, bestD = nil, 16
+	local best, bestD = nil, 18
 	for _, v in workspace:WaitForChild("Cavern"):GetDescendants() do
 		if v:IsA("Model") and v.Name == "Vein" and v.PrimaryPart then
 			local d = (v.PrimaryPart.Position - r.Position).Magnitude
@@ -108,10 +114,9 @@ local function activate(tool: Tool)
 				Net.Delve:FireServer("cast")
 			end)
 		end
-	elseif tool.Name == "Food" then
-		if (player:GetAttribute("RawFinds") or 0) > 0 then
-			playMove("Eat")
-		end
+	elseif tool:GetAttribute("Find") then
+		-- a find: eat one
+		playMove("Eat")
 		Net.Eat:FireServer()
 	end
 end
@@ -126,10 +131,12 @@ local function hookTool(tool: Instance)
 	end)
 	tool.Equipped:Connect(function()
 		held = tool.Name
+		heldTool = tool
 	end)
 	tool.Unequipped:Connect(function()
 		if held == tool.Name then
 			held = nil
+			heldTool = nil
 		end
 	end)
 end
@@ -261,7 +268,12 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 	elseif kind == "Toast" then
 		Hud.toast(tostring(data), Ui.ORANGE, 2)
 	elseif kind == "Mined" then
-		Hud.toast("+" .. tostring(data) .. " glowstone", Color3.fromRGB(255, 210, 80), 0.6)
+		-- glowstone bursts out of the vein, bounces, and flies into your Bag
+		if type(data) == "table" and typeof(data.at) == "Vector3" then
+			Pops.burst("Glowstone", data.at, data.n or 1, function()
+				Hotbar.bagPop("Glowstone", 1)
+			end)
+		end
 	elseif kind == "Fed" then
 		Hud.toast("+0.1x", Color3.fromRGB(255, 214, 40), 0.6)
 	elseif kind == "Cast" then
@@ -275,15 +287,29 @@ Net.Notify.OnClientEvent:Connect(function(kind: string, data: any)
 		end)
 	elseif kind == "DelveResult" then
 		delving = nil
-		if data == "catch" then
-			Hud.toast("You dug up a find!", Ui.GREEN, 1.4)
+		if type(data) == "table" and data.result == "catch" then
+			-- the find pops off the hook and flies into its hotbar slot
+			local f = Finds.BY_ID[data.find]
+			local r = root()
+			local from = typeof(data.at) == "Vector3" and data.at or (r and r.Position + r.CFrame.LookVector * 6)
+			if f and from then
+				Pops.burst(f.id, from, 1, function()
+					Hotbar.bump(f.id)
+				end)
+				Hud.toast((f.rare and "RARE! " or "") .. "You reeled up a " .. f.name .. "!", f.rare and Color3.fromRGB(255, 214, 40) or Ui.GREEN, 1.6)
+			end
 		elseif data == "early" then
 			Hud.toast("Too early", Color3.new(1, 1, 1), 1)
 		else
 			Hud.toast("It slipped away", Color3.new(1, 1, 1), 1)
 		end
 	elseif kind == "Ate" then
-		Hud.toast("+" .. tostring(data) .. "% Hunger", Ui.GREEN, 1)
+		local n = type(data) == "table" and data.hunger or data
+		Hud.toast("+" .. tostring(n) .. "% Hunger", Ui.GREEN, 1)
+	elseif kind == "PickedUp" then
+		local f = Finds.BY_ID[data]
+		Hotbar.bump(data)
+		Hud.toast("Picked up " .. (f and f.name or "a find"), Ui.GREEN, 1)
 	elseif kind == "Pulse" then
 		-- zone 6: the Core's light comes in beats
 		if data == "Fading" then
@@ -533,14 +559,98 @@ RunService.RenderStepped:Connect(function(dt)
 		rigScreen = rigScreen,
 		onScreen = onScreen,
 	})
+	-- (the RIG marker itself moves every frame: below)
 	-- the action hint follows the tool in your hand
-	local verbs = { ["Crank Pump"] = "Crank", Pickaxe = "Mine", ["Delver's Hook"] = delving and "Reel" or "Cast", Food = "Eat" }
-	Hud.setHint(held and verbs[held] or nil)
+	local verbs = { ["Crank Pump"] = "Crank", Pickaxe = "Mine", ["Delver's Hook"] = delving and "Reel" or "Cast" }
+	local holdingFind = heldTool ~= nil and heldTool.Parent ~= nil and heldTool:GetAttribute("Find") ~= nil
+	Hud.setHint(holdingFind and "Eat" or (held and verbs[held] or nil), holdingFind)
 	updatePushPrompts()
 end)
 
 -- creatures on the rig and their SPAM! buttons
 require(script.Parent:WaitForChild("Creatures")).init({ deck = deck, shake = shake, toast = Hud.toast })
+
+-- the RIG marker: placed every frame after the camera moves, with the distance
+-- measured here (the server's figure only updates a few times a second: it lagged)
+RunService:BindToRenderStep("RigMarker", Enum.RenderPriority.Camera.Value + 1, function(dt)
+	local d = deck()
+	local r = root()
+	if not d or not r then
+		Hud.marker(nil, false, 0)
+		return
+	end
+	local v, vis = camera:WorldToViewportPoint(d.Position + Vector3.new(0, 6, 0))
+	if v.Z < 0 then
+		v = Vector3.new(camera.ViewportSize.X - v.X, camera.ViewportSize.Y * 0.85, v.Z)
+		vis = false
+	end
+	local studs = (r.Position - d.Position).Magnitude
+	Hud.marker(v, vis, math.floor(studs / Config.STUDS_PER_METRE), studs, dt)
+end)
+
+-- G drops one of the find in your hand (on phones: a Drop button while holding one)
+ContextActionService:BindAction("DropFind", function(_, st)
+	if st == Enum.UserInputState.Begin and heldTool and heldTool.Parent == player.Character and heldTool:GetAttribute("Find") then
+		Net.Drop:FireServer()
+		return Enum.ContextActionResult.Sink
+	end
+	return Enum.ContextActionResult.Pass
+end, false, Enum.KeyCode.G)
+
+-- a dropped find's pickup card, at the top of the screen like the reference's:
+-- [E] the name, COMMON / RARE, and what it is
+do
+	local ProximityPromptService = game:GetService("ProximityPromptService")
+	local cardGui = Ui.new("ScreenGui", { Name = "PickupCard", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 6, Parent = player:WaitForChild("PlayerGui") })
+	local card = Ui.new("TextButton", { Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(14, 14, 16), BackgroundTransparency = 0.08, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 108), Size = UDim2.fromOffset(440, 74), Visible = false, Parent = cardGui }, { Ui.corner(UDim.new(0, 14)) })
+	local key = Ui.new("Frame", { BackgroundColor3 = Color3.new(0, 0, 0), Position = UDim2.fromOffset(-14, 14), Size = UDim2.fromOffset(46, 46), Parent = card }, { Ui.corner(UDim.new(0.5, 0)), Ui.stroke(3, Color3.new(1, 1, 1), true) })
+	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "E", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Size = UDim2.fromScale(0.6, 0.6), Position = UDim2.fromScale(0.2, 0.2), Parent = key })
+	local name = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.fromRGB(140, 255, 120), Position = UDim2.fromOffset(44, 8), Size = UDim2.new(1, -150, 0, 28), TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
+	local rare = Ui.new("TextLabel", { FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(0, 0, 0), AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(92, 22), Parent = card }, { Ui.corner(UDim.new(0.4, 0)), Ui.stroke(2, Color3.new(0, 0, 0), true) })
+	local desc = Ui.new("TextLabel", { BackgroundTransparency = 1, FontFace = Ui.FONT, TextScaled = true, TextWrapped = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromOffset(44, 38), Size = UDim2.new(1, -58, 0, 28), TextXAlignment = Enum.TextXAlignment.Left, Parent = card })
+	Ui.fit(cardGui)
+	local current: ProximityPrompt? = nil
+	ProximityPromptService.PromptShown:Connect(function(prompt)
+		local f = Finds.BY_ID[prompt:GetAttribute("Find") or ""]
+		if not f then
+			return
+		end
+		current = prompt
+		name.Text = f.name
+		rare.Text = f.rare and "RARE" or "COMMON"
+		rare.BackgroundColor3 = f.rare and Color3.fromRGB(255, 196, 40) or Color3.fromRGB(110, 220, 110)
+		desc.Text = f.desc
+		card.Visible = true
+	end)
+	ProximityPromptService.PromptHidden:Connect(function(prompt)
+		if prompt == current then
+			current = nil
+			card.Visible = false
+		end
+	end)
+	-- (on a phone, tap the card)
+	card.Activated:Connect(function()
+		if current then
+			current:InputHoldBegin()
+			task.wait()
+			if current then
+				current:InputHoldEnd()
+			end
+		end
+	end)
+	-- dropped finds bob gently
+	RunService.RenderStepped:Connect(function()
+		local t = os.clock()
+		for _, d in workspace:GetChildren() do
+			if d.Name == "DroppedFind" then
+				local g = d:FindFirstChild("Icon") :: BillboardGui?
+				if g then
+					g.StudsOffset = Vector3.new(0, 1.1 + math.sin(t * 2.4 + d.Position.X) * 0.25, 0)
+				end
+			end
+		end
+	end)
+end
 
 -- every player's Delver's Hook, cast out on its line
 require(script.Parent:WaitForChild("Hook")).init(deck)

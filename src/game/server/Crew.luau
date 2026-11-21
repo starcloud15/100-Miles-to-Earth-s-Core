@@ -19,6 +19,8 @@ local Config = require(Shared.Config)
 local Net = require(Shared.Net)
 local Art = require(Shared.Art)
 local Pulses = require(script.Parent.Pulses)
+local Items = require(script.Parent.Items)
+local Finds = require(Shared.Finds)
 
 local Crew = {}
 
@@ -84,7 +86,6 @@ local TOOL_MODELS = {
 	["Crank Pump"] = { file = "CrankPump", grip = CFrame.new(0, -0.3, 0) * FACE, paint = { Handle = WOOD_DARK, Arm = BRASS, Elbow = BRASS, Gear = STEEL, Hub = STEEL_DARK } },
 	Pickaxe = { file = "Pickaxe", grip = CFrame.new(0, -1.4, 0) * FACE, paint = { Handle = WOOD, Grip = WOOD_DARK, Head = STEEL, Binding = BRASS } },
 	["Delver's Hook"] = { file = "DelversHook", grip = CFrame.new(0, -1.2, 0) * FACE * CFrame.Angles(math.rad(40), 0, 0), paint = { Handle = WOOD, Grip = ROPE, Reel = BRASS, Tip = BRASS, TipArm = BRASS, Line = ROPE, Hook = STEEL, Barb = STEEL, Glow = GLOW } },
-	Food = { file = "FindPouch", grip = FACE, paint = { Handle = CLOTH, Neck = CLOTH, Tie = ROPE, Find = GLOW } },
 }
 
 local function toolModel(file: string): Model?
@@ -150,7 +151,8 @@ local function giveTools(player: Player)
 	makeTool("Crank Pump", "Crank", "Click to crank your side's tread").Parent = backpack
 	makeTool("Pickaxe", "Pickaxe", "Click a glowstone vein to mine it").Parent = backpack
 	makeTool("Delver's Hook", "DelversHook", "Click to cast into the rock, then reel at the tug").Parent = backpack
-	makeTool("Food", "CaveStew", "Click to eat").Parent = backpack
+	-- (your finds come back with you: Items keeps them)
+	Items.sync(player)
 end
 
 local function onCharacter(player: Player, char: Model)
@@ -223,12 +225,22 @@ end
 
 function Crew.init(theRig, theRoute, theState, theWorld)
 	rig, route, state, World = theRig, theRoute, theState, theWorld
+	Items.init({
+		makeTool = makeTool,
+		registerModel = function(name, def)
+			TOOL_MODELS[name] = def
+		end,
+		notify = notify,
+		rig = rig,
+	})
+	Net.Drop.OnServerEvent:Connect(function(player)
+		Items.drop(player)
+	end)
 
 	local function added(player: Player)
 		info[player] = { off = false, s = rig.s, lastCrank = 0, lastMine = 0, pushedAt = -10, cast = nil }
 		player:SetAttribute("Glowstone", 0)
 		player:SetAttribute("Hunger", 100)
-		player:SetAttribute("RawFinds", 0)
 		player:SetAttribute("Behind", -1)
 		player.CharacterAdded:Connect(function(char)
 			onCharacter(player, char)
@@ -273,13 +285,13 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 		end
 		local now = os.clock()
 		local pp = vein.PrimaryPart
-		if now - i.lastMine < 0.3 or not pp or (pp.Position - root.Position).Magnitude > 16 then
+		if now - i.lastMine < 0.3 or not pp or (pp.Position - root.Position).Magnitude > 20 then
 			return
 		end
 		i.lastMine = now
 		local hp = (vein:GetAttribute("HP") or 12) - 2
 		player:SetAttribute("Glowstone", (player:GetAttribute("Glowstone") or 0) + 2)
-		notify(player, "Mined", 2)
+		notify(player, "Mined", { n = 2, at = pp.Position })
 		if hp <= 0 then
 			World.removeVein(vein)
 		else
@@ -356,20 +368,26 @@ function Crew.init(theRig, theRoute, theState, theWorld)
 			elseif now > c.bite + 1.2 then
 				notify(player, "DelveResult", "late")
 			else
-				player:SetAttribute("RawFinds", (player:GetAttribute("RawFinds") or 0) + 1)
-				notify(player, "DelveResult", "catch")
+				-- a find of this zone (sometimes its rare one), into your inventory
+				local f = Finds.roll(state:GetAttribute("Zone") or 1, Random.new())
+				Items.give(player, f.id)
+				local at = player:GetAttribute("HookAt")
+				if typeof(at) == "Vector3" and player:GetAttribute("HookRig") then
+					at = rig.deck.CFrame:PointToWorldSpace(at)
+				end
+				notify(player, "DelveResult", { result = "catch", find = f.id, at = typeof(at) == "Vector3" and at or nil })
 			end
 		end
 	end)
 
+	-- eat one of the find in your hand
 	Net.Eat.OnServerEvent:Connect(function(player)
-		local raw = player:GetAttribute("RawFinds") or 0
-		if raw > 0 then
-			player:SetAttribute("RawFinds", raw - 1)
-			addHunger(player, Config.Survival.RAW_FIND)
+		local f = Items.held(player)
+		if f and Items.take(player, f.id) then
+			addHunger(player, f.hunger)
 			player:SetAttribute("Exposure", math.max(0, (player:GetAttribute("Exposure") or 0) - Config.Temperature.EAT))
-			notify(player, "Ate", Config.Survival.RAW_FIND)
-		else
+			notify(player, "Ate", { hunger = f.hunger, find = f.id })
+		elseif Items.total(player) == 0 then
 			notify(player, "Toast", "No food! Cast your Delver's Hook into the rock")
 		end
 	end)

@@ -161,11 +161,14 @@ local function build()
 	el.hintVerb = Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Crank", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.47, 0.12), Size = UDim2.fromScale(0.5, 0.76), Parent = hint })
 	el.hint = hint
 
-	-- glowstone you carry, beside the hotbar (the reference's bag count)
-	local glow = frame({ Name = "Glowstone", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.fromScale(0.38, 0.955), Size = UDim2.fromScale(0.08, 0.05) })
-	Ui.icon("Glowstone", { Parent = glow, Size = UDim2.fromScale(0.42, 1) })
-	el.glow = italic({ Parent = glow, Text = "x0", Position = UDim2.fromScale(0.45, 0.1), Size = UDim2.fromScale(0.55, 0.8), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2.5 })
-	el.food = italic({ Parent = gui, Text = "", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0.62, 0.955), Size = UDim2.fromScale(0.08, 0.035), TextXAlignment = Enum.TextXAlignment.Left, Stroke = 2.5 })
+	-- (glowstone and finds live in the hotbar now: client/Hotbar.luau)
+	-- the second hint, "G Drop", while you hold a find (like the reference's food)
+	pos, size, anchor = at(0.955, 0.912, 0.071, 0.04)
+	local drop = Ui.new("Frame", { Name = "DropHint", BackgroundColor3 = Color3.fromRGB(20, 20, 22), BackgroundTransparency = 0.25, Position = pos, Size = size, AnchorPoint = anchor, Visible = false, Parent = gui }, { Ui.corner(UDim.new(0.2, 0)) })
+	local dcap = Ui.new("Frame", { BackgroundColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.05, 0.12), Size = UDim2.fromScale(0.38, 0.76), Parent = drop }, { Ui.corner(UDim.new(0.25, 0)) })
+	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "G", FontFace = Ui.FONT, TextScaled = true, TextColor3 = BLACK, Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), Parent = dcap })
+	Ui.new("TextLabel", { BackgroundTransparency = 1, Text = "Drop", FontFace = Ui.FONT, TextScaled = true, TextColor3 = Color3.new(1, 1, 1), Position = UDim2.fromScale(0.47, 0.12), Size = UDim2.fromScale(0.5, 0.76), Parent = drop })
+	el.dropHint = drop
 
 	-- boarding: BOARD THE RIG! / LEAVING IN 30 / ALL ABOARD! ---------------------------------
 	pos, size, anchor = at(0.5, 0.10, 0.35, 0.06)
@@ -320,11 +323,12 @@ function Hud.pulledBack()
 	end)
 end
 
-function Hud.setHint(verb: string?)
+function Hud.setHint(verb: string?, canDrop: boolean?)
 	el.hint.Visible = verb ~= nil
 	if verb then
 		el.hintVerb.Text = verb
 	end
+	el.dropHint.Visible = canDrop == true and not (game:GetService("UserInputService").TouchEnabled and not game:GetService("UserInputService").KeyboardEnabled)
 end
 
 local lastTenth, compact = -1, false
@@ -343,6 +347,43 @@ local function setCompact(on: boolean)
 		TweenService:Create(el.badge, info, { Position = el.badgeHome.pos, Size = el.badgeHome.size }):Play()
 		el.miles.TextColor3 = Color3.new(1, 1, 1)
 	end
+end
+
+-- the RIG marker, every frame (Main binds it after the camera): clamped to the
+-- screen edge when the rig is off-screen
+local markerWanted = false
+local behindWarn = false
+local behindShown = 0
+function Hud.marker(v: Vector3?, onScreen: boolean, metres: number, studs: number?, dt: number?)
+	if not el.marker then
+		return
+	end
+	-- DON'T GET LEFT BEHIND!: the bar fills smoothly with your own distance from
+	-- the rig, every frame (owner: it jumped when it followed the server's figure)
+	if behindWarn and studs then
+		local C = Config.Crew
+		local target = math.clamp((studs - C.WARN_STUDS) / C.PULL_STUDS, 0, 1)
+		behindShown += (target - behindShown) * math.min(1, (dt or 1 / 60) * 10)
+		el.behindFill.Size = UDim2.fromScale(behindShown, 1)
+		el.behindSub.Text = behindShown > 0.8 and "The dig will drag you back!" or "Slide back to the rig"
+		for _, g in el.vignette:GetChildren() do
+			g.BackgroundTransparency = 0.6 - behindShown * 0.5
+		end
+	elseif not behindWarn then
+		behindShown = 0
+	end
+	local show = markerWanted and v ~= nil
+	el.marker.Visible = show
+	if not show then
+		return
+	end
+	local cam = workspace.CurrentCamera.ViewportSize
+	local x, y = (v :: Vector3).X / cam.X, (v :: Vector3).Y / cam.Y
+	if not onScreen then
+		x, y = math.clamp(x, 0.05, 0.95), math.clamp(y, 0.15, 0.9)
+	end
+	el.marker.Position = UDim2.fromScale(x, y)
+	el.markerDist.Text = metres .. "m"
 end
 
 function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigDistance: number, rigScreen: Vector3?, onScreen: boolean })
@@ -423,9 +464,6 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 		el.temp.BackgroundColor3 = e >= 1 and Color3.fromRGB(255, 40, 40) or temp.color
 		el.temp.Size = UDim2.fromScale(math.clamp(e, 0, 1), 1)
 	end
-	el.glow.Text = "x" .. tostring(player:GetAttribute("Glowstone") or 0)
-	local finds = player:GetAttribute("RawFinds") or 0
-	el.food.Text = finds > 0 and ("Finds x" .. finds) or ""
 
 	-- speedometer: only while aboard and moving
 	el.speedo.Visible = riding
@@ -484,29 +522,13 @@ function Hud.update(state: Instance, me: { aboard: boolean, behind: number, rigD
 	el.behindBar.Visible = warn
 	el.behindSub.Visible = warn
 	el.vignette.Visible = warn
-	if warn then
-		el.behindFill.Size = UDim2.fromScale(behind, 1)
-		el.behindSub.Text = behind > 0.8 and "The dig will drag you back!" or "Slide back to the rig"
-		for _, v in el.vignette:GetChildren() do
-			v.BackgroundTransparency = 0.6 - behind * 0.5
-		end
-	end
+	behindWarn = warn
+	-- (the fill itself slides every frame in Hud.marker)
 
 	-- the RIG marker, clamped to the screen edge when the rig is off-screen
-	local showMarker = (warn or leaving) and me.rigScreen ~= nil
-	el.marker.Visible = showMarker
-	if showMarker then
-		local v = me.rigScreen :: Vector3
-		local cam = workspace.CurrentCamera.ViewportSize
-		local x, y = v.X / cam.X, v.Y / cam.Y
-		if not me.onScreen then
-			x, y = math.clamp(x, 0.05, 0.95), math.clamp(y, 0.15, 0.9)
-		end
-		el.marker.Position = UDim2.fromScale(x, y)
-		el.markerDist.Text = me.rigDistance .. "m"
-		el.markerSecsBox.Visible = leaving
-		el.markerSecs.Text = count .. "s"
-	end
+	markerWanted = (warn or leaving) == true
+	el.markerSecsBox.Visible = leaving
+	el.markerSecs.Text = count .. "s"
 
 	-- the night
 	local isNight = phase == "Night"

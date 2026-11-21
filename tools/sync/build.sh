@@ -15,4 +15,7 @@ for d in "$base"/Roblox/Versions/*/; do [ -f "$d/RobloxStudioBeta.exe" ] && stud
 [ -n "$studio" ] || { echo "Roblox Studio not found"; exit 1; }
 mkdir -p "$studio/content/mcpsync"
 cp build/*.sync.rbxm "$studio/content/mcpsync/"
+# icons not uploaded yet, so Studio can show them (Art.icon falls back to these)
+mkdir -p "$studio/content/mcpsync/icons"
+cp assets/ui/icons/*.png "$studio/content/mcpsync/icons/"
 echo "synced to $studio/content/mcpsync"

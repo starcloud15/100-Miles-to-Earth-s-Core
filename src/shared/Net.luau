@@ -16,7 +16,8 @@ local EVENTS = {
 	"Shove", -- server -> client: launch your own character (velocity)
 	"Mine", -- client -> server: hit a glowstone vein at a stop (vein model)
 	"Delve", -- client -> server: "cast" or "reel" the Delver's Hook
-	"Eat", -- client -> server: eat a find
+	"Eat", -- client -> server: eat one of the find in your hand
+	"Drop", -- client -> server: drop one of the find in your hand (G)
 	-- Topside Camp
 	"PartyPrompt", -- server -> client: you stepped into an empty bay (bay name)
 	"PartyCreate", -- client -> server: make the party (size, friendsOnly)
